@@ -25,10 +25,3 @@ This is the primary schema file for the LLM-managed Wiki. The wiki files are loc
 3. **Lint**:
    - Check for contradictions, stale claims, or orphan pages in `homework-1/wiki/`.
    - Suggest updates or perform automatic cleanup.
-
-## Agent-Specific Instructions
-Depending on which LLM you are using, consult the appropriate sub-schema for specific capabilities and workflows:
-
-- [Gemini / Antigravity Instructions](./GEMINI.md)
-- [Claude Instructions](./CLAUDE.md)
-- [Codex Instructions](./CODEX.md)
