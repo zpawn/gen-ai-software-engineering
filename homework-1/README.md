@@ -1,7 +1,7 @@
 # 🏦 Homework 1: Banking Transactions API
 
-> **Student Name**: [Your Name]
-> **Date Submitted**: [Date]
+> **Student Name**: ilia makarov
+> **Date Submitted**: 27.06.2026
 > **AI Tools Used**: Antigravity (Gemini / Claude) AI coding assistant
 
 ---
