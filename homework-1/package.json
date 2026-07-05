@@ -1,0 +1,32 @@
+{
+  "name": "banking-transactions-api",
+  "version": "1.0.0",
+  "description": "Simple Banking Transactions REST API built with Fastify, TypeScript, and SQLite",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "tsx src/server.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:seed": "tsx src/db/seed.ts"
+  },
+  "keywords": [
+    "banking",
+    "api",
+    "fastify",
+    "typescript",
+    "sqlite"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "better-sqlite3": "^12.11.1",
+    "drizzle-orm": "^0.45.2",
+    "fastify": "^5.8.5"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^26.0.1",
+    "drizzle-kit": "^0.31.10",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3"
+  }
+}
