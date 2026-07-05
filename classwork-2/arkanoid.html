@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>8-BIT ARKANOID</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    height: 100%;
+    background: #0a0a1a;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: "Courier New", monospace;
+    color: #f8f8f8;
+    image-rendering: pixelated;
+  }
+  h1 {
+    font-size: 24px;
+    letter-spacing: 4px;
+    color: #ffd700;
+    text-shadow: 3px 3px 0 #b8860b;
+    margin-bottom: 12px;
+  }
+  #wrap {
+    border: 4px solid #f8f8f8;
+    box-shadow: 0 0 0 4px #0a0a1a, 0 0 0 8px #f8f8f8;
+    background: #000;
+  }
+  canvas {
+    display: block;
+    image-rendering: pixelated;
+  }
+  #info {
+    margin-top: 14px;
+    font-size: 13px;
+    letter-spacing: 2px;
+    color: #8a8aff;
+    text-align: center;
+    line-height: 1.6;
+  }
+  .key {
+    color: #ffd700;
+  }
+</style>
+</head>
+<body>
+  <h1>ARKANOID</h1>
+  <div id="wrap">
+    <canvas id="game" width="240" height="280"></canvas>
+  </div>
+  <div id="info">
+    <span class="key">&larr; &rarr;</span> / <span class="key">A D</span> — рух ракетки<br>
+    <span class="key">SPACE</span> — запуск м'яча / рестарт
+  </div>
+
+<script>
+const cv = document.getElementById('game');
+const ctx = cv.getContext('2d');
+const W = cv.width, H = cv.height;
+
+// ---- 8-bit palette ----
+const PAL = ['#e63946','#f4a261','#e9c46a','#2a9d8f','#4361ee','#9d4edd'];
+
+// ---- game constants ----
+const COLS = 8, ROWS = 5;
+const BRICK_W = 26, BRICK_H = 12, BRICK_GAP = 2;
+const BRICK_TOP = 24, BRICK_LEFT = (W - (COLS*(BRICK_W+BRICK_GAP)-BRICK_GAP))/2;
+const PADDLE_W = 44, PADDLE_H = 6, PADDLE_Y = H - 18;
+const BALL_R = 3;
+
+let paddle, ball, bricks, score, lives, state; // state: ready | play | over | win
+const keys = {};
+
+function reset(full) {
+  paddle = { x: (W - PADDLE_W)/2, speed: 3.5 };
+  resetBall();
+  if (full) {
+    score = 0;
+    lives = 3;
+    buildBricks();
+  }
+  state = 'ready';
+}
+
+function resetBall() {
+  ball = { x: W/2, y: PADDLE_Y - BALL_R - 1, vx: 0, vy: 0, speed: 2.4 };
+}
+
+function buildBricks() {
+  bricks = [];
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      bricks.push({
+        x: BRICK_LEFT + c*(BRICK_W+BRICK_GAP),
+        y: BRICK_TOP + r*(BRICK_H+BRICK_GAP),
+        color: PAL[r % PAL.length],
+        alive: true
+      });
+    }
+  }
+}
+
+// ---- input ----
+document.addEventListener('keydown', e => {
+  keys[e.key.toLowerCase()] = true;
+  if (e.key === ' ') {
+    e.preventDefault();
+    if (state === 'ready') launch();
+    else if (state === 'over' || state === 'win') reset(true);
+  }
+});
+document.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
+
+function launch() {
+  ball.vx = ball.speed * (Math.random() < 0.5 ? -1 : 1) * 0.6;
+  ball.vy = -ball.speed;
+  state = 'play';
+}
+
+// ---- update ----
+function update() {
+  const left = keys['arrowleft'] || keys['a'];
+  const right = keys['arrowright'] || keys['d'];
+  if (left)  paddle.x -= paddle.speed;
+  if (right) paddle.x += paddle.speed;
+  paddle.x = Math.max(0, Math.min(W - PADDLE_W, paddle.x));
+
+  if (state === 'ready') {
+    ball.x = paddle.x + PADDLE_W/2;
+    ball.y = PADDLE_Y - BALL_R - 1;
+    return;
+  }
+  if (state !== 'play') return;
+
+  ball.x += ball.vx;
+  ball.y += ball.vy;
+
+  // walls
+  if (ball.x - BALL_R < 0) { ball.x = BALL_R; ball.vx *= -1; }
+  if (ball.x + BALL_R > W) { ball.x = W - BALL_R; ball.vx *= -1; }
+  if (ball.y - BALL_R < 0) { ball.y = BALL_R; ball.vy *= -1; }
+
+  // paddle
+  if (ball.vy > 0 &&
+      ball.y + BALL_R >= PADDLE_Y &&
+      ball.y + BALL_R <= PADDLE_Y + PADDLE_H &&
+      ball.x >= paddle.x && ball.x <= paddle.x + PADDLE_W) {
+    ball.y = PADDLE_Y - BALL_R;
+    ball.vy = -Math.abs(ball.vy);
+    // angle by hit position
+    const hit = (ball.x - (paddle.x + PADDLE_W/2)) / (PADDLE_W/2);
+    ball.vx = hit * ball.speed;
+  }
+
+  // bricks
+  for (const b of bricks) {
+    if (!b.alive) continue;
+    if (ball.x + BALL_R > b.x && ball.x - BALL_R < b.x + BRICK_W &&
+        ball.y + BALL_R > b.y && ball.y - BALL_R < b.y + BRICK_H) {
+      b.alive = false;
+      score += 10;
+      // reflect off nearest side
+      const overlapX = Math.min(ball.x + BALL_R - b.x, b.x + BRICK_W - (ball.x - BALL_R));
+      const overlapY = Math.min(ball.y + BALL_R - b.y, b.y + BRICK_H - (ball.y - BALL_R));
+      if (overlapX < overlapY) ball.vx *= -1; else ball.vy *= -1;
+      break;
+    }
+  }
+
+  // fall below
+  if (ball.y - BALL_R > H) {
+    lives--;
+    if (lives <= 0) state = 'over';
+    else { resetBall(); state = 'ready'; }
+  }
+
+  // win
+  if (bricks.every(b => !b.alive)) state = 'win';
+}
+
+// ---- draw ----
+function px(x, y, w, h, color) { ctx.fillStyle = color; ctx.fillRect(x|0, y|0, w, h); }
+
+function draw() {
+  px(0, 0, W, H, '#000');
+
+  // bricks
+  for (const b of bricks) {
+    if (!b.alive) continue;
+    px(b.x, b.y, BRICK_W, BRICK_H, b.color);
+    px(b.x, b.y, BRICK_W, 2, '#ffffff55');           // top highlight
+    px(b.x, b.y + BRICK_H - 2, BRICK_W, 2, '#00000055'); // bottom shadow
+  }
+
+  // paddle
+  px(paddle.x, PADDLE_Y, PADDLE_W, PADDLE_H, '#f8f8f8');
+  px(paddle.x, PADDLE_Y, PADDLE_W, 2, '#ffffff');
+
+  // ball
+  px(ball.x - BALL_R, ball.y - BALL_R, BALL_R*2, BALL_R*2, '#ffd700');
+
+  // HUD
+  ctx.fillStyle = '#8a8aff';
+  ctx.font = '10px "Courier New", monospace';
+  ctx.textAlign = 'left';
+  ctx.fillText('SCORE ' + String(score).padStart(4, '0'), 4, 12);
+  ctx.textAlign = 'right';
+  ctx.fillText('LIVES ' + lives, W - 4, 12);
+
+  // overlays
+  ctx.textAlign = 'center';
+  if (state === 'ready') {
+    ctx.fillStyle = '#ffd700';
+    ctx.fillText('PRESS SPACE', W/2, H/2 + 40);
+  } else if (state === 'over') {
+    ctx.fillStyle = '#e63946';
+    ctx.font = '16px "Courier New", monospace';
+    ctx.fillText('GAME OVER', W/2, H/2);
+    ctx.fillStyle = '#8a8aff';
+    ctx.font = '10px "Courier New", monospace';
+    ctx.fillText('SPACE = RESTART', W/2, H/2 + 20);
+  } else if (state === 'win') {
+    ctx.fillStyle = '#2a9d8f';
+    ctx.font = '16px "Courier New", monospace';
+    ctx.fillText('YOU WIN!', W/2, H/2);
+    ctx.fillStyle = '#8a8aff';
+    ctx.font = '10px "Courier New", monospace';
+    ctx.fillText('SPACE = RESTART', W/2, H/2 + 20);
+  }
+}
+
+function loop() {
+  update();
+  draw();
+  requestAnimationFrame(loop);
+}
+
+reset(true);
+loop();
+</script>
+</body>
+</html>

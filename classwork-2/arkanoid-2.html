@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>8-Bit Arkanoid</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #101018;
+      color: #f7f7f7;
+      font-family: "Courier New", Courier, monospace;
+      image-rendering: pixelated;
+    }
+
+    .screen {
+      width: min(100vw, 520px);
+      padding: 18px;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 14px;
+      color: #ffd23f;
+      font-size: 28px;
+      letter-spacing: 4px;
+      text-shadow: 3px 3px 0 #b05d00;
+    }
+
+    .cabinet {
+      display: inline-block;
+      border: 6px solid #f7f7f7;
+      background: #05050a;
+      box-shadow:
+        0 0 0 5px #292942,
+        0 14px 0 #05050a,
+        0 22px 24px rgba(0, 0, 0, 0.45);
+    }
+
+    canvas {
+      display: block;
+      width: min(88vw, 384px);
+      height: auto;
+      background: #05050a;
+      image-rendering: pixelated;
+    }
+
+    .help {
+      margin-top: 18px;
+      color: #9ee6ff;
+      font-size: 14px;
+      line-height: 1.7;
+      letter-spacing: 1px;
+    }
+
+    .key {
+      color: #ffd23f;
+    }
+  </style>
+</head>
+<body>
+  <main class="screen">
+    <h1>ARKANOID</h1>
+
+    <div class="cabinet">
+      <canvas id="game" width="256" height="320" aria-label="8-bit Arkanoid game"></canvas>
+    </div>
+
+    <p class="help">
+      <span class="key">LEFT / RIGHT</span> or <span class="key">A / D</span> to move<br>
+      <span class="key">SPACE</span> to launch or restart
+    </p>
+  </main>
+
+  <script>
+    const canvas = document.querySelector("#game");
+    const ctx = canvas.getContext("2d");
+
+    const WIDTH = canvas.width;
+    const HEIGHT = canvas.height;
+
+    const colors = {
+      bg: "#05050a",
+      wall: "#dff6ff",
+      text: "#9ee6ff",
+      gold: "#ffd23f",
+      red: "#ff4d6d",
+      orange: "#ff9f1c",
+      green: "#2ec4b6",
+      blue: "#4ea8de",
+      purple: "#9b5de5",
+      white: "#f7f7f7",
+      shadow: "rgba(0, 0, 0, 0.35)"
+    };
+
+    const brickColors = [
+      colors.red,
+      colors.orange,
+      colors.gold,
+      colors.green,
+      colors.blue,
+      colors.purple
+    ];
+
+    const keys = new Set();
+    const brickRows = 6;
+    const brickCols = 8;
+    const brickGap = 3;
+    const brickWidth = 26;
+    const brickHeight = 12;
+    const brickLeft = 17;
+    const brickTop = 44;
+
+    const paddle = {
+      x: WIDTH / 2 - 26,
+      y: HEIGHT - 28,
+      width: 52,
+      height: 7,
+      speed: 4
+    };
+
+    const ball = {
+      x: WIDTH / 2,
+      y: paddle.y - 5,
+      size: 6,
+      dx: 0,
+      dy: 0,
+      speed: 2.8
+    };
+
+    let bricks = [];
+    let score = 0;
+    let lives = 3;
+    let mode = "ready";
+
+    function rect(x, y, width, height, color) {
+      ctx.fillStyle = color;
+      ctx.fillRect(Math.round(x), Math.round(y), Math.round(width), Math.round(height));
+    }
+
+    function text(value, x, y, size, color, align = "center") {
+      ctx.fillStyle = color;
+      ctx.font = `${size}px "Courier New", monospace`;
+      ctx.textAlign = align;
+      ctx.textBaseline = "middle";
+      ctx.fillText(value, Math.round(x), Math.round(y));
+    }
+
+    function makeBricks() {
+      bricks = [];
+
+      for (let row = 0; row < brickRows; row += 1) {
+        for (let col = 0; col < brickCols; col += 1) {
+          bricks.push({
+            x: brickLeft + col * (brickWidth + brickGap),
+            y: brickTop + row * (brickHeight + brickGap),
+            width: brickWidth,
+            height: brickHeight,
+            color: brickColors[row],
+            alive: true
+          });
+        }
+      }
+    }
+
+    function resetBall() {
+      ball.x = paddle.x + paddle.width / 2 - ball.size / 2;
+      ball.y = paddle.y - ball.size - 2;
+      ball.dx = 0;
+      ball.dy = 0;
+    }
+
+    function resetGame() {
+      score = 0;
+      lives = 3;
+      mode = "ready";
+      paddle.x = WIDTH / 2 - paddle.width / 2;
+      makeBricks();
+      resetBall();
+    }
+
+    function launchBall() {
+      if (mode !== "ready") {
+        return;
+      }
+
+      const direction = Math.random() > 0.5 ? 1 : -1;
+      ball.dx = ball.speed * 0.7 * direction;
+      ball.dy = -ball.speed;
+      mode = "play";
+    }
+
+    function circleBoxCollision(box) {
+      return ball.x < box.x + box.width &&
+        ball.x + ball.size > box.x &&
+        ball.y < box.y + box.height &&
+        ball.y + ball.size > box.y;
+    }
+
+    function movePaddle() {
+      if (keys.has("ArrowLeft") || keys.has("a")) {
+        paddle.x -= paddle.speed;
+      }
+
+      if (keys.has("ArrowRight") || keys.has("d")) {
+        paddle.x += paddle.speed;
+      }
+
+      paddle.x = Math.max(4, Math.min(WIDTH - paddle.width - 4, paddle.x));
+    }
+
+    function updateBall() {
+      if (mode === "ready") {
+        resetBall();
+        return;
+      }
+
+      if (mode !== "play") {
+        return;
+      }
+
+      ball.x += ball.dx;
+      ball.y += ball.dy;
+
+      if (ball.x <= 4) {
+        ball.x = 4;
+        ball.dx *= -1;
+      }
+
+      if (ball.x + ball.size >= WIDTH - 4) {
+        ball.x = WIDTH - ball.size - 4;
+        ball.dx *= -1;
+      }
+
+      if (ball.y <= 22) {
+        ball.y = 22;
+        ball.dy *= -1;
+      }
+
+      if (circleBoxCollision(paddle) && ball.dy > 0) {
+        const paddleCenter = paddle.x + paddle.width / 2;
+        const ballCenter = ball.x + ball.size / 2;
+        const offset = (ballCenter - paddleCenter) / (paddle.width / 2);
+
+        ball.y = paddle.y - ball.size;
+        ball.dx = offset * ball.speed * 1.25;
+        ball.dy = -ball.speed;
+      }
+
+      for (const brick of bricks) {
+        if (!brick.alive || !circleBoxCollision(brick)) {
+          continue;
+        }
+
+        brick.alive = false;
+        score += 10;
+
+        const fromLeft = ball.x + ball.size - brick.x;
+        const fromRight = brick.x + brick.width - ball.x;
+        const fromTop = ball.y + ball.size - brick.y;
+        const fromBottom = brick.y + brick.height - ball.y;
+        const minOverlap = Math.min(fromLeft, fromRight, fromTop, fromBottom);
+
+        if (minOverlap === fromLeft || minOverlap === fromRight) {
+          ball.dx *= -1;
+        } else {
+          ball.dy *= -1;
+        }
+
+        break;
+      }
+
+      if (ball.y > HEIGHT) {
+        lives -= 1;
+
+        if (lives <= 0) {
+          mode = "game-over";
+        } else {
+          mode = "ready";
+          resetBall();
+        }
+      }
+
+      if (bricks.every((brick) => !brick.alive)) {
+        mode = "win";
+      }
+    }
+
+    function update() {
+      movePaddle();
+      updateBall();
+    }
+
+    function drawHud() {
+      text(`SCORE ${String(score).padStart(4, "0")}`, 10, 12, 10, colors.text, "left");
+      text(`LIVES ${lives}`, WIDTH - 10, 12, 10, colors.text, "right");
+    }
+
+    function drawWalls() {
+      rect(0, 20, 4, HEIGHT - 20, colors.wall);
+      rect(WIDTH - 4, 20, 4, HEIGHT - 20, colors.wall);
+      rect(0, 20, WIDTH, 4, colors.wall);
+    }
+
+    function drawBricks() {
+      for (const brick of bricks) {
+        if (!brick.alive) {
+          continue;
+        }
+
+        rect(brick.x, brick.y, brick.width, brick.height, brick.color);
+        rect(brick.x, brick.y, brick.width, 2, "rgba(255,255,255,0.45)");
+        rect(brick.x, brick.y + brick.height - 2, brick.width, 2, colors.shadow);
+      }
+    }
+
+    function drawPaddle() {
+      rect(paddle.x, paddle.y, paddle.width, paddle.height, colors.white);
+      rect(paddle.x + 4, paddle.y - 2, paddle.width - 8, 2, colors.gold);
+      rect(paddle.x, paddle.y + paddle.height - 2, paddle.width, 2, "#b8c0cc");
+    }
+
+    function drawBall() {
+      rect(ball.x, ball.y, ball.size, ball.size, colors.gold);
+      rect(ball.x + 1, ball.y + 1, 2, 2, "#fff7ad");
+    }
+
+    function drawOverlay() {
+      if (mode === "ready") {
+        text("PRESS SPACE", WIDTH / 2, HEIGHT / 2 + 48, 12, colors.gold);
+        return;
+      }
+
+      if (mode === "game-over") {
+        text("GAME OVER", WIDTH / 2, HEIGHT / 2, 18, colors.red);
+        text("SPACE TO RESTART", WIDTH / 2, HEIGHT / 2 + 24, 11, colors.text);
+        return;
+      }
+
+      if (mode === "win") {
+        text("YOU WIN", WIDTH / 2, HEIGHT / 2, 18, colors.green);
+        text("SPACE TO RESTART", WIDTH / 2, HEIGHT / 2 + 24, 11, colors.text);
+      }
+    }
+
+    function draw() {
+      rect(0, 0, WIDTH, HEIGHT, colors.bg);
+      drawHud();
+      drawWalls();
+      drawBricks();
+      drawPaddle();
+      drawBall();
+      drawOverlay();
+    }
+
+    function loop() {
+      update();
+      draw();
+      requestAnimationFrame(loop);
+    }
+
+    document.addEventListener("keydown", (event) => {
+      keys.add(event.key);
+
+      if (event.key.length === 1) {
+        keys.add(event.key.toLowerCase());
+      }
+
+      if (event.code === "Space") {
+        event.preventDefault();
+
+        if (mode === "game-over" || mode === "win") {
+          resetGame();
+        } else {
+          launchBall();
+        }
+      }
+    });
+
+    document.addEventListener("keyup", (event) => {
+      keys.delete(event.key);
+
+      if (event.key.length === 1) {
+        keys.delete(event.key.toLowerCase());
+      }
+    });
+
+    resetGame();
+    loop();
+  </script>
+</body>
+</html>
