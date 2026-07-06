@@ -1,0 +1,20 @@
+<tickets>
+  <ticket>
+    <customer_id>cust-xml-1</customer_id>
+    <customer_email>xml1@example.com</customer_email>
+    <customer_name>XML User 1</customer_name>
+    <subject>Production down</subject>
+    <description>The production down issue is blocking all users.</description>
+    <tags><tag>urgent</tag><tag>production</tag></tags>
+    <metadata><source>phone</source><browser>unknown</browser><device_type>desktop</device_type></metadata>
+  </ticket>
+  <ticket>
+    <customer_id>cust-xml-2</customer_id>
+    <customer_email>xml2@example.com</customer_email>
+    <customer_name>XML User 2</customer_name>
+    <subject>Suggestion</subject>
+    <description>Small suggestion to improve the account settings screen.</description>
+    <tags>suggestion,settings</tags>
+    <metadata><source>chat</source><browser>Safari</browser><device_type>mobile</device_type></metadata>
+  </ticket>
+</tickets>

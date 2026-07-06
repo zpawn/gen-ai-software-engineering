@@ -1,0 +1,13 @@
+{
+  "customer_id": "cust-fixture-1",
+  "customer_email": "fixture@example.com",
+  "customer_name": "Fixture User",
+  "subject": "Cannot access account",
+  "description": "I cannot access my account after changing my password.",
+  "tags": ["login", "password"],
+  "metadata": {
+    "source": "web_form",
+    "browser": "Firefox",
+    "device_type": "desktop"
+  }
+}

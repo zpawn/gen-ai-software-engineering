@@ -1,0 +1,6 @@
+customer_id,customer_email,customer_name,subject,description,tags,metadata.source,metadata.browser,metadata.device_type
+cust-csv-1,csv1@example.com,CSV User 1,Cannot access account,I cannot access my account after password reset,login|password,web_form,Firefox,desktop
+cust-csv-2,csv2@example.com,CSV User 2,Invoice refund,Please refund the duplicate invoice charge,billing|refund,email,Chrome,desktop
+cust-csv-3,csv3@example.com,CSV User 3,Mobile app crash,The mobile app crash happens after login,mobile|crash,chat,Safari,mobile
+cust-csv-4,csv4@example.com,CSV User 4,Feature request,Please add saved filters to the ticket list,feature|filters,api,Edge,desktop
+cust-csv-5,csv5@example.com,CSV User 5,Cosmetic issue,Minor cosmetic alignment problem on settings page,minor|ui,web_form,Chrome,desktop
