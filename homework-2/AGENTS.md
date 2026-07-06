@@ -44,3 +44,7 @@ The wiki files are located in the `homework-2/wiki/` directory.
 - Adapt backend examples to tickets, imports, classification, and test/documentation deliverables.
 - Keep frontend documentation intentionally skeletal until a later step defines the Next.js implementation details.
 - Do not treat raw source files as editable working documents.
+
+## Local Skills
+
+- Before starting work, check `.agents/skills/` for skills relevant to the request, read the matching `SKILL.md`, and apply its instructions.

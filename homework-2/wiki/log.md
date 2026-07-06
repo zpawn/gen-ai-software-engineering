@@ -14,3 +14,7 @@ This is the chronological append-only log of changes made to the wiki.
 
 ## [2026-07-05] Ingest | AI tools architecture
 - Created [AI Tools Architecture](./ai-tools-architecture.md) to define wiki operations and AI collaboration rules for this homework.
+
+## [2026-07-07] Synthesis | Full-stack workspace
+- Updated [Architecture](./architecture.md) to reflect the `backend/` and `frontend/` npm workspace layout.
+- Replaced the frontend placeholder with [Frontend Application](./frontend.md), documenting the implemented Next.js support console.

@@ -1,29 +1,37 @@
-# Frontend Shell
+# Frontend Application
 
-This page is a placeholder for the future Next.js frontend architecture. Detailed frontend design will be described in later steps.
+The frontend is implemented as a Next.js application in `frontend/`. It consumes the Fastify REST API from `backend/` and provides the customer support ticket workflows required by the assignment.
 
-## Planned Role
+## Stack
 
-The frontend will consume the backend REST API and provide customer support workflows around tickets.
+- **Framework**: Next.js App Router
+- **Styling**: Tailwind CSS
+- **API base URL**: `NEXT_PUBLIC_API_BASE_URL`, defaulting to `http://localhost:3001/api/v1`
+- **Primary screen**: Support Console dashboard
 
-## Initial Boundaries
+## Implemented Workflows
 
-- Next.js owns routing, page composition, UI state, and API consumption.
-- The REST API owns validation, persistence, import parsing, classification, and business rules.
-- Frontend code should not duplicate backend classification or validation logic beyond user-facing form constraints.
+- Ticket list with filters for category, priority, status, and source.
+- Ticket detail panel with category, priority, source, device, tags, status, and classification reasoning.
+- Create ticket form that calls `POST /api/v1/tickets?auto_classify=true`.
+- Bulk import form for JSON, CSV, and XML content.
+- Auto-classify action using `POST /api/v1/tickets/:id/auto-classify?force=true`.
+- Status update and delete actions.
+- Loading, success, error, and empty states.
 
-## Expected Screens
+## Boundaries
 
-- Ticket list with filters for category, priority, status, and assignee.
-- Ticket detail view with classification result and lifecycle controls.
-- Create/edit ticket form.
-- Bulk import screen for CSV, JSON, and XML.
-- Import summary screen with successful and failed records.
+- The frontend does not duplicate backend classification rules.
+- Backend owns validation, persistence, import parsing, and classification decisions.
+- Frontend performs only user-facing form state management and API orchestration.
 
-## Deferred Decisions
+## Local Development
 
-- App Router versus Pages Router.
-- Component library and styling approach.
-- Client-side data fetching strategy.
-- Authentication and authorization model.
-- Detailed layout, responsive behavior, and accessibility checklist.
+Run the backend and frontend from the repository root:
+
+```bash
+npm run dev:backend
+npm run dev:frontend
+```
+
+The frontend runs on `http://localhost:3000`; the backend API runs on `http://localhost:3001/api/v1`.

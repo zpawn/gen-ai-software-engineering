@@ -1,6 +1,6 @@
 # API Reference
 
-Base URL: `http://localhost:3000/api/v1`
+Base URL: `http://localhost:3001/api/v1`
 
 ## Error Format
 
@@ -24,7 +24,7 @@ Optional fields: `category`, `priority`, `status`, `resolved_at`, `assigned_to`,
 Creates a ticket. Add `?auto_classify=true` to run classification during creation.
 
 ```bash
-curl -X POST http://localhost:3000/api/v1/tickets?auto_classify=true \
+curl -X POST http://localhost:3001/api/v1/tickets?auto_classify=true \
   -H 'Content-Type: application/json' \
   -d @tests/fixtures/ticket.json
 ```
@@ -34,7 +34,7 @@ curl -X POST http://localhost:3000/api/v1/tickets?auto_classify=true \
 Imports CSV, JSON, or XML content. The request body is JSON and contains `format`, `content` or `records`, and optional `auto_classify`.
 
 ```bash
-curl -X POST http://localhost:3000/api/v1/tickets/import \
+curl -X POST http://localhost:3001/api/v1/tickets/import \
   -H 'Content-Type: application/json' \
   -d '{
     "format": "csv",
@@ -60,13 +60,13 @@ Response summary:
 Lists tickets. Supported filters: `category`, `priority`, `status`, `customer_id`, `customer_email`, `assigned_to`, `source`, `tag`.
 
 ```bash
-curl 'http://localhost:3000/api/v1/tickets?category=billing_question&priority=high'
+curl 'http://localhost:3001/api/v1/tickets?category=billing_question&priority=high'
 ```
 
 ### GET /tickets/:id
 
 ```bash
-curl http://localhost:3000/api/v1/tickets/<ticket-id>
+curl http://localhost:3001/api/v1/tickets/<ticket-id>
 ```
 
 ### PUT /tickets/:id
@@ -74,7 +74,7 @@ curl http://localhost:3000/api/v1/tickets/<ticket-id>
 Updates one or more ticket fields. Changing `category` or `priority` marks the ticket as manually overridden.
 
 ```bash
-curl -X PUT http://localhost:3000/api/v1/tickets/<ticket-id> \
+curl -X PUT http://localhost:3001/api/v1/tickets/<ticket-id> \
   -H 'Content-Type: application/json' \
   -d '{ "status": "waiting_customer", "assigned_to": "agent-1" }'
 ```
@@ -82,7 +82,7 @@ curl -X PUT http://localhost:3000/api/v1/tickets/<ticket-id> \
 ### DELETE /tickets/:id
 
 ```bash
-curl -X DELETE http://localhost:3000/api/v1/tickets/<ticket-id>
+curl -X DELETE http://localhost:3001/api/v1/tickets/<ticket-id>
 ```
 
 Returns `204 No Content`.
@@ -92,7 +92,7 @@ Returns `204 No Content`.
 Runs category and priority classification. If the ticket has a manual override, pass `force=true`.
 
 ```bash
-curl -X POST 'http://localhost:3000/api/v1/tickets/<ticket-id>/auto-classify?force=true'
+curl -X POST 'http://localhost:3001/api/v1/tickets/<ticket-id>/auto-classify?force=true'
 ```
 
 ### GET /tickets/:id/classification-log
@@ -100,5 +100,5 @@ curl -X POST 'http://localhost:3000/api/v1/tickets/<ticket-id>/auto-classify?for
 Returns all stored classification decisions for a ticket.
 
 ```bash
-curl http://localhost:3000/api/v1/tickets/<ticket-id>/classification-log
+curl http://localhost:3001/api/v1/tickets/<ticket-id>/classification-log
 ```

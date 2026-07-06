@@ -1,45 +1,43 @@
 # Architecture Overview
 
-This page defines the planned architecture for `homework-2`. The project will include a backend REST API and a frontend built with Next.js.
+This page defines the current architecture for `homework-2`. The project is organized as a full-stack repository with a backend REST API and a frontend built with Next.js.
 
 ## Core Stack
 
 - **Backend runtime**: Node.js 18+
 - **Backend framework**: REST API server, following the same module-oriented MVC structure used in `homework-1`
-- **Frontend framework**: Next.js
+- **Frontend framework**: Next.js App Router with Tailwind CSS
+- **Package layout**: npm workspaces with `backend/` and `frontend/`
 - **Primary domain**: Customer support ticket management, import, validation, auto-classification, and test/documentation generation
 
 ## Backend Architecture
 
-The backend should keep the `homework-1` structure and responsibilities, but replace the banking transaction domain with customer support tickets.
+The backend keeps the `homework-1` structure and responsibilities, but replaces the banking transaction domain with customer support tickets.
 
 ```text
 homework-2/
-└── src/
-    ├── app.ts                         # App factory and middleware registration
-    ├── server.ts                      # Server entry point
-    ├── routes.ts                      # Top-level route registration
-    ├── config/
-    │   └── database.ts                # Database connection and ORM setup
-    ├── modules/
-    │   └── tickets/
-    │       ├── ticket.controller.ts   # HTTP request/response handling
-    │       ├── ticket.routes.ts       # REST endpoint registration
-    │       ├── ticket.schema.ts       # Request, response, import, and filter schemas
-    │       ├── ticket.model.ts        # Persistent ticket model
-    │       ├── ticket.repository.ts   # Data access layer
-    │       ├── ticket.service.ts      # Ticket lifecycle business logic
-    │       ├── ticket.importer.ts     # CSV, JSON, and XML import orchestration
-    │       └── ticket.classifier.ts   # Category/priority classification rules
-    └── shared/
-        ├── constants.ts               # Enums, limits, default values
-        ├── errors.ts                  # Custom error classes
-        └── error-handler.ts           # Central error response mapping
+├── backend/
+│   ├── src/
+│   │   ├── app.ts
+│   │   ├── server.ts
+│   │   ├── routes.ts
+│   │   ├── config/database.ts
+│   │   ├── db/seed.ts
+│   │   ├── modules/tickets/
+│   │   └── shared/
+│   ├── drizzle/
+│   ├── tests/
+│   └── docs/
+└── frontend/
+    ├── src/app/
+    ├── src/components/
+    ├── src/lib/
+    └── src/types/
 ```
 
 ## Backend Module Responsibilities
 
-- **Routes**: Bind endpoints such as `POST /tickets`, `POST /tickets/import`, `GET /tickets`, `GET /tickets/:id`, `PUT /tickets/:id`, `DELETE /tickets/:id`, and `POST /tickets/:id/auto-classify`.
+- **Routes**: Bind endpoints under `/api/v1`, such as `POST /tickets`, `POST /tickets/import`, `GET /tickets`, `GET /tickets/:id`, `PUT /tickets/:id`, `DELETE /tickets/:id`, and `POST /tickets/:id/auto-classify`.
 - **Controller**: Validate request shape, call services, and return HTTP responses with correct status codes.
 - **Service**: Own ticket lifecycle rules, filtering behavior, manual overrides, import summaries, and classification orchestration.
 - **Repository**: Encapsulate persistence and query operations.
@@ -87,17 +85,16 @@ sequenceDiagram
     Controller-->>Client: import summary
 ```
 
-## Frontend Architecture Placeholder
+## Frontend Architecture
 
-The frontend will be a Next.js application that consumes the REST API. Details are intentionally deferred, but the wiki should already reserve space for:
+The frontend is implemented in `frontend/` and consumes the REST API through `NEXT_PUBLIC_API_BASE_URL`, defaulting to `http://localhost:3001/api/v1`.
 
-- Ticket list, filtering, and detail views
-- Create/edit ticket forms
-- Bulk import workflow
-- Auto-classification status and manual override controls
-- API error presentation and loading states
+- `src/app/`: App Router entry points and global CSS.
+- `src/components/ticket-dashboard.tsx`: Main support console with list, filters, create form, import form, ticket detail, classification, status update, and delete actions.
+- `src/lib/api.ts`: REST API client.
+- `src/types/ticket.ts`: Frontend TypeScript contracts for ticket data.
 
-See [Frontend Shell](./frontend.md) for the current placeholder.
+See [Frontend Application](./frontend.md) for the current frontend details.
 
 ## Design Decisions
 
@@ -105,3 +102,4 @@ See [Frontend Shell](./frontend.md) for the current placeholder.
 - Keep import parsing separate from ticket lifecycle services so file-format concerns do not leak into core domain logic.
 - Keep classification separate from controllers and repositories so the rules can later be replaced or expanded.
 - Treat Next.js as a separate application layer that talks to the REST API rather than embedding backend business logic in the frontend.
+- Keep backend and frontend as separate npm workspaces so each layer can evolve independently while sharing one repository.
