@@ -1,0 +1,19 @@
+{
+  "name": "intelligent-customer-support-system",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Full-stack intelligent customer support system with Fastify API and Next.js frontend",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev:backend": "PORT=3001 npm --workspace backend run dev",
+    "dev:frontend": "npm --workspace frontend run dev",
+    "build": "npm --workspace backend run build && npm --workspace frontend run build",
+    "test": "npm --workspace backend test",
+    "test:coverage": "npm --workspace backend run test:coverage",
+    "db:generate": "npm --workspace backend run db:generate",
+    "db:seed": "npm --workspace backend run db:seed --"
+  }
+}
