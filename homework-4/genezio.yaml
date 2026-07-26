@@ -1,0 +1,13 @@
+name: track-wise-rest-api
+region: eu-central-1
+yamlVersion: 2
+services:
+    databases:
+        - name: pg-track-wise
+          type: postgres-neon
+nestjs:
+    path: .
+    packageManager: npm
+    scripts:
+        deploy:
+            - npm install
