@@ -380,8 +380,11 @@ The orchestrator validates every stage before starting the next one:
 8. Git diff contains only mutations allowed by that stage.
 9. No output contains obvious credential formats or values from `.env`.
 
-Validation failure prevents the next stage from starting and returns a
-non-zero pipeline exit code.
+Validation failure prevents the next stage from starting and prints the
+terminal marker `[pipeline] Resolve Issue FAIL`. Native Claude Code slash
+commands do not control the operating-system exit code of a successful
+`claude --print` response, so callers must evaluate this marker rather than
+the CLI process exit code.
 
 ## Failure Rules
 
