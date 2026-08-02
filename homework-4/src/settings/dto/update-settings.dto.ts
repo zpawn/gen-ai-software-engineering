@@ -14,12 +14,15 @@ import { JiraAuthType } from '../settings.constants';
 
 export class UpdateSettingsDto {
   @IsString()
+  @IsOptional()
   aiModel?: string;
 
   @IsString()
+  @IsOptional()
   aiProvider?: string;
 
   @IsString()
+  @IsOptional()
   aiFineTuning?: string;
 
   @IsOptional()
@@ -28,6 +31,7 @@ export class UpdateSettingsDto {
 
   @IsArray()
   @IsString({ each: true })
+  @IsOptional()
   googleCalendars?: string[];
 
   @IsString()

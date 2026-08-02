@@ -20,6 +20,6 @@ export interface ResponseSettingsDto {
     issueKey: string;
     authType: JiraAuthType.BEARER | JiraAuthType.BASIC;
     email: string;
-    apiKey: string;
+    configured: boolean;
   };
 }

@@ -79,7 +79,7 @@ export class SettingsService {
         issueKey: user.jiraSettings?.issueKey || '',
         authType: user.jiraSettings?.authType || JiraAuthType.BEARER,
         email: user.jiraSettings?.email || '',
-        apiKey: user.jiraSettings?.apiKey || '',
+        configured: Boolean(user.jiraSettings?.apiKey),
       },
     };
   }
@@ -94,8 +94,8 @@ export class SettingsService {
         calendarIds: updateDto.googleCalendars || [],
         user: { id: user.id },
       });
-    } else {
-      user.googleCalendarSettings.calendarIds = updateDto.googleCalendars || [];
+    } else if (updateDto.googleCalendars !== undefined) {
+      user.googleCalendarSettings.calendarIds = updateDto.googleCalendars;
     }
 
     await transactionEntityManager.save(
@@ -118,11 +118,18 @@ export class SettingsService {
         user: { id: user.id },
       });
     } else {
-      user.aiSettings.llm = updateDto.aiModel || '';
-      user.aiSettings.provider = updateDto.aiProvider || '';
-      user.aiSettings.fineTuning = updateDto.aiFineTuning || '';
-      user.aiSettings.summaryLevel =
-        updateDto.aiSummaryLevel || SummaryLevel.MEDIUM;
+      if (updateDto.aiModel !== undefined) {
+        user.aiSettings.llm = updateDto.aiModel;
+      }
+      if (updateDto.aiProvider !== undefined) {
+        user.aiSettings.provider = updateDto.aiProvider;
+      }
+      if (updateDto.aiFineTuning !== undefined) {
+        user.aiSettings.fineTuning = updateDto.aiFineTuning;
+      }
+      if (updateDto.aiSummaryLevel !== undefined) {
+        user.aiSettings.summaryLevel = updateDto.aiSummaryLevel;
+      }
     }
 
     await transactionEntityManager.save(AISettings, user.aiSettings);
@@ -143,12 +150,21 @@ export class SettingsService {
         user: { id: user.id },
       });
     } else {
-      user.jiraSettings.apiKey = updateDto.jiraApiKey || '';
-      user.jiraSettings.authType =
-        updateDto.jiraAuthType || JiraAuthType.BEARER;
-      user.jiraSettings.email = updateDto.jiraEmail || '';
-      user.jiraSettings.issueKey = updateDto.jiraIssueKey || '';
-      user.jiraSettings.url = updateDto.jiraUrl || '';
+      if (updateDto.jiraApiKey !== undefined) {
+        user.jiraSettings.apiKey = updateDto.jiraApiKey;
+      }
+      if (updateDto.jiraAuthType !== undefined) {
+        user.jiraSettings.authType = updateDto.jiraAuthType;
+      }
+      if (updateDto.jiraEmail !== undefined) {
+        user.jiraSettings.email = updateDto.jiraEmail;
+      }
+      if (updateDto.jiraIssueKey !== undefined) {
+        user.jiraSettings.issueKey = updateDto.jiraIssueKey;
+      }
+      if (updateDto.jiraUrl !== undefined) {
+        user.jiraSettings.url = updateDto.jiraUrl;
+      }
     }
 
     await transactionEntityManager.save(JiraSettings, user.jiraSettings);
