@@ -16,7 +16,7 @@ layout:
 .claude-plugin/plugin.json
 agents/*.agent.md
 skills/<skill-name>/SKILL.md
-scripts/run-pipeline.mjs
+commands/resolve-issue.md
 ```
 
 Existing third-party skills remain under `.claude/skills/` and continue to be
@@ -32,7 +32,7 @@ placed in `.claude/skills/`.
 | `.claude-plugin/` | Homework | Local plugin manifest |
 | `agents/` | Homework | Six pipeline subagents |
 | `skills/` | Homework | Two required pipeline skills |
-| `scripts/` | Homework | One-command orchestration |
+| `commands/` | Homework | Native Claude Code one-command orchestration |
 | `context/bugs/` | Homework outputs | Scenario inputs and generated reports |
 
 ## Components
@@ -85,11 +85,10 @@ Claude Code's native format. The README will document that mapping.
 
 ### Orchestrator
 
-`scripts/run-pipeline.mjs` will invoke Claude Code non-interactively with
-`claude -p`, load the repository using `--plugin-dir .`, and select each stage
-with its scoped name, for example
-`--agent homework-4-agent-pipeline:research-verifier`. It will not use
-`--bare`, because normal project/plugin discovery is required.
+`commands/resolve-issue.md` is discovered by Claude Code and uses the `Task`
+tool to invoke each stage by its scoped agent type, for example
+`homework-4-agent-pipeline:research-verifier`. It runs inside the active
+Claude Code session loaded with `claude --plugin-dir .`.
 
 ## Data Flow
 

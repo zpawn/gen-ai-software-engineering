@@ -231,7 +231,7 @@ model aliases, Markdown/YAML frontmatter, NestJS 11, Jest 29, TypeScript 5.7.
   Require `fix-summary.md` with `Status: PASS`, baseline SHA, and a valid
   changed-production-file list. Build an exact test-file allowlist from changed
   behavior and existing Jest layout. Permit only `src/**/*.spec.ts` and
-  `test/**/*.ts`; never edit production, reports, agents, skills, or scripts.
+  `test/**/*.ts`; never edit production, reports, agents, skills, or commands.
   Never use Bash to write files.
 
 - [x] **Step 3: Define test generation and execution**

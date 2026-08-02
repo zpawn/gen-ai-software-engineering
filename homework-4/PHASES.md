@@ -13,13 +13,13 @@ Homework files:             Installed third-party skills:
 .claude-plugin/             .claude/skills/
 agents/                     skills-lock.json
 skills/
-scripts/
+commands/
 context/
 ```
 
 - `.claude/skills/` містить стандартні або сторонні skills, встановлені через
   skill installer. Їх не редагує homework pipeline.
-- `.claude-plugin/`, `agents/`, `skills/` і `scripts/` належать домашньому
+- `.claude-plugin/`, `agents/`, `skills/` і `commands/` належать домашньому
   завданню.
 - Repository root завантажується через `claude --plugin-dir .`.
 - Claude Code agents зберігаються як `agents/*.md`.
@@ -39,8 +39,8 @@ context/
 | 4 | Skills | ✅ Виконано |
 | 5 | Bug Researcher і Bug Planner | ✅ Виконано |
 | 6 | Чотири обов'язкові агенти | ✅ Виконано |
-| 7 | One-command orchestrator | ⏭️ Наступна |
-| 8 | Dry run і негативні сценарії | ⬜ Не розпочато |
+| 7 | One-command orchestrator | ✅ Виконано |
+| 8 | Dry run і негативні сценарії | ⏭️ Наступна |
 | 9 | Фінальний запуск pipeline | ⬜ Не розпочато |
 | 10 | Screenshots | ⬜ Не розпочато |
 | 11 | README і HOWTORUN | ⬜ Не розпочато |
@@ -86,12 +86,12 @@ Bug Researcher
 ### Мета
 
 Визначити, що саме буде реально запускати Markdown-агентів. Файли
-`*.agent.md` самі по собі не виконуються, тому потрібен CLI runner та
-orchestrator.
+`*.agent.md` самі по собі не виконуються, тому потрібна нативна Claude Code
+command, яка керує subagents через `Task`.
 
 ### Сабтаски
 
-- Обрати CLI/runner для неінтерактивного запуску агентів.
+- Обрати формат Claude Code plugin command для запуску агентів.
 - Перевірити точний формат agent-файлів і підтримувані model IDs.
 - Визначити спосіб передачі агенту:
   - system/task prompt;
@@ -114,18 +114,18 @@ orchestrator.
 ### Приклад рішення
 
 ```text
-Runner: Claude Code CLI у non-interactive mode (`claude -p`)
-Orchestrator: scripts/run-pipeline.mjs
-Entry point: npm run pipeline
+Runtime: активна Claude Code session
+Orchestrator: commands/resolve-issue.md
+Entry point: /homework-4-agent-pipeline:resolve-issue [scenario-id]
 Plugin loading: claude --plugin-dir .
 Agent definitions: agents/*.agent.md
 Skills: skills/<skill-name>/SKILL.md
-Agent selection: --agent homework-4-agent-pipeline:<agent-name>
+Agent invocation: Task з типом homework-4-agent-pipeline:<agent-name>
 ```
 
 ### Критерії готовності
 
-- Обрано реальний CLI runner.
+- Обрано нативну Claude Code plugin command.
 - Відомий синтаксис явного вибору моделі.
 - Визначені read/write permissions кожної ролі.
 - Зрозуміло, як skill автоматично потрапляє в контекст агента.
@@ -252,7 +252,7 @@ docs(hw4): define settings bug scenario
 ### Сабтаски
 
 - Створити `.claude-plugin/plugin.json` для локального Claude Code plugin.
-- Створити каталоги `agents/`, `skills/`, `scripts/` і `docs/screenshots/`.
+- Створити каталоги `agents/`, `skills/`, `commands/` і `docs/screenshots/`.
 - Не додавати homework agents або skills у `.claude/skills/`.
 - Створити порожній або шаблонний каталог артефактів сценарію.
 - Описати input/output contract кожного pipeline stage.
@@ -300,8 +300,8 @@ homework-4/
 │   │   └── SKILL.md
 │   └── unit-tests-first/
 │       └── SKILL.md
-├── scripts/
-│   └── run-pipeline.mjs
+├── commands/
+│   └── resolve-issue.md
 ├── context/bugs/001-settings-security/
 │   ├── bug-context.md
 │   ├── research/
@@ -590,6 +590,8 @@ agents/unit-test-generator.agent.md
 
 ## Фаза 7. Реалізувати one-command orchestrator
 
+**Статус:** виконано.
+
 ### Мета
 
 Забезпечити повний послідовний запуск без ручного виклику агентів між
@@ -600,45 +602,36 @@ agents/unit-test-generator.agent.md
 Створити:
 
 ```text
-scripts/run-pipeline.mjs
+commands/resolve-issue.md
 ```
 
-Додати до `package.json`:
-
-```json
-{
-  "scripts": {
-    "pipeline": "node scripts/run-pipeline.mjs"
-  }
-}
-```
-
-Orchestrator повинен викликати Claude Code через `claude -p`, завантажувати
-homework plugin через `--plugin-dir .` і вибирати stage через `--agent`.
+Claude Code автоматично знаходить Markdown-команду в plugin-каталозі
+`commands/`. Orchestrator запускається в активній Claude Code session і
+викликає plugin agents через `Task`, без Node.js runner та вкладених
+`claude -p` процесів.
 
 Наприклад:
 
-```bash
-claude -p --plugin-dir . \
-  --agent homework-4-agent-pipeline:research-verifier \
-  "Verify scenario 001"
+```text
+/homework-4-agent-pipeline:resolve-issue
+/homework-4-agent-pipeline:resolve-issue 001-settings-security
 ```
 
 Orchestrator повинен:
 
-1. Перевірити prerequisites, environment і доступність Claude Code CLI.
+1. Перевірити prerequisites, project root і чистий Git state.
 2. Визначити project root і bug scenario.
 3. Зафіксувати початковий git state або baseline reference.
 4. Запустити Bug Researcher.
 5. Перевірити `codebase-research.md`.
-6. Завантажити quality skill і запустити Research Verifier.
+6. Запустити Research Verifier із його автоматично preloaded quality skill.
 7. Зупинитися, якщо verification status — `FAIL`.
 8. Запустити Bug Planner.
 9. Перевірити `implementation-plan.md`.
 10. Запустити Bug Fixer.
 11. Визначити changed production files через git diff.
 12. Запустити Security Verifier лише на changed code.
-13. Завантажити FIRST skill і запустити Unit Test Generator.
+13. Запустити Unit Test Generator із його автоматично preloaded FIRST skill.
 14. Запустити фінальні build і tests.
 15. Надрукувати загальний pipeline summary.
 
@@ -657,7 +650,7 @@ Orchestrator повинен:
 ### Failure behavior
 
 - Відсутній required output → stop.
-- Agent exit code не `0` → stop.
+- Task не повернув валідний report → stop.
 - Research verification `FAIL` → Planner не запускається.
 - Fixer test failure → Security/Test Generator не запускаються.
 - Security agent змінив файл → stage failure.
@@ -676,13 +669,15 @@ Orchestrator повинен:
 
 ### Критерії готовності
 
-- Увесь workflow запускається через `npm run pipeline`.
+- Увесь workflow запускається через
+  `/homework-4-agent-pipeline:resolve-issue`.
 - Немає ручних кроків між stages.
 - Skills завантажуються автоматично.
-- Homework plugin завантажується через `--plugin-dir .`.
+- Homework plugin завантажується через `claude --plugin-dir .` перед викликом
+  slash-команди.
 - Homework components не змішуються з `.claude/skills/`.
 - Pipeline перевіряє outputs і permissions.
-- Помилки мають зрозумілий log та ненульовий exit code.
+- Помилки мають зрозумілий stage result і зупиняють наступні Task calls.
 
 ---
 
@@ -730,10 +725,10 @@ baseline і не створивши неконтрольовані зміни.
 
 - Переконатися, що source знаходиться у documented vulnerable baseline.
 - Переконатися, що немає unrelated uncommitted changes.
-- Запустити:
+- У Claude Code, відкритому через `claude --plugin-dir .`, запустити:
 
-  ```bash
-  npm run pipeline
+  ```text
+  /homework-4-agent-pipeline:resolve-issue
   ```
 
 - Переглянути всі generated reports.
@@ -874,7 +869,13 @@ npm run start:dev
 
 ```bash
 npm test -- --runInBand
-npm run pipeline
+claude --plugin-dir .
+```
+
+У Claude Code:
+
+```text
+/homework-4-agent-pipeline:resolve-issue
 ```
 
 ### Критерії готовності
@@ -903,8 +904,10 @@ npm run pipeline
   npm ci
   npm run build
   npm test -- --runInBand
-  npm run pipeline
   ```
+
+- Запустити `claude --plugin-dir .`, потім у Claude Code виконати
+  `/homework-4-agent-pipeline:resolve-issue`.
 
 - Перевірити відсутність реальних secrets.
 - Перевірити повноту required files.
@@ -962,7 +965,8 @@ Homework готове, коли одночасно виконуються всі
 - installed third-party skills залишаються окремо в `.claude/skills/`;
 - кожен required agent має explicit model;
 - README пояснює model selection;
-- `npm run pipeline` виконує весь процес без ручних кроків;
+- `/homework-4-agent-pipeline:resolve-issue` виконує весь процес без ручних
+  кроків між агентами;
 - pipeline автоматично завантажує related skills;
 - виправлено два bugs і один security issue;
 - створені всі required research/plan/fix/security/test artifacts;

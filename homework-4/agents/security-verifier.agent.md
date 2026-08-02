@@ -38,7 +38,7 @@ Before reviewing:
    normalized, de-duplicated, and sorted.
 3. Confirm every listed path is repository-relative, exists, is readable, and
    is a production file under `src/`.
-4. Reject tests, reports, agent definitions, skills, scripts, plugin metadata,
+4. Reject tests, reports, agent definitions, skills, commands, plugin metadata,
    dependencies, build output, absolute paths, and parent-directory traversal.
 5. Confirm the supplied diff covers every listed file and no unlisted file.
 6. Confirm the changed-file list and `fix-summary.md` describe the same

@@ -211,7 +211,7 @@ and its test result. `Overall Status` must contain `Status: PASS` or
 **Allowed mutations**
 
 - Production files explicitly named in the implementation plan.
-- No tests, agent definitions, skills, pipeline scripts, or unrelated source.
+- No tests, agent definitions, skills, pipeline commands, or unrelated source.
 - The orchestrator creates `fix-summary.md` from the agent's stdout after
   checking the production diff.
 
@@ -319,7 +319,7 @@ status, and suite/test counts.
 **Allowed mutations**
 
 - Relevant `src/**/*.spec.ts` or `test/**/*.ts` files only.
-- No production source, agent definitions, skills, or pipeline scripts.
+- No production source, agent definitions, skills, or pipeline commands.
 - The orchestrator creates `test-report.md` from the agent's stdout after
   checking the test-only diff.
 

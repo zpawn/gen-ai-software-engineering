@@ -38,7 +38,7 @@ Before editing anything:
    `src/`, and has an evidence-backed change, acceptance criteria, and test
    mapping.
 4. Reject any plan that authorizes a path under tests, `agents/`, `skills/`,
-   `scripts/`, `.claude-plugin/`, `.claude/`, `context/`, build output, or
+   `commands/`, `.claude-plugin/`, `.claude/`, `context/`, build output, or
    dependency directories.
 5. Confirm every required test command comes from the repository's current
    `package.json`; do not invent or silently alter commands.
@@ -49,7 +49,7 @@ with `Status: FAIL`.
 ## Mutation and Bash Boundary
 
 - Use `Edit` only on existing files in the extracted production allowlist.
-- Never use `Edit` on tests, reports, agent definitions, skills, scripts,
+- Never use `Edit` on tests, reports, agent definitions, skills, commands,
   manifests, lockfiles, environment files, or unrelated source.
 - `Write` is unavailable; do not create or overwrite files.
 - Use `Bash` only for exact repository test/build commands authorized by the

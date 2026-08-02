@@ -4,7 +4,7 @@
 
 **Goal:** Scaffold the local Claude Code plugin boundary and document exact artifact handoff contracts for all six pipeline stages without creating fake generated reports.
 
-**Architecture:** The repository root is loaded as the local plugin `homework-4-agent-pipeline` through `claude --plugin-dir .`. Homework components live in `.claude-plugin/`, `agents/`, `skills/`, `scripts/`, and `context/`; installed third-party skills remain isolated in `.claude/skills/`.
+**Architecture:** The repository root is loaded as the local plugin `homework-4-agent-pipeline` through `claude --plugin-dir .`. Homework components live in `.claude-plugin/`, `agents/`, `skills/`, `commands/`, and `context/`; installed third-party skills remain isolated in `.claude/skills/`.
 
 **Tech Stack:** Claude Code 2.1.220, Claude Code plugin manifest JSON, Markdown contracts, Git.
 
@@ -26,7 +26,7 @@
 - Create: `.claude-plugin/plugin.json`
 - Create: `agents/.gitkeep`
 - Create: `skills/.gitkeep`
-- Create: `scripts/.gitkeep`
+- Create: `commands/.gitkeep`
 - Create: `docs/screenshots/.gitkeep`
 - Create: `context/bugs/001-settings-security/research/.gitkeep`
 
@@ -71,7 +71,7 @@
   Run:
 
   ```bash
-  find .claude-plugin agents skills scripts docs/screenshots context/bugs/001-settings-security/research -maxdepth 2 -type f -print | sort
+  find .claude-plugin agents skills commands docs/screenshots context/bugs/001-settings-security/research -maxdepth 2 -type f -print | sort
   ```
 
   Expected: the manifest and `.gitkeep` files exist; `.claude/skills/` is absent from the output.
@@ -85,7 +85,7 @@
 **Interfaces:**
 
 - Consumes: `TASKS.md`, `context/bugs/001-settings-security/bug-context.md`, and the approved Claude Code plugin layout.
-- Produces: the single source of truth used by future agent prompts and `scripts/run-pipeline.mjs` for paths, headings, mutation permissions, validation, failure behavior, and idempotency.
+- Produces: the single source of truth used by future agent prompts and `commands/resolve-issue.md` for paths, headings, mutation permissions, validation, failure behavior, and idempotency.
 
 - [ ] **Step 1: Document global conventions**
 

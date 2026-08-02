@@ -58,7 +58,7 @@ If any check fails, make no test edits and return all report headings with
 - Use `Edit` only for existing files in the exact test-file allowlist.
 - Use `Write` only to create a new allowlisted test file; never overwrite an
   existing file with `Write`.
-- Never edit production code, reports, agents, skills, scripts, plugin files,
+- Never edit production code, reports, agents, skills, commands, plugin files,
   package manifests, lockfiles, configuration, snapshots, or environment files.
 - Use `Bash` only for exact repository test commands and read-only `git status`
   or `git diff` inspection.
