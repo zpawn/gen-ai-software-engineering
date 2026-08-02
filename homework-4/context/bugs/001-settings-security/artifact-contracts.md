@@ -235,6 +235,7 @@ and its test result. `Overall Status` must contain `Status: PASS` or
 **Inputs**
 
 - `context/bugs/001-settings-security/fix-summary.md`
+- The pipeline baseline Git SHA supplied by the orchestrator
 - The explicit production changed-file list supplied by the orchestrator
 - The content and Git diff of every listed file
 - Relevant dependency manifests when dependency risk applies
@@ -277,7 +278,8 @@ marking non-applicable categories with reasoning.
 - Changed-file input is empty, contains a missing file, or includes paths
   outside the allowed source scope.
 - An unresolved `CRITICAL` or `HIGH` finding produces `Status: FAIL`; the
-  verifier still writes the report but never edits code.
+  verifier still returns the report for the orchestrator to write but never
+  edits code.
 
 ### 6. Unit Test Generator
 
@@ -288,6 +290,7 @@ marking non-applicable categories with reasoning.
 **Inputs**
 
 - `context/bugs/001-settings-security/fix-summary.md`
+- The pipeline baseline Git SHA supplied by the orchestrator
 - The explicit production changed-file list supplied by the orchestrator
 - Changed production files and their Git diffs
 - Existing relevant Jest tests and configuration in `package.json`
