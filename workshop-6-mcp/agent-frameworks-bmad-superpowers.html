@@ -1,0 +1,1558 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>BMAD Method &amp; Superpowers — Training guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js" crossorigin></script>
+<style>
+  :root {
+    --paper: #ffffff;
+    --paper-2: #F5F5F5;
+    --paper-3: #E1E1E1;
+    --ink: #241F20;
+    --ink-2: #4a5464;
+    --ink-3: #728197;
+    --ink-faint: #9C9C9C;
+    --amber: #133EF8;
+    --amber-2: #00b2ff;
+    --amber-soft: #e8eeff;
+    --sage: #00b2ff;
+    --sage-soft: #e6f7ff;
+    --rust: #FF4550;
+    --rust-soft: #ffecee;
+    --line: #E1E1E1;
+    --line-soft: #F5F5F5;
+  }
+  html, body { background: var(--paper); color: var(--ink); scroll-behavior: smooth; }
+  body {
+    font-family: "Inter", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    background-image:
+      radial-gradient(ellipse 80% 30% at 80% 0%, rgba(19,62,248,0.06), transparent 60%),
+      radial-gradient(ellipse 60% 30% at 0% 100%, rgba(0,178,255,0.05), transparent 60%);
+    background-attachment: fixed;
+  }
+  .display { font-family: "Inter", system-ui, sans-serif; letter-spacing: -0.01em; }
+  .display-tight { font-family: "Inter", system-ui, sans-serif; letter-spacing: -0.02em; }
+  .mono { font-family: "JetBrains Mono", ui-monospace, monospace; }
+
+  .text-paper { color: var(--paper); }
+  .text-ink { color: var(--ink); }
+  .text-ink-2 { color: var(--ink-2); }
+  .text-ink-3 { color: var(--ink-3); }
+  .text-ink-faint { color: var(--ink-faint); }
+  .text-amber { color: var(--amber); }
+  .text-sage { color: var(--sage); }
+  .text-rust { color: var(--rust); }
+
+  .bg-paper { background: var(--paper); }
+  .bg-paper-2 { background: var(--paper-2); }
+  .bg-amber-soft { background: var(--amber-soft); }
+  .bg-sage-soft { background: var(--sage-soft); }
+  .bg-rust-soft { background: var(--rust-soft); }
+  .bg-ink { background: var(--ink); }
+  .border-line { border-color: var(--line); }
+  .border-amber { border-color: var(--amber); }
+  .border-sage { border-color: var(--sage); }
+  .border-rust { border-color: var(--rust); }
+  .ruled { border-bottom: 1px solid var(--line); }
+
+  .marker-amber { background: linear-gradient(180deg, transparent 60%, var(--amber-soft) 60%, var(--amber-soft) 92%, transparent 92%); padding: 0 3px; }
+  .marker-sage { background: linear-gradient(180deg, transparent 60%, var(--sage-soft) 60%, var(--sage-soft) 92%, transparent 92%); padding: 0 3px; }
+
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 10px; border-radius: 999px;
+    border: 1px solid var(--line); background: var(--paper-2);
+    font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--ink-3); font-family: "JetBrains Mono", monospace;
+  }
+  .chip-amber { border-color: var(--amber); color: var(--amber); background: rgba(19,62,248,0.06); }
+  .chip-sage { border-color: var(--sage); color: var(--sage); background: rgba(0,178,255,0.08); }
+  .chip-rust { border-color: var(--rust); color: var(--rust); background: rgba(255,69,80,0.06); }
+
+  .drop { width: 9px; height: 9px; background: var(--amber); transform: rotate(45deg); display: inline-block; }
+
+  .codeblock {
+    background: var(--ink); color: var(--paper);
+    border-radius: 6px; padding: 16px 18px;
+    font-family: "JetBrains Mono", monospace; font-size: 12.5px;
+    line-height: 1.75; overflow-x: auto; white-space: pre;
+  }
+  .codeblock .cmd { color: #b9c9ff; }
+  .codeblock .ok { color: #a8d8b4; }
+  .codeblock .warn { color: #e8a86b; }
+  .codeblock .dim { color: #8a8472; }
+  .codeblock::-webkit-scrollbar { height: 6px; }
+  .codeblock::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+
+  code.ic { font-family: "JetBrains Mono", monospace; font-size: 0.88em; background: var(--paper-2); border: 1px solid var(--line); border-radius: 3px; padding: 1px 5px; color: var(--ink); }
+
+  .card {
+    background: var(--paper-2);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .card:hover { border-color: var(--ink-3); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(36,31,32,0.06); }
+  .card.active { border-color: var(--ink); background: var(--paper); box-shadow: 0 1px 0 var(--ink); transform: none; }
+  .card.pick { cursor: pointer; }
+
+  .stickynav {
+    position: fixed; top: 50%; right: 20px; transform: translateY(-50%);
+    z-index: 50; display: flex; flex-direction: column; gap: 11px;
+    padding: 14px 10px; background: rgba(255,255,255,0.9); backdrop-filter: blur(6px);
+    border: 1px solid var(--line); border-radius: 4px;
+  }
+  .stickynav a { width: 22px; height: 2px; background: var(--ink-faint); display: block; transition: all 0.2s ease; }
+  .stickynav a:hover, .stickynav a.active { width: 38px; background: var(--amber); }
+  @media (max-width: 1240px) { .stickynav { display: none; } }
+
+  .tab {
+    padding: 9px 16px; border: 1px solid var(--line);
+    background: var(--paper); color: var(--ink-3);
+    cursor: pointer; transition: all 0.15s ease;
+    font-size: 13.5px; font-weight: 500; border-radius: 4px;
+  }
+  .tab:hover { color: var(--ink); border-color: var(--ink-3); }
+  .tab.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+  a.tlink { color: var(--amber); border-bottom: 1px dashed var(--amber-2); }
+  a.tlink:hover { color: var(--ink); border-bottom-color: var(--ink); }
+
+  .reveal { opacity: 0; transform: translateY(12px); transition: opacity 0.55s ease, transform 0.55s ease; }
+  .reveal.show { opacity: 1; transform: none; }
+
+  .layer-row {
+    display: flex; align-items: flex-start;
+    padding: 10px 14px; background: var(--paper-2);
+    border: 1px solid var(--line); margin-bottom: 4px;
+    border-radius: 3px; transition: all 0.2s ease; font-size: 13px;
+  }
+  .layer-row:hover { border-color: var(--amber); background: var(--paper); }
+  .layer-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 24px; height: 24px; background: var(--ink); color: var(--paper);
+    border-radius: 999px; font-family: "JetBrains Mono", monospace;
+    font-size: 10.5px; font-weight: 600; margin-right: 12px; flex-shrink: 0;
+  }
+  .reveal.show .layer-row { opacity: 0; animation: layerSlideIn 0.45s cubic-bezier(0.16,1,0.3,1) forwards; }
+  .reveal.show .layer-row:nth-child(1) { animation-delay: .04s } .reveal.show .layer-row:nth-child(2) { animation-delay: .08s }
+  .reveal.show .layer-row:nth-child(3) { animation-delay: .12s } .reveal.show .layer-row:nth-child(4) { animation-delay: .16s }
+  .reveal.show .layer-row:nth-child(5) { animation-delay: .20s } .reveal.show .layer-row:nth-child(6) { animation-delay: .24s }
+  .reveal.show .layer-row:nth-child(7) { animation-delay: .28s } .reveal.show .layer-row:nth-child(8) { animation-delay: .32s }
+  .reveal.show .layer-row:nth-child(9) { animation-delay: .36s } .reveal.show .layer-row:nth-child(10){ animation-delay: .40s }
+  @keyframes layerSlideIn { from { opacity: 0; transform: translateX(-18px); } to { opacity: 1; transform: none; } }
+
+  .checkpoint { position: relative; padding-left: 26px; padding-bottom: 28px; border-left: 2px solid var(--line); }
+  .checkpoint:last-child { border-left: 2px solid transparent; padding-bottom: 0; }
+  .checkpoint::before {
+    content: ""; position: absolute; left: -8px; top: 3px;
+    width: 14px; height: 14px; border-radius: 999px;
+    background: var(--paper); border: 2px solid var(--ink);
+  }
+  .checkpoint.gate::before { background: var(--amber); border-color: var(--amber); }
+  .checkpoint.human::before { background: var(--rust); border-color: var(--rust); }
+
+  .progress-dot {
+    width: 11px; height: 11px; border-radius: 999px;
+    border: 2px solid var(--line); background: var(--paper);
+    transition: all 0.3s cubic-bezier(0.16,1,0.3,1); cursor: pointer; flex-shrink: 0;
+  }
+  .progress-dot.done { background: var(--ink); border-color: var(--ink); }
+  .progress-dot.current { background: var(--amber); border-color: var(--amber); transform: scale(1.35); }
+  .progress-line { flex: 1; height: 2px; background: var(--line); }
+  .progress-line.done { background: var(--ink); }
+
+  @keyframes fadeSlide { from { opacity: 0; transform: translateX(-14px); } to { opacity: 1; transform: none; } }
+  .anim-enter { animation: fadeSlide 0.35s cubic-bezier(0.16,1,0.3,1); }
+  @keyframes tabFlipIn { from { opacity: 0; transform: perspective(800px) rotateY(-3deg) translateY(6px); } to { opacity: 1; transform: none; } }
+  .tab-enter { animation: tabFlipIn 0.35s cubic-bezier(0.16,1,0.3,1); }
+
+  table.grid-t { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  table.grid-t th { text-align: left; font-family: "JetBrains Mono", monospace; font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); padding: 10px 12px; border-bottom: 1px solid var(--line); background: var(--paper-2); }
+  table.grid-t td { padding: 11px 12px; border-bottom: 1px solid var(--line-soft); vertical-align: top; color: var(--ink-2); }
+  table.grid-t tr:hover td { background: var(--paper-2); }
+  table.grid-t td.k { color: var(--ink); font-weight: 500; }
+
+  @media print {
+    .stickynav { display: none; }
+    .reveal { opacity: 1 !important; transform: none !important; }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useRef } = React;
+
+/* ===========================================================
+   NAV
+=========================================================== */
+const NAV = [
+  { id: "open",    label: "Start" },
+  { id: "problem", label: "The problem" },
+  { id: "glance",  label: "At a glance" },
+  { id: "bmad",    label: "BMAD" },
+  { id: "bmad-run",label: "BMAD walkthrough" },
+  { id: "sp",      label: "Superpowers" },
+  { id: "sp-run",  label: "Superpowers walkthrough" },
+  { id: "compare", label: "Head to head" },
+  { id: "adopt",   label: "First 60 minutes" },
+  { id: "more",    label: "Resources" },
+];
+
+/* ===========================================================
+   DATA — BMAD
+=========================================================== */
+const BMAD_PHASES = [
+  { n: "1", name: "Analysis", opt: "Optional", who: "Mary · Analyst", q: "Is this idea worth building?",
+    skills: ["bmad-brainstorming", "bmad-deep-recon", "bmad-forge-idea", "bmad-product-brief", "bmad-prfaq"],
+    out: ["brief.md", "research.md", "brainstorm.html"], color: "var(--sage)" },
+  { n: "2", name: "Planning", opt: "Required", who: "John · PM  +  Sally · UX", q: "What are we building, and why?",
+    skills: ["bmad-prd", "bmad-ux", "bmad-spec"],
+    out: ["prd.md", "DESIGN.md", "EXPERIENCE.md", "SPEC.md"], color: "var(--amber)" },
+  { n: "3", name: "Solutioning", opt: "Method / Enterprise", who: "Winston · Architect  →  John · PM", q: "How will we build it, in what units of work?",
+    skills: ["bmad-architecture", "bmad-create-epics-and-stories", "bmad-check-implementation-readiness"],
+    out: ["ARCHITECTURE-SPINE.md", "epics/", "PASS / CONCERNS / FAIL"], color: "var(--amber)" },
+  { n: "4", name: "Implementation", opt: "Required", who: "Amelia · Dev", q: "Build it, one story at a time.",
+    skills: ["bmad-sprint-planning", "bmad-create-story", "bmad-dev-story", "bmad-code-review", "bmad-retrospective"],
+    out: ["sprint-status.yaml", "story-<slug>.md", "code + tests"], color: "var(--ink)" },
+];
+
+const BMAD_AGENTS = [
+  { icon: "📊", name: "Mary", role: "Business Analyst", skill: "bmad-agent-analyst", phase: "Analysis",
+    triggers: "BP · MR · DR · TR · CB · WB · DP",
+    does: "Brainstorming, market / domain / technical research, product brief, PRFAQ challenge." },
+  { icon: "📚", name: "Paige", role: "Technical Writer", skill: "bmad-agent-tech-writer", phase: "Analysis",
+    triggers: "DP · WD · MG · VD · EC",
+    does: "Documents an existing codebase, writes docs, generates Mermaid diagrams, explains concepts." },
+  { icon: "📋", name: "John", role: "Product Manager", skill: "bmad-agent-pm", phase: "Planning",
+    triggers: "PRD · CE · IR · CC",
+    does: "Creates / updates / validates the PRD, breaks work into epics and stories, corrects course mid-sprint." },
+  { icon: "🎨", name: "Sally", role: "UX Designer", skill: "bmad-agent-ux-designer", phase: "Planning",
+    triggers: "CU",
+    does: "Produces the design pair — DESIGN.md (visual) and EXPERIENCE.md (behavioural)." },
+  { icon: "🏗️", name: "Winston", role: "System Architect", skill: "bmad-agent-architect", phase: "Solutioning",
+    triggers: "CA · IR",
+    does: "Makes technical decisions explicit in ARCHITECTURE-SPINE.md; runs the readiness gate." },
+  { icon: "💻", name: "Amelia", role: "Senior Engineer", skill: "bmad-agent-dev", phase: "Implementation",
+    triggers: "DS · QD · QA · CR · SP · CS · ER",
+    does: "Sprint planning, story creation, implementation, code review, QA test generation, retrospective." },
+];
+
+const BMAD_TRACKS = [
+  { name: "Quick Flow", size: "1–15 stories", use: "Bug fixes, small features, scope already clear", docs: "Tech spec only", sol: "Skip solutioning entirely" },
+  { name: "BMad Method", size: "10–50+ stories", use: "Products, platforms, complex features", docs: "PRD + Architecture + UX", sol: "Optional if simple, required if complex" },
+  { name: "Enterprise", size: "30+ stories", use: "Compliance, multi-tenant systems", docs: "PRD + Architecture + Security + DevOps", sol: "Required" },
+];
+
+const BMAD_WALK = [
+  { step: "Install", cmd: "npx bmad-method install", who: "You, in the terminal", gate: false,
+    note: "Node 20.12+. Pick modules (choose bmm), pick your IDE (claude-code). Creates _bmad/ and _bmad-output/.",
+    art: "_bmad/  ·  _bmad-output/" },
+  { step: "Orient", cmd: "bmad-help I have a SaaS idea and know most of the features. Where do I start?", who: "Any agent", gate: false,
+    note: "bmad-help routes you to the right track and the right first workflow. When in doubt, always start here.",
+    art: "A recommended path" },
+  { step: "Explore the idea", cmd: "bmad-brainstorming   →   bmad-deep-recon   →   bmad-product-brief", who: "Mary · Analyst", gate: false,
+    note: "Phase 1 is optional but it is where vagueness gets killed. Skip it and every downstream doc inherits the fog.",
+    art: "brief.md + research.md" },
+  { step: "Write the PRD", cmd: "bmad-prd", who: "John · PM", gate: false,
+    note: "One skill, three intents: Create, Update, Validate. Validate produces an HTML findings report you can hand to stakeholders.",
+    art: "prd.md + addendum.md" },
+  { step: "Design the UX", cmd: "bmad-ux", who: "Sally · UX", gate: false,
+    note: "Only if there is a UI. Produces a spine pair — one doc for how it looks, one for how it behaves.",
+    art: "DESIGN.md + EXPERIENCE.md" },
+  { step: "Decide the architecture", cmd: "bmad-architecture", who: "Winston · Architect", gate: false,
+    note: "Shared context every implementing agent reads. Without it, agent A builds REST and agent B builds GraphQL.",
+    art: "ARCHITECTURE-SPINE.md" },
+  { step: "Pin the house rules", cmd: "bmad-generate-project-context", who: "Winston · Architect", gate: false,
+    note: "project-context.md is your constitution: stack versions + the non-obvious rules. Auto-loaded by 8 downstream workflows.",
+    art: "_bmad-output/project-context.md" },
+  { step: "Break into epics & stories", cmd: "bmad-create-epics-and-stories", who: "John · PM", gate: false,
+    note: "v6 change: this happens AFTER architecture, not before. Stories come out better when the stack is already decided.",
+    art: "epics/ with stories" },
+  { step: "Readiness gate", cmd: "bmad-check-implementation-readiness", who: "Winston · Architect", gate: true,
+    note: "Returns PASS, CONCERNS or FAIL. This is the cheapest place to catch misalignment — roughly 10× cheaper than finding it in code.",
+    art: "PASS / CONCERNS / FAIL" },
+  { step: "Initialise the sprint", cmd: "bmad-sprint-planning", who: "Amelia · Dev", gate: false,
+    note: "Run once per project. Creates the tracking file that sequences every epic and story.",
+    art: "sprint-status.yaml" },
+  { step: "The dev loop", cmd: "bmad-create-story  →  bmad-dev-story  →  bmad-code-review", who: "Amelia · Dev", gate: false,
+    note: "Repeat per story, each in a FRESH chat. Fresh chat per workflow is the single most repeated instruction in the docs.",
+    art: "story-<slug>.md + code" },
+  { step: "Close the epic", cmd: "bmad-qa-generate-e2e-tests   →   bmad-retrospective", who: "Amelia · Dev", gate: true,
+    note: "E2E tests run once the whole epic is done, not per story. The retrospective feeds lessons into the next epic.",
+    art: "test suite + lessons" },
+];
+
+const BMAD_GOTCHAS = [
+  { t: "Fresh chat for every workflow", d: "Reusing a session causes context conflicts. This is the #1 instruction in the docs and the #1 thing people ignore." },
+  { t: "Adversarial review invents problems", d: "The reviewer is instructed to find issues, so it will find some that do not exist. Expect false positives. You decide what is real." },
+  { t: "--modules is not a delta", d: "On reinstall, list every module you want to keep, or the missing ones get dropped." },
+  { t: "core and bmm cannot be pinned", d: "They ship inside the installer binary. --pin bmm=x and --next=bmm silently do nothing." },
+  { t: "Never copy a whole customize.toml", d: "Override files must be sparse. A full copy locks in today's defaults and silently drifts out of sync with every release." },
+  { t: "Watch the architect on brownfield", d: "On established projects it will happily reinvent things you already have. Run bmad-document-project first." },
+  { t: "GitHub rate limit breaks installs", d: "Anonymous API is 60/hr per IP. Behind NAT or in CI, set GITHUB_TOKEN to get 5000/hr." },
+  { t: "Stale skills after removing a module", d: "The installer does not delete old skill files. Clean .claude/skills/ manually." },
+];
+
+/* ===========================================================
+   DATA — SUPERPOWERS
+=========================================================== */
+const SP_SKILLS = [
+  { g: "Meta", name: "using-superpowers", desc: "Use when starting any conversation - establishes how to find and use skills, requiring skill invocation before ANY response including clarifying questions",
+    plain: "The bootstrap. Injected into context at every session start. It is what makes every other skill fire automatically." },
+  { g: "Meta", name: "writing-skills", desc: "Use when creating new skills, editing existing skills, or verifying skills work before deployment",
+    plain: "How to author a skill that actually changes behaviour — including how to pressure-test it against a subagent." },
+  { g: "Lifecycle", name: "brainstorming", desc: "You MUST use this before any creative work - creating features, building components, adding functionality, or modifying behavior.",
+    plain: "One question at a time, 2–3 approaches with trade-offs, design presented in sections, then a committed spec doc. Hard gate: no code until you approve." },
+  { g: "Lifecycle", name: "writing-plans", desc: "Use when you have a spec or requirements for a multi-step task, before touching code",
+    plain: "Turns the spec into 2–5 minute tasks with exact file paths, exact interfaces, real test code and the literal git commit command." },
+  { g: "Lifecycle", name: "using-git-worktrees", desc: "Use when starting feature work that needs isolation from current workspace or before executing implementation plans",
+    plain: "Isolated workspace on a new branch, dependencies installed, clean test baseline — before a single line is written." },
+  { g: "Lifecycle", name: "subagent-driven-development", desc: "Use when executing implementation plans with independent tasks in the current session",
+    plain: "The centrepiece. Fresh subagent per task, a reviewer after each, a bounded 5-round fix loop, one final whole-branch review." },
+  { g: "Lifecycle", name: "executing-plans", desc: "Use when you have a written implementation plan to execute in a separate session with review checkpoints",
+    plain: "The inline fallback when subagents are unavailable. The skill itself tells you to prefer subagent-driven-development." },
+  { g: "Lifecycle", name: "dispatching-parallel-agents", desc: "Use when facing 2+ independent tasks that can be worked on without shared state or sequential dependencies",
+    plain: "Genuinely independent problems only — e.g. three test files failing for three different reasons." },
+  { g: "Review", name: "requesting-code-review", desc: "Use when completing tasks, implementing major features, or before merging to verify work meets requirements",
+    plain: "Dispatches a read-only reviewer subagent. Output is fixed: Strengths → Critical / Important / Minor → Ready to merge: Yes | No | With fixes." },
+  { g: "Review", name: "receiving-code-review", desc: "Use when receiving code review feedback, before implementing suggestions, especially if feedback seems unclear or technically questionable",
+    plain: "Bans performative agreement. \"You're absolutely right!\" and any thanks are forbidden. Verify each item against the code before implementing." },
+  { g: "Review", name: "finishing-a-development-branch", desc: "Use when implementation is complete, all tests pass, and you need to decide how to integrate the work",
+    plain: "Three options only: merge locally, open a PR, or keep the branch. Discard was removed from the menu in v6.2.0." },
+  { g: "Discipline", name: "test-driven-development", desc: "Use when implementing any feature or bugfix, before writing implementation code",
+    plain: "RED-GREEN-REFACTOR, enforced. Code written before its test gets deleted — not adapted, not kept as reference." },
+  { g: "Discipline", name: "systematic-debugging", desc: "Use when encountering any bug, test failure, or unexpected behavior, before proposing fixes",
+    plain: "Four gated phases: investigate → find working examples → one hypothesis → fix. Three failed fixes means the architecture is wrong." },
+  { g: "Discipline", name: "verification-before-completion", desc: "Use when about to claim work is complete, fixed, or passing, before committing or creating PRs",
+    plain: "No success claim without a command run in this message. Even saying \"Done!\" before verifying is a flagged red flag." },
+];
+
+const SP_LAWS = [
+  { law: "NO PRODUCTION CODE WITHOUT A FAILING TEST FIRST", from: "test-driven-development",
+    why: "If you didn't watch the test fail, you don't know if it tests the right thing.",
+    teeth: "Wrote code before the test? Delete it. Don't keep it as reference. Don't adapt it. Delete means delete." },
+  { law: "NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST", from: "systematic-debugging",
+    why: "95% of \"there is no root cause\" cases are just incomplete investigation.",
+    teeth: "Three failed fixes is not a fourth hypothesis — stop and question the architecture." },
+  { law: "NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE", from: "verification-before-completion",
+    why: "If you haven't run the verification command in this message, you cannot claim it passes.",
+    teeth: "\"Should work\", \"seems fixed\", and even a premature \"Perfect!\" are all red flags." },
+  { law: "NO CODE UNTIL A DESIGN IS PRESENTED AND APPROVED", from: "brainstorming — a hard gate, not formally an iron law",
+    why: "Applies to EVERY project regardless of perceived simplicity — a todo list, a one-function utility, a config change.",
+    teeth: "The terminal state of brainstorming is invoking writing-plans. Not scaffolding, not coding." },
+];
+
+const SP_WALK = [
+  { step: "Install once", cmd: "/plugin install superpowers@claude-plugins-official", who: "You, in Claude Code", gate: false,
+    note: "Then quit and restart so the SessionStart hook fires. Also available for Codex, Cursor, Copilot CLI, Gemini, Kimi, Droid, OpenCode, Pi, Antigravity.",
+    art: "Plugin installed" },
+  { step: "Say something normal", cmd: "Let's build a CLI that syncs Notion pages to markdown.", who: "You", gate: false,
+    note: "No slash command. No skill name. This is the whole interface. (This exact shape of prompt is also the project's own acceptance test.)",
+    art: "—" },
+  { step: "Agent announces a skill", cmd: "Using superpowers:brainstorming to explore the design.", who: "Agent, automatically", gate: true,
+    note: "The bootstrap forces this. It reads the repo, then asks ONE question at a time, prefers multiple choice, proposes 2–3 approaches with a recommendation.",
+    art: "A conversation, not code" },
+  { step: "Design approved, spec committed", cmd: "docs/superpowers/specs/2026-07-26-notion-sync-design.md", who: "Agent → you review", gate: true,
+    note: "Presented in sections with an approval pause after each. Then self-scanned for placeholders, inconsistency and scope creep before you see it.",
+    art: "Committed spec doc" },
+  { step: "Plan written", cmd: "superpowers:writing-plans", who: "Agent", gate: false,
+    note: "Written for \"an enthusiastic junior engineer with poor taste, no judgement, no project context, and an aversion to testing.\" Real test code, exact paths, exact interfaces, no TBDs.",
+    art: "docs/superpowers/plans/…md" },
+  { step: "Isolated workspace", cmd: "superpowers:using-git-worktrees", who: "Agent, with your consent", gate: false,
+    note: "Prefers your harness's native worktree tool. Verifies the directory is gitignored, installs deps, runs the suite for a clean baseline.",
+    art: ".worktrees/notion-sync" },
+  { step: "Task loop begins", cmd: "superpowers:subagent-driven-development", who: "Controller agent", gate: false,
+    note: "A ledger file survives compaction. Each task: fresh implementer subagent, cheapest capable model, brief handed over as a FILE path — never pasted.",
+    art: ".superpowers/sdd/<plan>/progress.md" },
+  { step: "Per-task review", cmd: "review-package PLAN BASE HEAD  →  task reviewer", who: "Reviewer subagent", gate: true,
+    note: "Two verdicts: spec compliance and quality. Findings go back to the same implementer verbatim. Max 5 fix rounds, then the controller adjudicates.",
+    art: "Findings → fixes → clean" },
+  { step: "Final whole-branch review", cmd: "merge-base..HEAD  →  most capable model", who: "Reviewer subagent", gate: true,
+    note: "One dispatch, one fix wave, one scoped re-review. No second wave — per-finding fixers each rebuild context and cost more than all the tasks combined.",
+    art: "Ready to merge: Yes | No | With fixes" },
+  { step: "Integrate", cmd: "superpowers:finishing-a-development-branch", who: "You decide", gate: true,
+    note: "Three options: merge locally, push and open a PR, or keep the branch. Merge first, re-run tests on the merged result, then clean up the worktree.",
+    art: "Merged / PR opened" },
+];
+
+const SP_GOTCHAS = [
+  { t: "Restart after install", d: "The SessionStart hook is the entire integration. Until the agent restarts, the skills are inert files on disk." },
+  { t: "There are no slash commands", d: "/brainstorm, /write-plan and /execute-plan were removed in v5.1.0. You just talk normally, or name a skill: \"use systematic-debugging\"." },
+  { t: "The marketplace repo has a different name", d: "It is obra/superpowers-marketplace, not obra/superpowers. Easy 10-minute mistake." },
+  { t: "Only 14 skills — the rest are reference files", d: "root-cause-tracing, defense-in-depth and condition-based-waiting live inside systematic-debugging. They are not separately invokable." },
+  { t: "Your instructions still win", d: "CLAUDE.md / AGENTS.md and direct requests override skills. Skills override default behaviour. Say so explicitly if you want to skip a workflow." },
+  { t: "Always name the model when dispatching", d: "An omitted model inherits your session's — usually the most expensive one. This is called out as a live cost bug." },
+  { t: "Subagents are load-bearing", d: "Without them you fall back to executing-plans, which the repo itself describes as materially worse." },
+  { t: "The repo rejects ~94% of PRs", d: "They treat skills as code, require eval evidence for changes, and explicitly diverge from Anthropic's published skill-writing guidance." },
+];
+
+/* ===========================================================
+   COMPARISON
+=========================================================== */
+const COMPARE = [
+  { dim: "One-line identity", b: "An agile team simulated by named AI agents, phase by phase.", s: "A software-engineering discipline injected into your agent at every session start." },
+  { dim: "Primary unit", b: "Documents — brief, PRD, architecture, epics, stories.", s: "Skills — 14 composable process files the agent must obey." },
+  { dim: "How it activates", b: "You invoke a named skill or agent: bmad-prd, bmad-agent-dev.", s: "Automatic. A SessionStart hook injects the bootstrap in EXTREMELY_IMPORTANT tags." },
+  { dim: "Where it starts", b: "At the idea. Before anyone has decided what to build.", s: "At the request. Before anyone has written a line." },
+  { dim: "Strongest at", b: "Turning a fuzzy business idea into a scoped, sequenced backlog.", s: "Making the implementation loop rigorous, tested and reviewed." },
+  { dim: "Weakest at", b: "Enforcing code-level discipline — no TDD law, no verification gate.", s: "Product discovery, stakeholder artefacts, multi-epic sequencing." },
+  { dim: "Human checkpoints", b: "Explicit: readiness gate, PRD validation, code review, retrospective.", s: "Explicit: design approval, spec review, per-task review, integration choice." },
+  { dim: "Context strategy", b: "Fresh chat per workflow. Documents carry state between chats.", s: "Fresh subagent per task. A ledger file carries state through compaction." },
+  { dim: "Output on disk", b: "_bmad/ and _bmad-output/ with planning + implementation artefacts.", s: "docs/superpowers/specs/, docs/superpowers/plans/, .superpowers/sdd/." },
+  { dim: "Learning curve", b: "Higher — a vocabulary of agents, phases, tracks and ~30 skills.", s: "Lower to start — install and talk. Higher to master the SDD loop." },
+  { dim: "Tone", b: "Collaborative, persona-driven, agile-shaped.", s: "Adversarial, rule-bound, allergic to unverified claims." },
+  { dim: "Best for a team that", b: "Needs the planning half of delivery to become repeatable.", s: "Already knows what to build and needs the building to stop being sloppy." },
+];
+
+/* ===========================================================
+   HOOKS
+=========================================================== */
+function useReveal() {
+  useEffect(() => {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add("show"); });
+    }, { threshold: 0.06 });
+    const scan = () => document.querySelectorAll(".reveal:not(.show)").forEach(el => io.observe(el));
+    scan();
+    const mo = new MutationObserver(scan);
+    mo.observe(document.body, { childList: true, subtree: true });
+    return () => { io.disconnect(); mo.disconnect(); };
+  }, []);
+}
+
+function useActiveSection(ids) {
+  const [active, setActive] = useState(ids[0]);
+  useEffect(() => {
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) setActive(e.target.id); });
+    }, { rootMargin: "-35% 0px -60% 0px" });
+    ids.forEach(id => { const el = document.getElementById(id); if (el) obs.observe(el); });
+    return () => obs.disconnect();
+  }, [ids]);
+  return active;
+}
+
+/* ===========================================================
+   PRIMITIVES
+=========================================================== */
+const Eyebrow = ({ children, color }) => (
+  <div className="mono text-xs uppercase tracking-[0.18em]" style={{ color: color || "var(--ink-3)" }}>{children}</div>
+);
+
+const Section = ({ id, eyebrow, eyebrowColor, title, lede, children, wide = false, tint }) => (
+  <section id={id} className="relative ruled" style={tint ? { background: tint } : {}}>
+    <div className={`${wide ? "max-w-screen-xl" : "max-w-5xl"} mx-auto px-6 md:px-10 py-14 md:py-20 relative`}>
+      {eyebrow && <div className="reveal mb-4"><Eyebrow color={eyebrowColor}>{eyebrow}</Eyebrow></div>}
+      {title && (
+        <h2 className="display-tight text-2xl md:text-4xl text-ink leading-[1.1] mb-5 reveal" style={{ maxWidth: "30ch" }}>{title}</h2>
+      )}
+      {lede && <p className="text-ink-2 text-base md:text-lg leading-relaxed mb-10 reveal" style={{ maxWidth: "62ch" }}>{lede}</p>}
+      {children}
+    </div>
+  </section>
+);
+
+const Note = ({ children, tone = "amber", label }) => {
+  const c = tone === "rust" ? "var(--rust)" : tone === "sage" ? "var(--sage)" : "var(--amber)";
+  const bg = tone === "rust" ? "var(--rust-soft)" : tone === "sage" ? "var(--sage-soft)" : "var(--amber-soft)";
+  return (
+    <div className="reveal rounded-md p-4 md:p-5" style={{ background: bg, borderLeft: `3px solid ${c}` }}>
+      {label && <div className="mono text-[10.5px] uppercase tracking-[0.14em] mb-2" style={{ color: c }}>{label}</div>}
+      <div className="text-sm leading-relaxed text-ink-2">{children}</div>
+    </div>
+  );
+};
+
+const Code = ({ children }) => <div className="codeblock reveal">{children}</div>;
+
+/* ===========================================================
+   ILLUSTRATION — Hero: two paths
+=========================================================== */
+const HeroTwoPaths = () => (
+  <div style={{ width: "100%", maxWidth: 340 }}>
+    <svg viewBox="0 0 340 250" width="100%" style={{ overflow: "visible" }}>
+      <defs>
+        <marker id="hA" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto">
+          <path d="M0,0 L7,2.5 L0,5 Z" fill="var(--amber)" />
+        </marker>
+        <marker id="hS" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto">
+          <path d="M0,0 L7,2.5 L0,5 Z" fill="var(--sage)" />
+        </marker>
+        <marker id="hR" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto">
+          <path d="M0,0 L7,2.5 L0,5 Z" fill="var(--rust)" />
+        </marker>
+      </defs>
+
+      {/* messy path */}
+      <text x="0" y="14" className="mono" fontSize="9" fill="var(--ink-faint)" letterSpacing="1">WITHOUT A METHOD</text>
+      <rect x="0" y="24" width="66" height="26" rx="4" fill="var(--paper-2)" stroke="var(--line)" />
+      <text x="33" y="41" textAnchor="middle" fontSize="9.5" fill="var(--ink-3)">idea</text>
+      <path d="M70,37 C110,37 100,37 140,37" stroke="var(--rust)" strokeWidth="1.5" fill="none" markerEnd="url(#hR)" strokeDasharray="3 3" />
+      <rect x="146" y="24" width="80" height="26" rx="4" fill="var(--rust-soft)" stroke="var(--rust)" />
+      <text x="186" y="41" textAnchor="middle" fontSize="9.5" fill="var(--rust)">code, at once</text>
+      <path d="M230,37 C265,37 258,37 288,37" stroke="var(--rust)" strokeWidth="1.5" fill="none" markerEnd="url(#hR)" strokeDasharray="3 3" />
+      <text x="294" y="41" fontSize="14" fill="var(--rust)">?</text>
+
+      <line x1="0" y1="66" x2="340" y2="66" stroke="var(--line)" strokeWidth="1" />
+
+      {/* BMAD path */}
+      <text x="0" y="88" className="mono" fontSize="9" fill="var(--amber)" letterSpacing="1">BMAD — PLANNING SPINE</text>
+      {["idea", "brief", "PRD", "arch", "stories"].map((l, i) => (
+        <g key={l}>
+          <rect x={i * 66} y={98} width="56" height="24" rx="4" fill="var(--paper)" stroke="var(--amber)" strokeWidth="1" />
+          <text x={i * 66 + 28} y={114} textAnchor="middle" fontSize="9" fill="var(--amber)" className="mono">{l}</text>
+          {i < 4 && <path d={`M${i * 66 + 58},110 L${i * 66 + 63},110`} stroke="var(--amber)" strokeWidth="1.5" markerEnd="url(#hA)" />}
+        </g>
+      ))}
+      <text x="0" y="140" fontSize="9.5" fill="var(--ink-3)">Sequential documents. Each one feeds the next.</text>
+
+      <line x1="0" y1="158" x2="340" y2="158" stroke="var(--line)" strokeWidth="1" />
+
+      {/* Superpowers path */}
+      <text x="0" y="180" className="mono" fontSize="9" fill="var(--sage)" letterSpacing="1">SUPERPOWERS — DISCIPLINE LOOP</text>
+      <rect x="0" y="190" width="62" height="24" rx="4" fill="var(--paper)" stroke="var(--sage)" />
+      <text x="31" y="206" textAnchor="middle" fontSize="9" fill="var(--sage)" className="mono">spec</text>
+      <path d="M64,202 L74,202" stroke="var(--sage)" strokeWidth="1.5" markerEnd="url(#hS)" />
+      <rect x="78" y="190" width="62" height="24" rx="4" fill="var(--paper)" stroke="var(--sage)" />
+      <text x="109" y="206" textAnchor="middle" fontSize="9" fill="var(--sage)" className="mono">plan</text>
+      <path d="M142,202 L152,202" stroke="var(--sage)" strokeWidth="1.5" markerEnd="url(#hS)" />
+      <rect x="156" y="184" width="108" height="36" rx="4" fill="var(--sage-soft)" stroke="var(--sage)" />
+      <text x="210" y="198" textAnchor="middle" fontSize="8.5" fill="var(--sage)" className="mono">red · green · review</text>
+      <text x="210" y="211" textAnchor="middle" fontSize="8.5" fill="var(--ink-3)" className="mono">× every task</text>
+      <path d="M264,202 L274,202" stroke="var(--sage)" strokeWidth="1.5" markerEnd="url(#hS)" />
+      <rect x="278" y="190" width="62" height="24" rx="4" fill="var(--paper)" stroke="var(--sage)" />
+      <text x="309" y="206" textAnchor="middle" fontSize="9" fill="var(--sage)" className="mono">merge</text>
+      <path d="M210,224 C210,240 55,240 40,226" stroke="var(--sage)" strokeWidth="1.2" fill="none" strokeDasharray="3 3" markerEnd="url(#hS)" />
+      <text x="0" y="248" fontSize="9.5" fill="var(--ink-3)">A loop with gates. Nothing advances unverified.</text>
+    </svg>
+  </div>
+);
+
+/* ===========================================================
+   SHARED — Walkthrough stepper
+=========================================================== */
+const Walkthrough = ({ steps, accent }) => {
+  const [i, setI] = useState(0);
+  const s = steps[i];
+  const c = accent || "var(--amber)";
+  return (
+    <div className="reveal">
+      {/* progress rail */}
+      <div className="flex items-center gap-1 mb-6">
+        {steps.map((st, idx) => (
+          <React.Fragment key={idx}>
+            <button
+              onClick={() => setI(idx)}
+              aria-label={st.step}
+              title={`${idx + 1}. ${st.step}`}
+              className={`progress-dot ${idx < i ? "done" : ""} ${idx === i ? "current" : ""}`}
+              style={idx === i ? { background: c, borderColor: c } : {}}
+            />
+            {idx < steps.length - 1 && <div className={`progress-line ${idx < i ? "done" : ""}`} />}
+          </React.Fragment>
+        ))}
+      </div>
+
+      <div className="grid md:grid-cols-[1fr_240px] gap-6 items-start">
+        <div key={i} className="anim-enter">
+          <div className="flex items-center gap-3 mb-3 flex-wrap">
+            <span className="mono text-xs" style={{ color: c }}>STEP {String(i + 1).padStart(2, "0")} / {steps.length}</span>
+            {s.gate && <span className="chip chip-rust">checkpoint</span>}
+          </div>
+          <h4 className="display-tight text-xl md:text-2xl text-ink mb-3">{s.step}</h4>
+          <div className="codeblock mb-4"><span className="cmd">{s.cmd}</span></div>
+          <p className="text-sm text-ink-2 leading-relaxed" style={{ maxWidth: "60ch" }}>{s.note}</p>
+        </div>
+
+        <div className="card p-4" style={{ position: "sticky", top: 70 }}>
+          <div className="mono text-[10px] uppercase tracking-[0.14em] text-ink-3 mb-2">Who runs it</div>
+          <div className="text-sm text-ink mb-4">{s.who}</div>
+          <div className="mono text-[10px] uppercase tracking-[0.14em] text-ink-3 mb-2">You end up with</div>
+          <div className="mono text-xs text-ink-2 leading-relaxed" style={{ wordBreak: "break-word" }}>{s.art}</div>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-3 mt-8">
+        <button className="tab" onClick={() => setI(Math.max(0, i - 1))} disabled={i === 0} style={i === 0 ? { opacity: .35, cursor: "default" } : {}}>← Back</button>
+        <button className="tab active" onClick={() => setI(Math.min(steps.length - 1, i + 1))} disabled={i === steps.length - 1} style={i === steps.length - 1 ? { opacity: .35, cursor: "default" } : {}}>Next step →</button>
+        <span className="text-xs text-ink-faint ml-2 hidden md:inline">or click any dot</span>
+      </div>
+    </div>
+  );
+};
+
+/* ===========================================================
+   OPENING
+=========================================================== */
+const Opening = () => (
+  <section id="open" className="ruled">
+    <div className="max-w-5xl mx-auto px-6 md:px-10 pt-10 pb-12 md:pt-14 md:pb-16">
+      <div className="flex flex-col md:flex-row md:items-center md:gap-12">
+        <div className="flex-1 min-w-0">
+          <div className="reveal mb-4 inline-block" style={{ background: "rgba(19,62,248,0.08)", border: "1px dashed var(--amber)", borderRadius: 4, padding: "4px 12px" }}>
+            <span className="mono text-xs uppercase tracking-wider text-amber font-medium">Learning guide · 25 min read</span>
+          </div>
+          <h1 className="display-tight text-4xl md:text-5xl lg:text-[3.4rem] text-ink leading-[1.0] reveal" style={{ fontWeight: 400 }}>
+            Your coding agent<br/>
+            is fast and<br/>
+            <span className="marker-amber">has no process.</span>
+          </h1>
+          <p className="mt-6 text-base md:text-lg text-ink-2 reveal" style={{ maxWidth: "56ch", lineHeight: 1.55 }}>
+            Two open-source frameworks fix that from opposite ends. <strong className="text-ink">BMAD Method</strong> gives it a planning spine — analyst, PM, architect, dev, working in phases.
+            {" "}<strong className="text-ink">Superpowers</strong> gives it engineering discipline — spec, plan, test-first, review, every time, automatically.
+          </p>
+          <p className="mt-4 text-sm text-ink-3 reveal" style={{ maxWidth: "56ch" }}>
+            This page explains both from zero, shows what you actually type, and helps you choose.
+          </p>
+        </div>
+        <div className="flex-shrink-0 items-center justify-center hidden md:flex reveal" style={{ width: 300 }}>
+          <HeroTwoPaths />
+        </div>
+      </div>
+
+      <div className="mt-10 pt-8 border-t border-line grid sm:grid-cols-3 gap-4 reveal">
+        {[
+          { k: "BMAD Method", v: "bmad-code-org/BMAD-METHOD", d: "v6 · Node installer · ~30 skills, 6 named agents" },
+          { k: "Superpowers", v: "obra/superpowers", d: "v6.2 · agent plugin · 14 skills, zero commands" },
+          { k: "Both are free", v: "MIT / open source", d: "Work with Claude Code, Cursor, Codex and others" },
+        ].map(x => (
+          <div key={x.k}>
+            <div className="mono text-[10px] uppercase tracking-[0.14em] text-ink-3 mb-1">{x.k}</div>
+            <div className="mono text-sm text-ink">{x.v}</div>
+            <div className="text-xs text-ink-3 mt-1">{x.d}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
+/* ===========================================================
+   PROBLEM
+=========================================================== */
+const ProblemSection = () => (
+  <Section
+    id="problem"
+    eyebrow="Why either of these exists"
+    title="The failure mode is always the same."
+    lede="You ask for a feature. The agent starts typing code in three seconds. It is confident, it is quick, and nobody — including the agent — has decided what &ldquo;done&rdquo; means."
+  >
+    <div className="grid md:grid-cols-3 gap-5 mb-10">
+      {[
+        { t: "It skips the thinking", d: "No requirements, no trade-offs, no design. The first plausible approach becomes the architecture.", i: "⤳" },
+        { t: "It skips the proving", d: "Tests written after the code always pass — which proves nothing. You never watched them catch anything.", i: "◷" },
+        { t: "It declares victory early", d: "\"Fixed!\" without running anything. \"Should work now\" is the most expensive sentence in the transcript.", i: "✓" },
+      ].map(x => (
+        <div key={x.t} className="card p-5 reveal">
+          <div className="text-2xl mb-3 text-rust">{x.i}</div>
+          <div className="font-medium text-ink mb-2">{x.t}</div>
+          <div className="text-sm text-ink-2 leading-relaxed">{x.d}</div>
+        </div>
+      ))}
+    </div>
+
+    <div className="grid md:grid-cols-2 gap-5 mb-8">
+      <div className="card p-6 reveal" style={{ borderTop: "3px solid var(--amber)" }}>
+        <div className="chip chip-amber mb-4">BMAD's answer</div>
+        <p className="text-sm text-ink-2 leading-relaxed mb-3">
+          <strong className="text-ink">Build the context first.</strong> Four phases produce documents, each feeding the next, so that by the time any agent writes code it already knows the product, the stack and its exact slice of work.
+        </p>
+        <p className="text-sm text-ink-3 leading-relaxed">
+          The stated cost argument: catching an alignment problem during solutioning is roughly <strong className="text-ink">10× cheaper</strong> than discovering it during implementation.
+        </p>
+      </div>
+      <div className="card p-6 reveal" style={{ borderTop: "3px solid var(--sage)" }}>
+        <div className="chip chip-sage mb-4">Superpowers' answer</div>
+        <p className="text-sm text-ink-2 leading-relaxed mb-3">
+          <strong className="text-ink">Make the discipline non-optional.</strong> A hook injects a bootstrap into every session that says: if there is even a 1% chance a skill applies, you must use it. Not a suggestion.
+        </p>
+        <p className="text-sm text-ink-3 leading-relaxed">
+          The result is that you keep talking normally, and the agent silently routes itself through brainstorm → plan → test-first → review before it will touch your repo.
+        </p>
+      </div>
+    </div>
+
+    <Note tone="amber" label="The one-sentence difference">
+      BMAD is about <strong className="text-ink">deciding what to build</strong>. Superpowers is about <strong className="text-ink">not screwing up the building</strong>. They overlap in the middle — and that overlap is where you have to choose.
+    </Note>
+  </Section>
+);
+
+/* ===========================================================
+   AT A GLANCE
+=========================================================== */
+const GlanceSection = () => {
+  const [tab, setTab] = useState("b");
+  return (
+    <Section
+      id="glance"
+      eyebrow="Orientation"
+      title="Sixty seconds on each."
+      lede="Before the detail, here is the smallest true description of each framework — what it installs, what it makes you do, and what shows up on disk."
+      tint="var(--paper-2)"
+    >
+      <div className="flex gap-2 mb-7 reveal">
+        <button className={`tab ${tab === "b" ? "active" : ""}`} onClick={() => setTab("b")}>BMAD Method</button>
+        <button className={`tab ${tab === "s" ? "active" : ""}`} onClick={() => setTab("s")}>Superpowers</button>
+      </div>
+
+      {tab === "b" ? (
+        <div className="tab-enter grid md:grid-cols-2 gap-6">
+          <div>
+            <h4 className="display-tight text-xl text-ink mb-3">A whole agile team, simulated</h4>
+            <p className="text-sm text-ink-2 leading-relaxed mb-4">
+              BMAD (<em>Build More Architect Dreams</em>) installs six named agents into your IDE — Mary the analyst, John the PM, Sally on UX, Winston the architect, Amelia the engineer, Paige on docs. You call them by name or call their workflows directly.
+            </p>
+            <p className="text-sm text-ink-2 leading-relaxed mb-4">
+              Work moves through four phases. Each phase writes documents into <code className="ic">_bmad-output/</code>, and the next phase reads them. That document chain is the whole trick: it is how a fresh chat, hours later, still knows what you decided.
+            </p>
+            <Note tone="amber" label="Mental model">
+              Think of it as <strong className="text-ink">Jira, but the tickets write themselves and the people are prompts.</strong>
+            </Note>
+          </div>
+          <div>
+            <div className="mono text-[10px] uppercase tracking-[0.14em] text-ink-3 mb-2">Install</div>
+            <Code><span className="cmd">npx bmad-method install</span>{"\n"}<span className="dim"># Node 20.12+ · pick modules · pick your IDE</span></Code>
+            <div className="mono text-[10px] uppercase tracking-[0.14em] text-ink-3 mt-6 mb-2">On disk</div>
+            <Code>
+{`your-project/
+├── `}<span className="cmd">_bmad/</span>{`               `}<span className="dim">← agents, workflows, config</span>{`
+└── `}<span className="cmd">_bmad-output/</span>{`
+    ├── planning-artifacts/
+    │   ├── prd.md
+    │   ├── ARCHITECTURE-SPINE.md
+    │   └── epics/
+    ├── implementation-artifacts/
+    │   └── sprint-status.yaml
+    └── project-context.md`}
+            </Code>
+          </div>
+        </div>
+      ) : (
+        <div className="tab-enter grid md:grid-cols-2 gap-6">
+          <div>
+            <h4 className="display-tight text-xl text-ink mb-3">A methodology that installs itself</h4>
+            <p className="text-sm text-ink-2 leading-relaxed mb-4">
+              Superpowers ships 14 skills and <strong className="text-ink">zero slash commands</strong>. There is nothing to remember. A SessionStart hook injects a bootstrap into the agent's context every time a session starts, clears, or compacts.
+            </p>
+            <p className="text-sm text-ink-2 leading-relaxed mb-4">
+              That bootstrap contains one load-bearing sentence: <em>if you think there is even a 1% chance a skill might apply, you absolutely must invoke it.</em> Everything else follows from that.
+            </p>
+            <Note tone="sage" label="Mental model">
+              Think of it as <strong className="text-ink">a senior engineer's habits, compiled into files your agent cannot ignore.</strong>
+            </Note>
+          </div>
+          <div>
+            <div className="mono text-[10px] uppercase tracking-[0.14em] text-ink-3 mb-2">Install (Claude Code)</div>
+            <Code><span className="cmd">/plugin install superpowers@claude-plugins-official</span>{"\n"}<span className="dim"># then quit and restart so the hook fires</span></Code>
+            <div className="mono text-[10px] uppercase tracking-[0.14em] text-ink-3 mt-6 mb-2">On disk (created as you work)</div>
+            <Code>
+{`your-project/
+├── docs/superpowers/
+│   ├── `}<span className="cmd">specs/</span>{`      `}<span className="dim">← approved designs</span>{`
+│   └── `}<span className="cmd">plans/</span>{`      `}<span className="dim">← task-by-task plans</span>{`
+├── .superpowers/sdd/<plan>/
+│   └── progress.md  `}<span className="dim">← the ledger</span>{`
+└── .worktrees/<branch>/  `}<span className="dim">← isolation</span>
+            </Code>
+          </div>
+        </div>
+      )}
+    </Section>
+  );
+};
+
+/* ===========================================================
+   BMAD — main section
+=========================================================== */
+const BmadPhaseFlow = () => (
+  <div className="reveal mb-10 overflow-x-auto">
+    <svg viewBox="0 0 880 210" width="880" style={{ maxWidth: "100%", minWidth: 700 }}>
+      <defs>
+        <marker id="bA" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <path d="M0,0 L8,3 L0,6 Z" fill="var(--ink-3)" />
+        </marker>
+      </defs>
+      {BMAD_PHASES.map((p, i) => {
+        const x = i * 222;
+        return (
+          <g key={p.n}>
+            <rect x={x} y={30} width={196} height={150} rx="6" fill="var(--paper)" stroke={p.color} strokeWidth="1.5" />
+            <circle cx={x + 24} cy={56} r="13" fill={p.color} />
+            <text x={x + 24} y={61} textAnchor="middle" fontSize="12" fontWeight="600" fill="var(--paper)" className="mono">{p.n}</text>
+            <text x={x + 46} y={54} fontSize="14" fontWeight="600" fill="var(--ink)">{p.name}</text>
+            <text x={x + 46} y={68} fontSize="9" fill="var(--ink-faint)" className="mono">{p.opt.toUpperCase()}</text>
+            <text x={x + 16} y={92} fontSize="10.5" fill="var(--ink-3)" className="mono">{p.who}</text>
+            <line x1={x + 16} y1={102} x2={x + 180} y2={102} stroke="var(--line)" />
+            <text x={x + 16} y={120} fontSize="11" fill="var(--ink-2)" fontStyle="italic">
+              {p.q.length > 34 ? p.q.slice(0, 33) + "…" : p.q}
+            </text>
+            {p.out.slice(0, 3).map((o, j) => (
+              <text key={o} x={x + 16} y={142 + j * 14} fontSize="10" fill={p.color} className="mono">→ {o}</text>
+            ))}
+            {i < 3 && <path d={`M${x + 198},105 L${x + 218},105`} stroke="var(--ink-3)" strokeWidth="1.5" markerEnd="url(#bA)" />}
+          </g>
+        );
+      })}
+      <text x="0" y="16" fontSize="10" fill="var(--ink-faint)" className="mono" letterSpacing="1">CONTEXT ACCUMULATES LEFT TO RIGHT — EACH PHASE READS THE ONE BEFORE IT</text>
+      <text x="0" y="202" fontSize="10.5" fill="var(--ink-3)">Every workflow runs in a fresh chat. The documents, not the conversation, carry the state.</text>
+    </svg>
+  </div>
+);
+
+const BmadSection = () => {
+  const [agent, setAgent] = useState(null);
+  return (
+    <Section
+      id="bmad"
+      eyebrowColor="var(--amber)"
+      eyebrow="Framework 01"
+      title="BMAD Method — the planning spine."
+      lede="BMAD's bet is that AI agents are limited by context, not capability. So it spends the first three phases manufacturing context, and only then lets anyone write code."
+      wide
+    >
+      <BmadPhaseFlow />
+
+      {/* Phase detail cards */}
+      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-14">
+        {BMAD_PHASES.map(p => (
+          <div key={p.n} className="card p-5 reveal">
+            <div className="flex items-baseline gap-2 mb-3">
+              <span className="mono text-xs" style={{ color: p.color }}>PHASE {p.n}</span>
+              <span className="font-medium text-ink">{p.name}</span>
+            </div>
+            <p className="text-sm text-ink-2 italic mb-4">&ldquo;{p.q}&rdquo;</p>
+            <div className="mono text-[10px] uppercase tracking-[0.14em] text-ink-3 mb-2">Skills you invoke</div>
+            <ul className="space-y-1 mb-4">
+              {p.skills.map(s => <li key={s} className="mono text-[11px] text-ink-2">{s}</li>)}
+            </ul>
+            <div className="mono text-[10px] uppercase tracking-[0.14em] text-ink-3 mb-2">Produces</div>
+            <ul className="space-y-1">
+              {p.out.map(o => <li key={o} className="mono text-[11px]" style={{ color: p.color }}>{o}</li>)}
+            </ul>
+          </div>
+        ))}
+      </div>
+
+      {/* Agents */}
+      <div className="max-w-5xl">
+        <div className="reveal mb-3"><Eyebrow>The cast</Eyebrow></div>
+        <h3 className="display-tight text-xl md:text-2xl text-ink mb-3 reveal">Six agents, each with a job and a two-letter shorthand.</h3>
+        <p className="text-sm text-ink-2 mb-7 reveal" style={{ maxWidth: "62ch" }}>
+          Load an agent by its skill name, then type a trigger code — <code className="ic">DS</code> starts Dev Story, <code className="ic">PRD</code> starts the PRD workflow. The agent stays in character throughout.
+          Names and titles are hardcoded on purpose, so <em>&ldquo;hey Mary&rdquo;</em> always reaches the analyst no matter how your org customises the rest.
+        </p>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+          {BMAD_AGENTS.map(a => (
+            <button key={a.name} onClick={() => setAgent(agent === a.name ? null : a.name)}
+              className={`card pick p-5 text-left reveal ${agent === a.name ? "active" : ""}`}>
+              <div className="flex items-center gap-3 mb-2">
+                <span style={{ fontSize: 22 }}>{a.icon}</span>
+                <div>
+                  <div className="font-medium text-ink leading-tight">{a.name}</div>
+                  <div className="text-xs text-ink-3">{a.role}</div>
+                </div>
+              </div>
+              <div className="mono text-[10.5px] text-amber mb-2">{a.skill}</div>
+              <div className="text-[13px] text-ink-2 leading-relaxed">{a.does}</div>
+              <div className="mt-3 pt-3 border-t border-line">
+                <div className="mono text-[10px] uppercase tracking-[0.12em] text-ink-faint mb-1">Trigger codes</div>
+                <div className="mono text-[11px] text-ink-3">{a.triggers}</div>
+              </div>
+            </button>
+          ))}
+        </div>
+
+        <Note tone="sage" label="How you actually talk to them">
+          Three equivalent moves: type the skill name (<code className="ic">bmad-prd</code>), load an agent then a code (<code className="ic">bmad-agent-dev</code> then <code className="ic">DS</code>), or just say <em>&ldquo;Hey Mary, let's brainstorm&rdquo;</em> — natural language activates the agent and skips the menu when your intent is clear.
+        </Note>
+
+        {/* Tracks */}
+        <div className="mt-14">
+          <div className="reveal mb-3"><Eyebrow>Right-sizing</Eyebrow></div>
+          <h3 className="display-tight text-xl md:text-2xl text-ink mb-3 reveal">Three tracks. Pick by planning need, not story count.</h3>
+          <p className="text-sm text-ink-2 mb-6 reveal" style={{ maxWidth: "62ch" }}>
+            The single most common mistake is running the full ceremony on a bug fix. BMAD explicitly supports skipping straight to implementation.
+          </p>
+          <div className="reveal card overflow-hidden mb-6">
+            <table className="grid-t">
+              <thead><tr><th>Track</th><th>Rough size</th><th>Use it for</th><th>Documents</th><th>Solutioning</th></tr></thead>
+              <tbody>
+                {BMAD_TRACKS.map(t => (
+                  <tr key={t.name}><td className="k">{t.name}</td><td>{t.size}</td><td>{t.use}</td><td>{t.docs}</td><td>{t.sol}</td></tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <Note tone="amber" label="Rule of thumb from the docs">
+            If you have multiple epics that could be implemented by different agents, you need solutioning. Otherwise Quick Flow is the honest answer — and it is a single command:
+            <div className="codeblock mt-3"><span className="cmd">run quick-dev — Fix the login validation bug that allows empty passwords.</span></div>
+          </Note>
+        </div>
+
+        {/* Gotchas */}
+        <div className="mt-14">
+          <div className="reveal mb-3"><Eyebrow color="var(--rust)">Traps</Eyebrow></div>
+          <h3 className="display-tight text-xl md:text-2xl text-ink mb-6 reveal">Eight things that will bite you.</h3>
+          <div className="reveal">
+            {BMAD_GOTCHAS.map((g, i) => (
+              <div key={g.t} className="layer-row">
+                <span className="layer-num">{i + 1}</span>
+                <div>
+                  <div className="text-ink font-medium mb-0.5">{g.t}</div>
+                  <div className="text-ink-2 text-[13px] leading-relaxed">{g.d}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </Section>
+  );
+};
+
+const BmadWalkSection = () => (
+  <Section
+    id="bmad-run"
+    eyebrowColor="var(--amber)"
+    eyebrow="BMAD · worked example"
+    title="Zero to shipped feature, twelve steps."
+    lede="This is the full BMad Method track — the long path. Click through it once and the vocabulary stops being abstract. Red dots are the points where a human has to make a call."
+    tint="var(--paper-2)"
+  >
+    <Walkthrough steps={BMAD_WALK} accent="var(--amber)" />
+  </Section>
+);
+
+/* ===========================================================
+   SUPERPOWERS — bootstrap illustration
+=========================================================== */
+const BootstrapDiagram = () => (
+  <div className="reveal mb-10 overflow-x-auto">
+    <svg viewBox="0 0 860 260" width="860" style={{ maxWidth: "100%", minWidth: 680 }}>
+      <defs>
+        <marker id="spA" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <path d="M0,0 L8,3 L0,6 Z" fill="var(--sage)" />
+        </marker>
+        <marker id="spB" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <path d="M0,0 L8,3 L0,6 Z" fill="var(--ink-3)" />
+        </marker>
+      </defs>
+
+      <text x="0" y="14" fontSize="10" fill="var(--ink-faint)" className="mono" letterSpacing="1">THE BOOTSTRAP IS THE ENTIRE INTEGRATION — WITHOUT IT THE SKILL FILES ARE INERT</text>
+
+      {/* 1 trigger */}
+      <rect x="0" y="34" width="150" height="70" rx="6" fill="var(--paper)" stroke="var(--ink)" strokeWidth="1.5" />
+      <text x="14" y="54" fontSize="11" fontWeight="600" fill="var(--ink)">SessionStart</text>
+      <text x="14" y="70" fontSize="9.5" fill="var(--ink-3)" className="mono">startup</text>
+      <text x="14" y="83" fontSize="9.5" fill="var(--ink-3)" className="mono">clear</text>
+      <text x="14" y="96" fontSize="9.5" fill="var(--sage)" className="mono">compact ← the clever bit</text>
+      <path d="M152,69 L184,69" stroke="var(--sage)" strokeWidth="1.5" markerEnd="url(#spA)" />
+
+      {/* 2 hook */}
+      <rect x="188" y="34" width="160" height="70" rx="6" fill="var(--sage-soft)" stroke="var(--sage)" strokeWidth="1.5" />
+      <text x="202" y="54" fontSize="11" fontWeight="600" fill="var(--ink)">hooks/session-start</text>
+      <text x="202" y="72" fontSize="9.5" fill="var(--ink-2)">reads the bootstrap skill,</text>
+      <text x="202" y="86" fontSize="9.5" fill="var(--ink-2)">wraps it, emits it as context</text>
+      <path d="M350,69 L382,69" stroke="var(--sage)" strokeWidth="1.5" markerEnd="url(#spA)" />
+
+      {/* 3 injected */}
+      <rect x="386" y="24" width="474" height="90" rx="6" fill="var(--ink)" />
+      <text x="402" y="44" fontSize="10" fill="#b9c9ff" className="mono">&lt;EXTREMELY_IMPORTANT&gt;</text>
+      <text x="402" y="60" fontSize="10.5" fill="#fff" className="mono">You have superpowers.</text>
+      <text x="402" y="78" fontSize="10" fill="#a8d8b4" className="mono">…full using-superpowers SKILL.md…</text>
+      <text x="402" y="98" fontSize="10" fill="#b9c9ff" className="mono">&lt;/EXTREMELY_IMPORTANT&gt;</text>
+
+      {/* rule */}
+      <path d="M623,116 L623,134" stroke="var(--ink-3)" strokeWidth="1.5" markerEnd="url(#spB)" />
+      <rect x="386" y="138" width="474" height="46" rx="6" fill="var(--paper)" stroke="var(--rust)" strokeWidth="1.5" />
+      <text x="402" y="157" fontSize="10.5" fill="var(--rust)" fontWeight="600">The rule it installs:</text>
+      <text x="402" y="174" fontSize="10.5" fill="var(--ink-2)">&ldquo;If there is even a 1% chance a skill applies, you MUST invoke it — before any response.&rdquo;</text>
+
+      {/* consequence */}
+      <path d="M623,186 L623,204" stroke="var(--ink-3)" strokeWidth="1.5" markerEnd="url(#spB)" />
+      <rect x="386" y="208" width="474" height="42" rx="6" fill="var(--sage-soft)" stroke="var(--sage)" />
+      <text x="402" y="226" fontSize="10.5" fill="var(--ink)" fontWeight="600">You type: &ldquo;Let's build a todo app&rdquo;</text>
+      <text x="402" y="242" fontSize="10.5" fill="var(--sage)">Agent replies: &ldquo;Using superpowers:brainstorming to explore the design.&rdquo;</text>
+
+      {/* left note */}
+      <rect x="0" y="138" width="348" height="112" rx="6" fill="var(--paper-2)" stroke="var(--line)" />
+      <text x="16" y="158" fontSize="10.5" fontWeight="600" fill="var(--ink)">Why re-inject on compact?</text>
+      <text x="16" y="177" fontSize="10" fill="var(--ink-2)">Long sessions get compacted. Compaction is</text>
+      <text x="16" y="191" fontSize="10" fill="var(--ink-2)">exactly when an agent forgets its discipline and</text>
+      <text x="16" y="205" fontSize="10" fill="var(--ink-2)">starts free-styling. Re-firing the hook there is</text>
+      <text x="16" y="219" fontSize="10" fill="var(--ink-2)">the difference between a process that holds for</text>
+      <text x="16" y="233" fontSize="10" fill="var(--ink-2)">20 minutes and one that holds all day.</text>
+    </svg>
+  </div>
+);
+
+/* ===========================================================
+   SUPERPOWERS — main section
+=========================================================== */
+const SpSection = () => {
+  const [sel, setSel] = useState("brainstorming");
+  const groups = ["Meta", "Lifecycle", "Review", "Discipline"];
+  const cur = SP_SKILLS.find(s => s.name === sel);
+  return (
+    <Section
+      id="sp"
+      eyebrowColor="var(--sage)"
+      eyebrow="Framework 02"
+      title="Superpowers — the discipline loop."
+      lede="Superpowers does not add a vocabulary you have to learn. It adds a set of rules your agent cannot talk itself out of, and then gets out of the way."
+      wide
+    >
+      <BootstrapDiagram />
+
+      <div className="max-w-5xl">
+        <Note tone="rust" label="This is the whole design">
+          Skills describe <strong className="text-ink">actions</strong>, never tool names — which is why the same 14 files run on Claude Code, Codex, Cursor, Copilot CLI, Gemini, Kimi, Droid, OpenCode, Pi and Antigravity. Only the bootstrap and a small tool-mapping file change per harness.
+        </Note>
+
+        {/* Skill explorer */}
+        <div className="mt-14">
+          <div className="reveal mb-3"><Eyebrow>The library</Eyebrow></div>
+          <h3 className="display-tight text-xl md:text-2xl text-ink mb-3 reveal">Fourteen skills. That is the entire surface area.</h3>
+          <p className="text-sm text-ink-2 mb-7 reveal" style={{ maxWidth: "62ch" }}>
+            Click any skill to see its real <code className="ic">description</code> field — the exact text the agent reads when deciding whether to fire — alongside a plain-English translation.
+          </p>
+
+          <div className="grid md:grid-cols-[300px_1fr] gap-6 items-start">
+            <div className="reveal">
+              {groups.map(g => (
+                <div key={g} className="mb-5">
+                  <div className="mono text-[10px] uppercase tracking-[0.14em] text-ink-3 mb-2">{g}</div>
+                  {SP_SKILLS.filter(s => s.g === g).map(s => (
+                    <button key={s.name} onClick={() => setSel(s.name)}
+                      className="block w-full text-left mono text-[12px] px-3 py-2 mb-1 rounded transition-all"
+                      style={sel === s.name
+                        ? { background: "var(--ink)", color: "var(--paper)" }
+                        : { background: "var(--paper-2)", color: "var(--ink-2)", border: "1px solid var(--line)" }}>
+                      {s.name}
+                    </button>
+                  ))}
+                </div>
+              ))}
+            </div>
+
+            <div key={sel} className="card p-6 anim-enter" style={{ position: "sticky", top: 70 }}>
+              <div className="chip chip-sage mb-4">{cur.g}</div>
+              <div className="mono text-lg text-ink mb-4">superpowers:{cur.name}</div>
+              <div className="mono text-[10px] uppercase tracking-[0.14em] text-ink-3 mb-2">description: (verbatim — this is the trigger)</div>
+              <div className="text-[13px] text-ink-2 italic leading-relaxed mb-5 pl-3" style={{ borderLeft: "2px solid var(--sage)" }}>
+                &ldquo;{cur.desc}&rdquo;
+              </div>
+              <div className="mono text-[10px] uppercase tracking-[0.14em] text-ink-3 mb-2">In plain English</div>
+              <div className="text-sm text-ink-2 leading-relaxed">{cur.plain}</div>
+            </div>
+          </div>
+
+          <div className="mt-6">
+            <Note tone="sage" label="Authoring rule worth stealing">
+              A skill's description must say <strong className="text-ink">only when to use it</strong> — never what it does. Their testing found that when a description summarised the workflow, agents followed the summary instead of reading the skill. One description saying &ldquo;code review between tasks&rdquo; caused agents to do <em>one</em> review where the skill clearly specified two.
+            </Note>
+          </div>
+        </div>
+
+        {/* Iron laws */}
+        <div className="mt-14">
+          <div className="reveal mb-3"><Eyebrow color="var(--rust)">Non-negotiable</Eyebrow></div>
+          <h3 className="display-tight text-xl md:text-2xl text-ink mb-3 reveal">Three iron laws, plus one hard gate.</h3>
+          <p className="text-sm text-ink-2 mb-7 reveal" style={{ maxWidth: "62ch" }}>
+            Each skill that carries a law also carries a table of the rationalisations an agent will reach for, and the rebuttal. There is an explicit anti-loophole clause: <em>violating the letter of the rules is violating the spirit of the rules.</em>
+          </p>
+          <div className="grid md:grid-cols-2 gap-4">
+            {SP_LAWS.map(l => (
+              <div key={l.from} className="card p-5 reveal" style={{ borderLeft: "3px solid var(--rust)" }}>
+                <div className="mono text-[12px] font-semibold text-rust leading-snug mb-3">{l.law}</div>
+                <div className="mono text-[10.5px] text-ink-faint mb-3">superpowers:{l.from}</div>
+                <div className="text-[13px] text-ink-2 leading-relaxed mb-3">{l.why}</div>
+                <div className="text-[13px] text-ink leading-relaxed pt-3 border-t border-line">{l.teeth}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* SDD loop illustration */}
+        <div className="mt-14">
+          <div className="reveal mb-3"><Eyebrow color="var(--sage)">The centrepiece</Eyebrow></div>
+          <h3 className="display-tight text-xl md:text-2xl text-ink mb-3 reveal">Subagent-driven development, in one picture.</h3>
+          <p className="text-sm text-ink-2 mb-7 reveal" style={{ maxWidth: "62ch" }}>
+            The controller never writes code. It dispatches, reviews, records, and adjudicates. Everything is handed over as a <strong className="text-ink">file path</strong>, never pasted — because anything you paste into a prompt stays in context and gets re-read on every turn for the rest of the session.
+          </p>
+
+          <div className="reveal overflow-x-auto mb-6">
+            <svg viewBox="0 0 860 300" width="860" style={{ maxWidth: "100%", minWidth: 700 }}>
+              <defs>
+                <marker id="sdA" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                  <path d="M0,0 L8,3 L0,6 Z" fill="var(--ink-3)" />
+                </marker>
+                <marker id="sdR" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                  <path d="M0,0 L8,3 L0,6 Z" fill="var(--rust)" />
+                </marker>
+              </defs>
+
+              {/* controller lane */}
+              <rect x="0" y="20" width="860" height="60" rx="6" fill="var(--paper-2)" stroke="var(--line)" />
+              <text x="14" y="40" fontSize="11" fontWeight="600" fill="var(--ink)">Controller (your session)</text>
+              <text x="14" y="58" fontSize="9.5" fill="var(--ink-3)">keeps context clean · owns the ledger · never fixes code itself · never tells a reviewer what to ignore</text>
+              <text x="14" y="72" fontSize="9.5" fill="var(--sage)" className="mono">.superpowers/sdd/&lt;plan&gt;/progress.md — survives compaction</text>
+
+              {/* per task */}
+              <rect x="0" y="98" width="640" height="120" rx="6" fill="var(--paper)" stroke="var(--sage)" strokeWidth="1.5" strokeDasharray="4 3" />
+              <text x="14" y="116" fontSize="9.5" fill="var(--sage)" className="mono" letterSpacing="1">FOR EVERY TASK IN THE PLAN — NO CHECK-INS BETWEEN TASKS</text>
+
+              <rect x="16" y="128" width="130" height="72" rx="5" fill="var(--paper-2)" stroke="var(--line)" />
+              <text x="28" y="148" fontSize="10.5" fontWeight="600" fill="var(--ink)">task-brief</text>
+              <text x="28" y="164" fontSize="9" fill="var(--ink-3)">writes task-N-brief.md</text>
+              <text x="28" y="178" fontSize="9" fill="var(--ink-3)">to a file, not the chat</text>
+              <path d="M148,164 L172,164" stroke="var(--ink-3)" strokeWidth="1.5" markerEnd="url(#sdA)" />
+
+              <rect x="176" y="128" width="140" height="72" rx="5" fill="var(--sage-soft)" stroke="var(--sage)" />
+              <text x="188" y="148" fontSize="10.5" fontWeight="600" fill="var(--ink)">Implementer</text>
+              <text x="188" y="164" fontSize="9" fill="var(--ink-2)">fresh subagent, cheapest</text>
+              <text x="188" y="177" fontSize="9" fill="var(--ink-2)">capable model, TDD only</text>
+              <text x="188" y="191" fontSize="8.5" fill="var(--sage)" className="mono">DONE / CONCERNS / BLOCKED</text>
+              <path d="M318,164 L342,164" stroke="var(--ink-3)" strokeWidth="1.5" markerEnd="url(#sdA)" />
+
+              <rect x="346" y="128" width="140" height="72" rx="5" fill="var(--paper-2)" stroke="var(--line)" />
+              <text x="358" y="148" fontSize="10.5" fontWeight="600" fill="var(--ink)">Reviewer</text>
+              <text x="358" y="164" fontSize="9" fill="var(--ink-2)">two verdicts: spec ✓/✗</text>
+              <text x="358" y="177" fontSize="9" fill="var(--ink-2)">and quality findings</text>
+              <text x="358" y="191" fontSize="8.5" fill="var(--ink-3)" className="mono">critical / important / minor</text>
+              <path d="M488,164 L512,164" stroke="var(--ink-3)" strokeWidth="1.5" markerEnd="url(#sdA)" />
+
+              <rect x="516" y="128" width="110" height="72" rx="5" fill="var(--paper)" stroke="var(--ink)" />
+              <text x="528" y="148" fontSize="10.5" fontWeight="600" fill="var(--ink)">Ledger entry</text>
+              <text x="528" y="166" fontSize="9" fill="var(--ink-2)">Task N: complete</text>
+              <text x="528" y="180" fontSize="9" fill="var(--ink-2)">(commits, review clean)</text>
+
+              {/* fix loop */}
+              <path d="M416,204 C416,236 250,236 246,204" stroke="var(--rust)" strokeWidth="1.5" fill="none" strokeDasharray="4 3" markerEnd="url(#sdR)" />
+              <text x="268" y="248" fontSize="9.5" fill="var(--rust)">fix loop · same implementer, findings verbatim · max 5 rounds, then the controller adjudicates</text>
+
+              {/* final */}
+              <rect x="660" y="98" width="200" height="120" rx="6" fill="var(--paper)" stroke="var(--ink)" strokeWidth="1.5" />
+              <text x="674" y="118" fontSize="10.5" fontWeight="600" fill="var(--ink)">Final review</text>
+              <text x="674" y="136" fontSize="9.5" fill="var(--ink-2)">once, over merge-base..HEAD</text>
+              <text x="674" y="150" fontSize="9.5" fill="var(--ink-2)">on the most capable model</text>
+              <text x="674" y="170" fontSize="9.5" fill="var(--ink-2)">ONE fix wave if needed,</text>
+              <text x="674" y="184" fontSize="9.5" fill="var(--ink-2)">then one scoped re-review</text>
+              <text x="674" y="204" fontSize="9" fill="var(--rust)">no second wave — it costs more</text>
+              <text x="674" y="216" fontSize="9" fill="var(--rust)">than all the tasks combined</text>
+
+              <text x="0" y="278" fontSize="10" fill="var(--ink-faint)" className="mono" letterSpacing="1">WHY SUBAGENTS: THEY INHERIT NOTHING. YOU CONSTRUCT EXACTLY THE CONTEXT EACH ONE NEEDS.</text>
+              <text x="0" y="294" fontSize="10" fill="var(--ink-3)">Claimed effect in the project's own evals: comparable quality, roughly 2× faster, ~50% fewer tokens. Treat as a vendor claim.</text>
+            </svg>
+          </div>
+        </div>
+
+        {/* Skill anatomy */}
+        <div className="mt-14">
+          <div className="reveal mb-3"><Eyebrow>Write your own</Eyebrow></div>
+          <h3 className="display-tight text-xl md:text-2xl text-ink mb-3 reveal">Anatomy of a skill.</h3>
+          <p className="text-sm text-ink-2 mb-7 reveal" style={{ maxWidth: "62ch" }}>
+            This is the part most worth copying into your own org, whether or not you adopt Superpowers itself. A skill is a folder with a <code className="ic">SKILL.md</code>. Two required frontmatter fields. Flat namespace, so everything is greppable.
+          </p>
+          <div className="grid md:grid-cols-2 gap-6">
+            <Code>
+{`skills/
+  your-skill-name/
+    `}<span className="cmd">SKILL.md</span>{`            `}<span className="dim">← required</span>{`
+    heavy-reference.md  `}<span className="dim">← only if 100+ lines</span>{`
+    helper.sh           `}<span className="dim">← only if reusable</span>{`
+
+`}<span className="dim">Keep inline: principles, concepts,
+code patterns under 50 lines.</span>
+            </Code>
+            <Code>
+<span className="dim">{`---`}</span>{`
+`}<span className="cmd">name</span>{`: condition-based-waiting
+`}<span className="cmd">description</span>{`: Use when tests use sleep or
+  setTimeout, or are flaky, hanging, or
+  timing-dependent
+`}<span className="dim">---</span>{`
+
+`}<span className="ok"># Condition-Based Waiting</span>{`
+## Overview        `}<span className="dim">core principle, 1–2 lines</span>{`
+## When to Use     `}<span className="dim">+ when NOT to</span>{`
+## Core Pattern    `}<span className="dim">before / after</span>{`
+## Quick Reference `}<span className="dim">scannable table</span>{`
+## Common Mistakes`}
+            </Code>
+          </div>
+
+          <div className="mt-6 grid md:grid-cols-3 gap-4">
+            {[
+              { t: "Name it after the symptom", d: "condition-based-waiting beats async-test-helpers. Verb-first or gerund. The agent finds skills by grepping descriptions — write for that search." },
+              { t: "Budget your tokens", d: "Frequently-loaded skills under 200 words total; others under 500. They literally check with wc -w." },
+              { t: "Never use @-references", d: "@skills/foo/SKILL.md force-loads the file immediately and can burn 200k of context before you need it. Write \"REQUIRED SUB-SKILL: use superpowers:foo\" instead." },
+            ].map(x => (
+              <div key={x.t} className="card p-5 reveal">
+                <div className="font-medium text-ink mb-2 text-sm">{x.t}</div>
+                <div className="text-[13px] text-ink-2 leading-relaxed">{x.d}</div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6">
+            <Note tone="rust" label="The bit nobody expects">
+              Skills are tested by putting a subagent under <strong className="text-ink">pressure</strong> — time pressure, sunk cost, authority, exhaustion — and seeing whether it breaks the rule. Best scenarios combine three or more. If it breaks, you ask it: <em>&ldquo;how could that skill have been written so it was crystal clear this was the only acceptable answer?&rdquo;</em> and rewrite. A skill is bulletproof when the agent complies under maximum pressure, cites the skill, and admits it was tempted.
+            </Note>
+          </div>
+        </div>
+
+        {/* Gotchas */}
+        <div className="mt-14">
+          <div className="reveal mb-3"><Eyebrow color="var(--rust)">Traps</Eyebrow></div>
+          <h3 className="display-tight text-xl md:text-2xl text-ink mb-6 reveal">Eight things that will bite you.</h3>
+          <div className="reveal">
+            {SP_GOTCHAS.map((g, i) => (
+              <div key={g.t} className="layer-row">
+                <span className="layer-num">{i + 1}</span>
+                <div>
+                  <div className="text-ink font-medium mb-0.5">{g.t}</div>
+                  <div className="text-ink-2 text-[13px] leading-relaxed">{g.d}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </Section>
+  );
+};
+
+const SpWalkSection = () => (
+  <Section
+    id="sp-run"
+    eyebrowColor="var(--sage)"
+    eyebrow="Superpowers · worked example"
+    title="One sentence in, a reviewed branch out."
+    lede="Notice how little you type. After the install, step two is the last thing you had to think about — everything after it is the framework driving itself, pausing only at the checkpoints."
+    tint="var(--paper-2)"
+  >
+    <Walkthrough steps={SP_WALK} accent="var(--sage)" />
+  </Section>
+);
+
+/* ===========================================================
+   COMPARE
+=========================================================== */
+const CompareSection = () => {
+  const [answers, setAnswers] = useState({});
+  const Q = [
+    { id: "q1", q: "Where does your pain actually start?", a: [
+      { t: "Nobody agrees what we're building", w: "b" },
+      { t: "We know what to build, the code comes back sloppy", w: "s" },
+    ]},
+    { id: "q2", q: "Who is going to use this?", a: [
+      { t: "Mixed team — PMs, designers, engineers", w: "b" },
+      { t: "Engineers, mostly working solo with an agent", w: "s" },
+    ]},
+    { id: "q3", q: "What does a typical unit of work look like?", a: [
+      { t: "A multi-epic initiative over weeks", w: "b" },
+      { t: "A feature or fix over hours to days", w: "s" },
+    ]},
+    { id: "q4", q: "What would make your lead engineer happiest?", a: [
+      { t: "Requirements that don't change three times", w: "b" },
+      { t: "Tests that exist and reviews that happen", w: "s" },
+    ]},
+  ];
+  const done = Object.keys(answers).length === Q.length;
+  const bCount = Object.values(answers).filter(v => v === "b").length;
+  const verdict = bCount >= 3 ? "b" : bCount <= 1 ? "s" : "both";
+
+  return (
+    <Section
+      id="compare"
+      eyebrow="Head to head"
+      title="They are not competitors. They are different halves."
+      lede="Read the table for the honest differences, then answer four questions to get a starting recommendation."
+      wide
+    >
+      <div className="max-w-5xl">
+        <div className="reveal card overflow-hidden mb-12">
+          <table className="grid-t">
+            <thead>
+              <tr>
+                <th style={{ width: "18%" }}>Dimension</th>
+                <th style={{ width: "41%", color: "var(--amber)" }}>BMAD Method</th>
+                <th style={{ width: "41%", color: "var(--sage)" }}>Superpowers</th>
+              </tr>
+            </thead>
+            <tbody>
+              {COMPARE.map(r => (
+                <tr key={r.dim}><td className="k">{r.dim}</td><td>{r.b}</td><td>{r.s}</td></tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Combining */}
+        <div className="mb-12">
+          <div className="reveal mb-3"><Eyebrow>The obvious question</Eyebrow></div>
+          <h3 className="display-tight text-xl md:text-2xl text-ink mb-4 reveal">Can you run both?</h3>
+          <div className="grid md:grid-cols-2 gap-5">
+            <div className="card p-5 reveal">
+              <div className="chip chip-sage mb-3">Yes, technically</div>
+              <p className="text-[13px] text-ink-2 leading-relaxed">
+                They are separate installs writing to separate folders. Nothing collides on disk. The natural split is <strong className="text-ink">BMAD for phases 1–3</strong> (brief → PRD → architecture → stories) and <strong className="text-ink">Superpowers for phase 4</strong> (each story becomes a spec → plan → TDD → review cycle).
+              </p>
+            </div>
+            <div className="card p-5 reveal" style={{ borderLeft: "3px solid var(--rust)" }}>
+              <div className="chip chip-rust mb-3">But watch out</div>
+              <p className="text-[13px] text-ink-2 leading-relaxed">
+                Both want to own the implementation loop, and Superpowers' bootstrap is deliberately aggressive — it will try to route <code className="ic">bmad-dev-story</code> through brainstorming. Pick one owner for phase 4 and say so explicitly in your <code className="ic">CLAUDE.md</code>. User instructions beat skills; that is the documented escape hatch.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Chooser */}
+        <div className="reveal card p-6 md:p-8">
+          <div className="mono text-[10px] uppercase tracking-[0.14em] text-ink-3 mb-4">Four questions</div>
+          <div className="space-y-6">
+            {Q.map(q => (
+              <div key={q.id}>
+                <div className="text-sm font-medium text-ink mb-3">{q.q}</div>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  {q.a.map(a => (
+                    <button key={a.t}
+                      onClick={() => setAnswers({ ...answers, [q.id]: a.w })}
+                      className={`tab flex-1 text-left ${answers[q.id] === a.w ? "active" : ""}`}>
+                      {a.t}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {done && (
+            <div className="mt-7 pt-6 border-t border-line anim-enter">
+              <div className="mono text-[10px] uppercase tracking-[0.14em] text-ink-3 mb-2">Starting recommendation</div>
+              {verdict === "b" && (
+                <>
+                  <div className="display-tight text-2xl text-amber mb-2">Start with BMAD Method.</div>
+                  <p className="text-sm text-ink-2 leading-relaxed" style={{ maxWidth: "62ch" }}>
+                    Your bottleneck is upstream of the code. Run one real feature through Phases 1–3 with a small group, and treat the PRD and architecture docs as the deliverable. Add Superpowers later if the code quality complaints outlive the planning ones.
+                  </p>
+                </>
+              )}
+              {verdict === "s" && (
+                <>
+                  <div className="display-tight text-2xl text-sage mb-2">Start with Superpowers.</div>
+                  <p className="text-sm text-ink-2 leading-relaxed" style={{ maxWidth: "62ch" }}>
+                    You already know what to build. Install it, restart, and ship one real feature without changing how you talk. The behaviour change is visible in the first ten minutes, which makes it far easier to sell internally.
+                  </p>
+                </>
+              )}
+              {verdict === "both" && (
+                <>
+                  <div className="display-tight text-2xl text-ink mb-2">Superpowers first, BMAD second.</div>
+                  <p className="text-sm text-ink-2 leading-relaxed" style={{ maxWidth: "62ch" }}>
+                    You have pain at both ends. Superpowers costs one command and zero process change, so it buys you credibility cheaply. Layer BMAD's planning phases on top once the team trusts the tooling — and give phase 4 to exactly one of them.
+                  </p>
+                </>
+              )}
+              <button className="tab mt-5" onClick={() => setAnswers({})}>Reset</button>
+            </div>
+          )}
+        </div>
+      </div>
+    </Section>
+  );
+};
+
+/* ===========================================================
+   ADOPT
+=========================================================== */
+const AdoptSection = () => (
+  <Section
+    id="adopt"
+    eyebrow="Try it today"
+    title="Your first sixty minutes."
+    lede="Do not read more. Pick a real, small, low-stakes task in a repo you can afford to branch, and run one of these end to end."
+    tint="var(--paper-2)"
+    wide
+  >
+    <div className="max-w-5xl grid md:grid-cols-2 gap-6">
+      <div className="reveal">
+        <div className="chip chip-amber mb-4">BMAD · about 45 min</div>
+        <div className="space-y-0">
+          {[
+            ["Install", "npx bmad-method install — pick bmm, pick your IDE. Restart the IDE."],
+            ["Ask for directions", "bmad-help plus one sentence about your project. Let it pick your track."],
+            ["Take the Quick Flow", "run quick-dev — <your small task>. This is the whole framework in one command."],
+            ["Read what it wrote", "Open the spec-*.md it produced. That file is the artefact you are really buying."],
+            ["Then do it the long way", "On a bigger idea, run bmad-brainstorming → bmad-prd and stop there. Compare the PRD to what you'd have written."],
+          ].map(([t, d], i) => (
+            <div key={t} className="checkpoint">
+              <div className="text-sm font-medium text-ink mb-1">{i + 1}. {t}</div>
+              <div className="text-[13px] text-ink-2 leading-relaxed">{d}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="reveal">
+        <div className="chip chip-sage mb-4">Superpowers · about 30 min</div>
+        <div className="space-y-0">
+          {[
+            ["Install", "/plugin install superpowers@claude-plugins-official — then quit and restart the agent."],
+            ["Run the acceptance test", "Open a clean session and type exactly: Let's make a react todo list. It should announce brainstorming before writing anything."],
+            ["Answer its questions", "One at a time. Notice it never asks two. Approve the design section by section."],
+            ["Let it plan and build", "Choose subagent-driven when offered. Then leave it alone — it is designed not to check in between tasks."],
+            ["Read the plan file", "docs/superpowers/plans/*.md. The task granularity is the lesson, whether or not you keep the tool."],
+          ].map(([t, d], i) => (
+            <div key={t} className="checkpoint">
+              <div className="text-sm font-medium text-ink mb-1">{i + 1}. {t}</div>
+              <div className="text-[13px] text-ink-2 leading-relaxed">{d}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    <div className="max-w-5xl mt-10">
+      <Note tone="amber" label="If you are rolling this out to a team">
+        Measure something. Both frameworks produce artefacts with timestamps, so cycle time per story, review findings per story, and rework rate are all countable without new tooling. Run a two-week pilot with one squad, keep a control squad, and compare — otherwise adoption becomes a taste argument and taste arguments do not scale.
+      </Note>
+    </div>
+  </Section>
+);
+
+/* ===========================================================
+   RESOURCES
+=========================================================== */
+const ResourcesSection = () => (
+  <Section
+    id="more"
+    eyebrow="Go deeper"
+    title="Primary sources."
+  >
+    <div className="grid md:grid-cols-2 gap-8">
+      <div className="reveal">
+        <div className="chip chip-amber mb-4">BMAD Method</div>
+        <ul className="space-y-3 text-sm">
+          {[
+            ["Documentation home", "https://docs.bmad-method.org/"],
+            ["Getting started tutorial", "https://docs.bmad-method.org/tutorials/getting-started/"],
+            ["Workflow map — the one-page overview", "https://docs.bmad-method.org/reference/workflow-map/"],
+            ["Agent reference", "https://docs.bmad-method.org/reference/agents/"],
+            ["Whole docs site as one text file (for feeding to an agent)", "https://docs.bmad-method.org/llms-full.txt"],
+            ["Source", "https://github.com/bmad-code-org/BMAD-METHOD"],
+          ].map(([t, u]) => (
+            <li key={u}><a className="tlink" href={u} target="_blank" rel="noreferrer">{t}</a><div className="mono text-[11px] text-ink-faint mt-0.5">{u}</div></li>
+          ))}
+        </ul>
+        <div className="mt-6">
+          <div className="mono text-[10px] uppercase tracking-[0.14em] text-ink-3 mb-2">Also in the ecosystem</div>
+          <div className="text-[13px] text-ink-2 leading-relaxed">
+            <strong className="text-ink">BMB</strong> BMad Builder — build your own agents and modules ·
+            {" "}<strong className="text-ink">CIS</strong> Creative Intelligence Suite ·
+            {" "}<strong className="text-ink">GDS</strong> Game Dev Studio ·
+            {" "}<strong className="text-ink">TEA</strong> Test Architect, adds Murat and nine test workflows.
+          </div>
+        </div>
+      </div>
+
+      <div className="reveal">
+        <div className="chip chip-sage mb-4">Superpowers</div>
+        <ul className="space-y-3 text-sm">
+          {[
+            ["Source and README", "https://github.com/obra/superpowers"],
+            ["The skills themselves — read brainstorming and TDD first", "https://github.com/obra/superpowers/tree/main/skills"],
+            ["Marketplace (note the different repo name)", "https://github.com/obra/superpowers-marketplace"],
+            ["Plugin listing", "https://claude.com/plugins/superpowers"],
+            ["The announcement post — the philosophy, and how it was built", "https://blog.fsck.com/2025/10/09/superpowers/"],
+          ].map(([t, u]) => (
+            <li key={u}><a className="tlink" href={u} target="_blank" rel="noreferrer">{t}</a><div className="mono text-[11px] text-ink-faint mt-0.5">{u}</div></li>
+          ))}
+        </ul>
+        <div className="mt-6">
+          <div className="mono text-[10px] uppercase tracking-[0.14em] text-ink-3 mb-2">Sibling plugins</div>
+          <div className="text-[13px] text-ink-2 leading-relaxed">
+            <strong className="text-ink">superpowers-chrome</strong> browser access ·
+            {" "}<strong className="text-ink">episodic-memory</strong> semantic search over past sessions ·
+            {" "}<strong className="text-ink">elements-of-style</strong> writing rules ·
+            {" "}<strong className="text-ink">superpowers-lab</strong> experimental.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div className="mt-10">
+      <Note tone="rust" label="One caveat before you cite anything here">
+        Both projects ship fast — BMAD is on v6 with a live roadmap, Superpowers was on v6.2 as of late July 2026 and removes features between minor versions. Command names, skill names and defaults in this guide were accurate at the time of writing. Check upstream before you put any of it in a runbook.
+      </Note>
+    </div>
+  </Section>
+);
+
+/* ===========================================================
+   APP
+=========================================================== */
+function App() {
+  useReveal();
+  const active = useActiveSection(NAV.map(n => n.id));
+  return (
+    <div className="relative">
+      <nav className="stickynav">
+        {NAV.map(n => <a key={n.id} href={`#${n.id}`} className={active === n.id ? "active" : ""} title={n.label} />)}
+      </nav>
+      <Header />
+      <Opening />
+      <ProblemSection />
+      <GlanceSection />
+      <BmadSection />
+      <BmadWalkSection />
+      <SpSection />
+      <SpWalkSection />
+      <CompareSection />
+      <AdoptSection />
+      <ResourcesSection />
+      <Footer />
+    </div>
+  );
+}
+
+const Header = () => (
+  <header className="ruled sticky top-0 z-40" style={{ background: "rgba(255,255,255,0.92)", backdropFilter: "blur(8px)" }}>
+    <div className="max-w-6xl mx-auto px-6 md:px-10 py-3 flex items-center justify-between text-xs">
+      <div className="flex items-center gap-3 mono">
+        <span className="drop"></span>
+        <span className="text-ink font-medium">BMAD METHOD &amp; SUPERPOWERS</span>
+        <span className="text-ink-faint hidden md:inline">— training &amp; learning guide</span>
+      </div>
+      <div className="text-ink-faint hidden md:block mono">Two ways to give an agent a process</div>
+    </div>
+  </header>
+);
+
+const Footer = () => (
+  <footer className="max-w-5xl mx-auto px-6 md:px-10 py-10 text-xs text-ink-faint mono flex flex-wrap items-center justify-between gap-3">
+    <span>Training material · compiled from the official BMAD docs and the obra/superpowers source</span>
+    <span>Verify commands against upstream before rolling out — both projects move fast</span>
+  </footer>
+);
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

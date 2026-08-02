@@ -1,0 +1,1 @@
+This is the root module of the NestJS application that bundles all feature modules such as settings, Google, AI, Jira, and IAM. It also handles global configuration loading via ConfigModule and sets up the TypeORM database connection.

@@ -1,0 +1,48 @@
+version: "3"
+
+services:
+  db:
+    image: postgres:latest
+    container_name: pg-track-wise
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: pass123
+      POSTGRES_DB: track-wise
+    volumes:
+      - pg-track-wise-data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin4
+    depends_on:
+      - db
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+
+#   server:
+#     build: .
+#     container_name: node-track-wise
+#     environment:
+#       DB_HOST: mongo
+#       DB_NAME: track-wise
+#       DB_USER: root
+#       DB_PASSWORD: root
+#       NODE_ENV: development
+#       PORT: 5001
+#     env_file:
+#       - ./.env
+#     ports:
+#       - "5001:5001"
+#     depends_on:
+#       - mongo
+#     volumes:
+#       - ./:/app
+volumes:
+  pg-track-wise-data:
+  pgadmin-data:

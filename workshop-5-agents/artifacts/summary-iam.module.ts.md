@@ -1,0 +1,1 @@
+The `IamModule` configures Identity and Access Management for the application, handling user authentication and token generation using JWT. It provides services for password hashing (Bcrypt) and Google OAuth, while registering a global authentication guard.

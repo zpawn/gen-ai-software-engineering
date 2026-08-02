@@ -1,0 +1,1 @@
+This project is a Node.js REST API that provides endpoints for user authentication, Google Calendar integration, AI-based summaries, and Jira worklogging. It also includes instructions for developers to set up a local proxy using ngrok in order to properly handle Google OAuth callbacks during local development.

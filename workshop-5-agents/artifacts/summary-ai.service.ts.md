@@ -1,0 +1,1 @@
+The `AiService` handles the business logic for generating AI responses based on calendar events. It retrieves user-specific AI settings from the database and uses an AI strategy factory to invoke the appropriate AI provider model.
