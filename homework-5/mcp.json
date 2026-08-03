@@ -5,6 +5,14 @@
       "headers": {
         "Authorization": "Bearer ..."
       }
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/Users/zpawn/public/myself/gen-ai-software-engineering"
+      ]
     }
   }
 }
