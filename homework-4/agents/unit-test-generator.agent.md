@@ -2,7 +2,7 @@
 name: unit-test-generator
 description: Generates and runs FIRST-compliant Jest unit tests for production behavior changed by a verified bug fix.
 tools: Read, Grep, Glob, Edit, Write, Bash
-model: sonnet
+model: haiku
 skills:
   - unit-tests-first
 ---
