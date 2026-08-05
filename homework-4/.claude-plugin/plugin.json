@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "homework-4-agent-pipeline",
+  "displayName": "Homework 4 Agent Pipeline",
+  "version": "1.0.0",
+  "description": "Six-stage bug research, fix, security, and test pipeline",
+  "author": {
+    "name": "illia makarov"
+  }
+}
