@@ -64,3 +64,66 @@
 - Зміни: погоджено окремий project-level skill для feature specs, routing `docs/specifications/<feature-slug>.md` і використання адаптованої локальної копії `homework-3/specification-TEMPLATE-example.md` як bundled template asset.
 - Файли: `docs/superpowers/specs/2026-08-09-feature-specification-skill-design.md`, `docs/log.md`
 - Перевірка: design звірено з `AGENTS.md`, поточними `specification-agent`/`write-spec` і Homework 3 template; implementation ще не виконувалась.
+
+## [2026-08-09] research | Claude Code project skills і subagent preload
+
+- Автор/інструмент: Codex + Context7
+- Зміни: перевірено project skill structure, relative bundled assets, `skills` frontmatter для subagent preload і `Agent` tool для delegation із custom command.
+- Файли: `docs/research-notes.md`, `.claude/agents/specification-agent.md`, `.claude/commands/write-spec.md`
+- Перевірка: Context7 queries 7–9 до `/websites/code_claude`; застосовані patterns звірено з фактичним frontmatter.
+
+## [2026-08-09] implement | Reusable skill для feature specifications
+
+- Автор/інструмент: Codex
+- Зміни: створено project skill `writing-feature-specifications`, bundled template на основі Homework 3, feature/project routing у specification agent і `/write-spec`, canonical feature paths в AGENTS та README.
+- Файли: `.claude/skills/writing-feature-specifications/`, `.claude/agents/specification-agent.md`, `.claude/commands/write-spec.md`, `AGENTS.md`, `README.md`
+- Перевірка: official skill-creator initialization; `quick_validate.py` повернув `Skill is valid!`; SKILL.md має 478 words.
+
+## [2026-08-09] test | RED-GREEN перевірка specification skill
+
+- Автор/інструмент: Codex + fresh reviewer agents
+- Зміни: задокументовано baseline без skill і повторено той самий recurring-payments scenario з підключеним skill.
+- Файли: `docs/skill-evaluations/writing-feature-specifications.md`
+- Перевірка: RED — agent помилково вибрав `docs/specification.md`; GREEN — agent вибрав `docs/specifications/recurring-payments.md`, застосував complete template outline і зберіг no-implementation/no-commit boundaries; result `PASS`.
+
+## [2026-08-09] test | Artifact-producing RED-GREEN перевірка
+
+- Автор/інструмент: Codex + fresh subagents
+- Зміни: старий і новий specification workflows виконано у двох isolated fixtures із реальним записом files; RED змінив global spec, GREEN створив canonical feature spec і зберіг global spec незмінною.
+- Файли: `docs/skill-evaluations/writing-feature-specifications.md`, temporary `.skill-eval-fixtures/`
+- Перевірка: RED SHA-256 global spec змінився і log count зріс 9→10; GREEN SHA-256 не змінився, створено complete feature spec, log count зріс 12→14 лише append-операціями; fixtures видаляються після фіксації evidence.
+
+## [2026-08-09] verify | Відтворювана валідація specification skill
+
+- Автор/інструмент: Codex + official skill-creator validator
+- Зміни: задокументовано prerequisite `PyYAML` і exact isolated-venv command для повторного запуску official validation.
+- Файли: `docs/skill-evaluations/writing-feature-specifications.md`, `.claude/skills/writing-feature-specifications/SKILL.md`
+- Перевірка: `quick_validate.py` у `/tmp/hw6-skill-validate-venv` повернув `Skill is valid!`; використано `PyYAML 6.0.3`.
+
+## [2026-08-09] verify | Незалежний re-review Task 1
+
+- Автор/інструмент: Codex reviewer subagent
+- Зміни: повторно перевірено project/feature objective counts, artifact-producing RED-GREEN evidence, validator reproducibility і canonical specification paths у README.
+- Файли: `.claude/commands/write-spec.md`, `README.md`, `docs/skill-evaluations/writing-feature-specifications.md`, `docs/log.md`
+- Перевірка: попередні три findings закрито; YAML, canonical paths, Markdown fences і `git diff --check` пройшли; нових Critical, Important або Minor findings немає; статус `Approved`.
+
+## [2026-08-09] design | HW6-префікси для власних skill та agents
+
+- Автор/інструмент: ilia makarov + Codex
+- Зміни: погоджено додати префікс `hw6-` лише до створених у Homework 6 skill та чотирьох AI meta-agents; сторонні Superpowers skills і slash commands залишаються без змін.
+- Файли: `docs/superpowers/specs/2026-08-09-hw6-agent-skill-prefix-design.md`, `docs/log.md`
+- Перевірка: naming map охоплює directory/file names, frontmatter і всі активні references; implementation очікує review дизайну.
+
+## [2026-08-09] refactor | HW6-префікси для власних skill та agents
+
+- Автор/інструмент: Codex
+- Зміни: custom specification skill і чотири AI meta-agents перейменовано з префіксом `hw6-`; оновлено matching YAML frontmatter, skill preload, `/write-spec`, README, AGENTS і supporting documentation.
+- Файли: `.claude/skills/hw6-writing-feature-specifications/`, `.claude/agents/hw6-*.md`, `.claude/commands/write-spec.md`, `AGENTS.md`, `README.md`, `docs/skill-evaluations/hw6-writing-feature-specifications.md`, `docs/research-notes.md`, `docs/superpowers/`
+- Перевірка: RED discovery check до rename завершився з exit code 1; GREEN validation очікує запуску після повного stale-reference scan.
+
+## [2026-08-09] verify | Перевірка HW6-префіксів
+
+- Автор/інструмент: Codex + independent reviewer subagent
+- Зміни: перевірено renamed paths, matching frontmatter, skill default prompt, `/write-spec` delegation, preload resolution, active documentation references і відсутність змін сторонніх Superpowers skills.
+- Файли: `.claude/agents/hw6-*.md`, `.claude/skills/hw6-writing-feature-specifications/`, `.claude/commands/write-spec.md`, `AGENTS.md`, `README.md`, `docs/log.md`
+- Перевірка: official validator повернув `Skill is valid!`; GREEN structural check — `HW6_PREFIX_GREEN_OK`; Markdown/diff check — `HW6_PREFIX_STRUCTURE_OK`; independent review — `APPROVED` без Critical, Important або Minor findings.

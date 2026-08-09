@@ -1,0 +1,4 @@
+interface:
+  display_name: "Feature Specifications"
+  short_description: "Create consistent feature specifications"
+  default_prompt: "Use $hw6-writing-feature-specifications to create a specification for this feature."

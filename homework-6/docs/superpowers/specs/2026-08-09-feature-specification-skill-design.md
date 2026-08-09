@@ -1,12 +1,12 @@
 # Дизайн skill для feature specifications
 
 **Дата:** 2026-08-09  
-**Статус:** погоджено в діалозі, очікує рев’ю записаного документа  
+**Статус:** погоджено студентом, готово до реалізації
 **Студент:** ilia makarov
 
 ## 1. Мета
 
-Створити project-level Claude Code skill, який допомагає `specification-agent` відтворювано створювати окрему технічну специфікацію для кожної feature до початку її реалізації.
+Створити project-level Claude Code skill, який допомагає `hw6-specification-agent` відтворювано створювати окрему технічну специфікацію для кожної feature до початку її реалізації.
 
 Skill створює документацію, але не реалізує application code, tests або runtime configuration.
 
@@ -15,9 +15,9 @@ Skill створює документацію, але не реалізує appl
 ```text
 /write-spec <feature>
         ↓
-specification-agent
+hw6-specification-agent
         ↓ використовує
-writing-feature-specifications skill
+hw6-writing-feature-specifications skill
         ↓ заповнює
 specification-template.md
         ↓ створює
@@ -25,8 +25,8 @@ docs/specifications/<feature-slug>.md
 ```
 
 - **Command** `/write-spec` є user-facing entry point і приймає feature name.
-- **AI meta-agent** `specification-agent` досліджує project context і виконує workflow.
-- **Skill** `writing-feature-specifications` визначає reusable методику, required sections, routing та quality gates.
+- **AI meta-agent** `hw6-specification-agent` досліджує project context і виконує workflow.
+- **Skill** `hw6-writing-feature-specifications` визначає reusable методику, required sections, routing та quality gates.
 - **Template asset** визначає однакову структуру всіх feature specifications.
 - **Feature specification** є результатом workflow і входом для наступного design/implementation stage.
 
@@ -35,12 +35,12 @@ docs/specifications/<feature-slug>.md
 ```text
 .claude/
 ├── skills/
-│   └── writing-feature-specifications/
+│   └── hw6-writing-feature-specifications/
 │       ├── SKILL.md
 │       └── assets/
 │           └── specification-template.md
 ├── agents/
-│   └── specification-agent.md
+│   └── hw6-specification-agent.md
 └── commands/
     └── write-spec.md
 
@@ -65,7 +65,7 @@ homework-3/specification-TEMPLATE-example.md
 Щоб Homework 6 не залежав від sibling directory під час запуску, до skill додається локальна адаптована копія:
 
 ```text
-.claude/skills/writing-feature-specifications/assets/specification-template.md
+.claude/skills/hw6-writing-feature-specifications/assets/specification-template.md
 ```
 
 Bundled asset зберігає базову структуру Homework 3:
@@ -113,9 +113,9 @@ Spec не повинна містити `TBD`, `TODO`, незаповнені br
 
 ## 7. Зміни наявних компонентів
 
-### `specification-agent.md`
+### `hw6-specification-agent.md`
 
-Agent отримує пряму вимогу використовувати `writing-feature-specifications` для feature specs і bundled template asset як структуру. Загальна `docs/specification.md` залишається окремим project-level mode.
+Agent отримує пряму вимогу використовувати `hw6-writing-feature-specifications` для feature specs і bundled template asset як структуру. Загальна `docs/specification.md` залишається окремим project-level mode.
 
 ### `write-spec.md`
 
@@ -156,4 +156,3 @@ Command приймає аргумент:
 - no-commit policy.
 
 `SKILL.md` валідовується офіційним `quick_validate.py` із skill-creator package. Git-коміти та staging AI не виконує.
-

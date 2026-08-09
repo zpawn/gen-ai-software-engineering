@@ -48,3 +48,23 @@
 - **Key insight:** a `PreToolUse` hook can match `Bash`, inspect tool input from stdin and block a tool call with exit code `2`; exit code `0` keeps normal permission flow.
 - **Applied:** `.claude/settings.json` will call a project hook that checks whether the command is `git push` and runs the configured coverage command when available.
 
+## [2026-08-09] Query 7 | Claude Code project skill structure
+
+- **Search:** `How should a project-scoped Claude Code skill be structured under .claude/skills, how does an agent invoke or reference that skill, and how should bundled template assets be referenced from SKILL.md?`
+- **Selected Context7 library ID:** `/websites/code_claude`
+- **Key insight:** project skills use a required `SKILL.md` and may bundle templates/examples/scripts; supporting files are linked with paths relative to the skill directory.
+- **Applied:** `hw6-writing-feature-specifications` stores its reusable template in `assets/specification-template.md` and links it directly from `SKILL.md`.
+
+## [2026-08-09] Query 8 | Preloading skill in a Claude subagent
+
+- **Search:** `How can a Claude Code custom subagent preload or use project skills from .claude/skills? What frontmatter field or invocation syntax should .claude/agents/hw6-specification-agent.md use?`
+- **Selected Context7 library ID:** `/websites/code_claude`
+- **Key insight:** custom subagent frontmatter supports a `skills` list that injects selected skill content when the subagent starts.
+- **Applied:** `hw6-specification-agent` preloads `hw6-writing-feature-specifications` through its `skills` frontmatter field.
+
+## [2026-08-09] Query 9 | Delegating from a custom command
+
+- **Search:** `How should a custom Claude Code slash command delegate to a named custom subagent, and which allowed-tools entry is required for that delegation?`
+- **Selected Context7 library ID:** `/websites/code_claude`
+- **Key insight:** a command can request delegation by naming the custom subagent; `Agent` must be available for auto-approved subagent calls.
+- **Applied:** `/write-spec` explicitly names `hw6-specification-agent` and includes `Agent` in `allowed-tools`.

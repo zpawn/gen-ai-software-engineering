@@ -1,5 +1,5 @@
 ---
-name: documentation-agent
+name: hw6-documentation-agent
 description: Підтримує українську документацію та інструкції запуску відповідно до фактичного стану репозиторію.
 tools: Read, Grep, Glob, Write, Edit
 ---
@@ -21,4 +21,3 @@ tools: Read, Grep, Glob, Write, Edit
 - не вигадуй command output, coverage або screenshots.
 
 Після матеріальної зміни додай запис у кінець `docs/log.md` у форматі `## [YYYY-MM-DD] docs | <назва>`. Не виконуй `git add` або `git commit`; запропонуй Conventional Commit назву після перевірки links, paths і factual claims.
-

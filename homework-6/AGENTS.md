@@ -18,6 +18,7 @@
 ## Канонічні шляхи документації
 
 - Технічна специфікація: `docs/specification.md`.
+- Специфікації окремих features: `docs/specifications/<feature-slug>.md`.
 - Context7 research notes: `docs/research-notes.md`.
 - Append-only журнал змін: `docs/log.md`.
 - Погоджені дизайн-рішення Superpowers: `docs/superpowers/specs/`.
@@ -27,6 +28,8 @@
 
 Не створюй кореневі дублікати `specification.md`, `research-notes.md` або `log.md`.
 
+Для кожної нової feature до implementation створи окрему spec через project skill `hw6-writing-feature-specifications` у `.claude/skills/hw6-writing-feature-specifications/`. Skill використовує bundled asset, адаптований із `homework-3/specification-TEMPLATE-example.md`. Загальна `docs/specification.md` залишається project-level context і не перезаписується feature workflow.
+
 ## Обов’язкова термінологія: два рівні агентів
 
 Слово «агент» без уточнення є неоднозначним. Завжди використовуй одну з двох назв:
@@ -35,10 +38,10 @@
 
 Claude Code workflow, який допомагає створювати проєкт:
 
-- `specification-agent` — специфікація;
-- `code-generation-agent` — TypeScript implementation і Context7 research;
-- `unit-test-agent` — тести та coverage;
-- `documentation-agent` — README, HOWTORUN та інша документація.
+- `hw6-specification-agent` — специфікація;
+- `hw6-code-generation-agent` — TypeScript implementation і Context7 research;
+- `hw6-unit-test-agent` — тести та coverage;
+- `hw6-documentation-agent` — README, HOWTORUN та інша документація.
 
 ### TypeScript pipeline agent
 
@@ -139,4 +142,3 @@ Code-generation meta-agent повинен додати щонайменше дв
 - Можна використовувати read-only `git status`, `git diff` і `git log` для перевірки.
 - Після завершеного й перевіреного етапу запропонуй коротку Conventional Commit назву.
 - Студент самостійно рев’ювить, stage-ить і комітить зміни.
-

@@ -20,10 +20,10 @@ Deliverable складається з двох частин: AI-інфрастр
 
 | AI meta-agent | Відповідальність | Результат |
 |---|---|---|
-| Specification agent | Формує та перевіряє технічну специфікацію | `docs/specification.md` |
-| Code generation agent | Реалізує TypeScript pipeline та використовує Context7 | TypeScript-код і `docs/research-notes.md` |
-| Unit test agent | Створює unit/integration тести та контролює coverage | `tests/` і coverage gate |
-| Documentation agent | Підтримує документацію проєкту | `README.md`, `HOWTORUN.md`, `docs/log.md` |
+| `hw6-specification-agent` | Формує загальну project spec та окремі feature specs | `docs/specification.md`, `docs/specifications/<feature-slug>.md` |
+| `hw6-code-generation-agent` | Реалізує TypeScript pipeline та використовує Context7 | TypeScript-код і `docs/research-notes.md` |
+| `hw6-unit-test-agent` | Створює unit/integration тести та контролює coverage | `tests/` і coverage gate |
+| `hw6-documentation-agent` | Підтримує документацію проєкту | `README.md`, `HOWTORUN.md`, `docs/log.md` |
 
 Ці агенти працюють під час розробки. Вони не є частиною банківського runtime.
 
@@ -45,18 +45,18 @@ Deliverable складається з двох частин: AI-інфрастр
 flowchart TD
     User([Студент]) --> Claude[Claude Code]
 
-    Claude --> SpecAgent[Specification meta-agent]
+    Claude --> SpecAgent[hw6-specification-agent]
     SpecAgent --> Spec[(docs/specification.md)]
 
-    Spec --> CodeAgent[Code generation meta-agent]
+    Spec --> CodeAgent[hw6-code-generation-agent]
     CodeAgent --> App[TypeScript pipeline]
     CodeAgent --> Research[(docs/research-notes.md)]
 
-    App --> TestAgent[Unit test meta-agent]
+    App --> TestAgent[hw6-unit-test-agent]
     TestAgent --> Tests[Unit та integration тести]
     Tests --> Coverage{Coverage ≥ 80%?}
     Coverage -->|Ні| Block[Push блокується]
-    Coverage -->|Так| DocsAgent[Documentation meta-agent]
+    Coverage -->|Так| DocsAgent[hw6-documentation-agent]
 
     DocsAgent --> Docs[README та HOWTORUN]
     Docs --> Review([Рев’ю студентом])
@@ -166,9 +166,24 @@ SQLite та Drizzle не додаються без конкретної потр
 - [`TASKS.md`](./TASKS.md) — оригінальні вимоги домашнього завдання.
 - [`AGENTS.md`](./AGENTS.md) — головні правила для Claude Code, Codex і Gemini.
 - [`docs/specification.md`](./docs/specification.md) — технічна специфікація pipeline.
+- `docs/specifications/<feature-slug>.md` — окремі специфікації features перед їх реалізацією.
 - [`docs/research-notes.md`](./docs/research-notes.md) — Context7 queries та застосовані висновки.
 - [`docs/log.md`](./docs/log.md) — append-only хронологія змін.
 - `HOWTORUN.md` — буде створено разом із runnable TypeScript pipeline.
+
+### Як створюється feature specification
+
+```text
+/write-spec <feature-name>
+        ↓
+hw6-specification-agent
+        ↓
+hw6-writing-feature-specifications skill
+        ↓
+docs/specifications/<feature-slug>.md
+```
+
+Skill використовує локальний bundled template у `.claude/skills/hw6-writing-feature-specifications/assets/specification-template.md`, адаптований із `homework-3/specification-TEMPLATE-example.md`.
 
 ## Поточний стан
 

@@ -192,57 +192,57 @@ Expected: усі секції та library IDs присутні; коренев�
 ### Task 4: Чотири Claude Code meta-agents
 
 **Files:**
-- Create: `.claude/agents/specification-agent.md`
-- Create: `.claude/agents/code-generation-agent.md`
-- Create: `.claude/agents/unit-test-agent.md`
-- Create: `.claude/agents/documentation-agent.md`
+- Create: `.claude/agents/hw6-specification-agent.md`
+- Create: `.claude/agents/hw6-code-generation-agent.md`
+- Create: `.claude/agents/hw6-unit-test-agent.md`
+- Create: `.claude/agents/hw6-documentation-agent.md`
 
 **Interfaces:**
 - Consumes: `AGENTS.md`, README та canonical docs paths.
 - Produces: Claude Code project subagents із YAML frontmatter `name`, `description`, `tools` і role prompt.
 
-- [ ] **Step 1: Створити specification-agent**
+- [ ] **Step 1: Створити hw6-specification-agent**
 
 Frontmatter:
 
 ```yaml
-name: specification-agent
+name: hw6-specification-agent
 description: Створює та перевіряє специфікацію transaction pipeline перед реалізацією.
 tools: Read, Grep, Glob, Write, Edit
 ```
 
 Prompt вимагає читати `AGENTS.md` і `TASKS.md`, працювати лише з `docs/specification.md`, не писати application code і перевіряти п’ять required sections.
 
-- [ ] **Step 2: Створити code-generation-agent**
+- [ ] **Step 2: Створити hw6-code-generation-agent**
 
 Frontmatter:
 
 ```yaml
-name: code-generation-agent
+name: hw6-code-generation-agent
 description: Реалізує TypeScript transaction pipeline за погодженою специфікацією.
 tools: Read, Grep, Glob, Write, Edit, Bash
 ```
 
 Prompt вимагає TDD, Context7 research, оновлення `docs/research-notes.md`, sequential file protocol, precise decimals, PII redaction і відсутність git commits.
 
-- [ ] **Step 3: Створити unit-test-agent**
+- [ ] **Step 3: Створити hw6-unit-test-agent**
 
 Frontmatter:
 
 ```yaml
-name: unit-test-agent
+name: hw6-unit-test-agent
 description: Створює unit та integration тести й контролює coverage transaction pipeline.
 tools: Read, Grep, Glob, Write, Edit, Bash
 ```
 
 Prompt вимагає unit tests for every pipeline agent, isolated integration test, coverage ≥90%, gate ≥80% і fresh verification output.
 
-- [ ] **Step 4: Створити documentation-agent**
+- [ ] **Step 4: Створити hw6-documentation-agent**
 
 Frontmatter:
 
 ```yaml
-name: documentation-agent
+name: hw6-documentation-agent
 description: Підтримує українську документацію та інструкції запуску Homework 6.
 tools: Read, Grep, Glob, Write, Edit
 ```
@@ -275,7 +275,7 @@ Expected: рівно чотири agent definitions із required frontmatter і
 
 - [ ] **Step 1: Створити write-spec command**
 
-Frontmatter дозволяє `Read, Grep, Glob, Write, Edit` і описує command. Prompt наказує використати `specification-agent`, створити/оновити тільки `docs/specification.md`, перевірити структуру та показати summary.
+Frontmatter дозволяє `Read, Grep, Glob, Write, Edit` і описує command. Prompt наказує використати `hw6-specification-agent`, створити/оновити тільки `docs/specification.md`, перевірити структуру та показати summary.
 
 - [ ] **Step 2: Створити run-pipeline command**
 

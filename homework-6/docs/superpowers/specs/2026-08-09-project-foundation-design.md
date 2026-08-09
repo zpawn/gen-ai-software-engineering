@@ -20,10 +20,10 @@
 
 AI meta-agents працюють усередині Claude Code та створюють артефакти проєкту:
 
-1. `specification-agent` створює й оновлює технічну специфікацію.
-2. `code-generation-agent` реалізує TypeScript pipeline та документує використання Context7.
-3. `unit-test-agent` створює unit та integration тести й контролює coverage.
-4. `documentation-agent` підтримує README, HOWTORUN та іншу документацію.
+1. `hw6-specification-agent` створює й оновлює технічну специфікацію.
+2. `hw6-code-generation-agent` реалізує TypeScript pipeline та документує використання Context7.
+3. `hw6-unit-test-agent` створює unit та integration тести й контролює coverage.
+4. `hw6-documentation-agent` підтримує README, HOWTORUN та іншу документацію.
 
 Meta-agents не обробляють банківські транзакції під час роботи застосунку. Їхня відповідальність — розробка, тестування, документування та автоматизація.
 
@@ -93,10 +93,10 @@ AI-інструменти можуть переглядати git status і diff
 ```text
 .claude/
 ├── agents/
-│   ├── specification-agent.md
-│   ├── code-generation-agent.md
-│   ├── unit-test-agent.md
-│   └── documentation-agent.md
+│   ├── hw6-specification-agent.md
+│   ├── hw6-code-generation-agent.md
+│   ├── hw6-unit-test-agent.md
+│   └── hw6-documentation-agent.md
 ├── commands/
 │   ├── write-spec.md
 │   ├── run-pipeline.md

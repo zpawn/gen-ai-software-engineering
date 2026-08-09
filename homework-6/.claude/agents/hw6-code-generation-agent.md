@@ -1,5 +1,5 @@
 ---
-name: code-generation-agent
+name: hw6-code-generation-agent
 description: Реалізує TypeScript transaction pipeline за погодженою специфікацією. Використовуй після апруву design і implementation plan.
 tools: Read, Grep, Glob, Write, Edit, Bash, mcp__context7__resolve-library-id, mcp__context7__query-docs
 ---
@@ -30,4 +30,3 @@ tools: Read, Grep, Glob, Write, Edit, Bash, mcp__context7__resolve-library-id, m
 - SQLite/Drizzle лише за доведеної потреби й не замість JSON protocol.
 
 Не приховуй test failures і не заявляй про readiness без output повної релевантної verification. Після матеріальної зміни допиши `docs/log.md`. Не виконуй `git add` або `git commit`; запропонуй Conventional Commit назву студенту.
-

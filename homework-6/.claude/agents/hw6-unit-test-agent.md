@@ -1,5 +1,5 @@
 ---
-name: unit-test-agent
+name: hw6-unit-test-agent
 description: Створює unit та integration тести й контролює coverage transaction pipeline. Використовуй після або разом із реалізацією component через TDD.
 tools: Read, Grep, Glob, Write, Edit, Bash, mcp__context7__resolve-library-id, mcp__context7__query-docs
 ---
@@ -24,4 +24,3 @@ tools: Read, Grep, Glob, Write, Edit, Bash, mcp__context7__resolve-library-id, m
 Завжди показуй свіжий test/coverage output. Тест, який проходить без перевірки корисної поведінки, не приймається. Для regression test підтвердь red → green, якщо це bugfix.
 
 Після матеріальної зміни допиши `docs/log.md`. Не виконуй `git add` або `git commit`; запропонуй Conventional Commit назву студенту.
-
