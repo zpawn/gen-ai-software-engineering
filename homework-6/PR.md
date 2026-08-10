@@ -56,3 +56,6 @@ For Homework 6, we built more than a banking transaction application — we also
 
 **MCP: custom server** — the custom `pipeline-status` MCP tool call (`list_pipeline_results` or `get_transaction_status`).
 ![mcp custom](https://raw.githubusercontent.com/zpawn/gen-ai-software-engineering/homework-6-submission/homework-6/docs/screenshots/hw6-mcp-custom.png)
+
+**Coverage hook trigger** — the coverage hook blocking a simulated `git push`.
+![coverage hook trigger](https://raw.githubusercontent.com/zpawn/gen-ai-software-engineering/homework-6-submission/homework-6/docs/screenshots/hw6-trigger-hook.png)
