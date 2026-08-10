@@ -2,7 +2,7 @@
 
 > **Студент:** ilia makarov  
 > **Мова реалізації:** TypeScript  
-> **Поточний стан:** проєктування документації та AI-інфраструктури
+> **Поточний стан:** Task 2 реалізовано й перевірено; TypeScript pipeline, CLI, Fastify API та `/hw6-run-pipeline` готові до review
 
 ## Про що цей проєкт
 
@@ -119,7 +119,7 @@ sample-transactions.json
 
 ```mermaid
 flowchart LR
-    User([Студент]) -->|/run-pipeline| Claude[Claude Code]
+    User([Студент]) -->|/hw6-run-pipeline| Claude[Claude Code]
     Claude -->|npm run pipeline| Integrator[TypeScript integrator]
     Integrator --> Results[(shared/results/)]
 
@@ -187,4 +187,10 @@ Skill використовує локальний bundled template у `.claude/s
 
 ## Поточний стан
 
-Зараз створюється документаційний фундамент і Claude Code scaffold. TypeScript pipeline, тести, coverage gate та MCP server ще не реалізовані. README буде оновлюватися лише на основі фактично перевіреного стану репозиторію.
+TypeScript pipeline і read-only Fastify API наявні в репозиторії. Фактичний запуск `npm run pipeline` обробив 8 sample transactions: `approved=3`, `review=3`, `rejected=2`. Rejected results: `TXN006` — `UNSUPPORTED_CURRENCY`; `TXN007` — `NON_POSITIVE_AMOUNT`.
+
+Dry-run `npm run validate:dry` повернув `total=8`, `valid=6`, `invalid=2`; SHA-256 усіх файлів у `shared/` до і після запуску збіглися. Fastify smoke на тимчасовому localhost-порту підтвердив `GET /health`, `GET /transactions/TXN001` і `GET /summary`; після перевірки server process зупинено.
+
+## Команда запуску pipeline
+
+Claude Code команда `/hw6-run-pipeline` перевіряє `sample-transactions.json`, запускає внутрішню application-команду `npm run pipeline`, читає безпечний summary із `shared/results/summary.json` і повідомляє лише лічильники та `transactionId`/`reasonCodes` rejected results. Вона не виводить account numbers, descriptions, raw payload або інші PII.

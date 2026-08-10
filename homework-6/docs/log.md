@@ -127,3 +127,80 @@
 - Зміни: перевірено renamed paths, matching frontmatter, skill default prompt, `/write-spec` delegation, preload resolution, active documentation references і відсутність змін сторонніх Superpowers skills.
 - Файли: `.claude/agents/hw6-*.md`, `.claude/skills/hw6-writing-feature-specifications/`, `.claude/commands/write-spec.md`, `AGENTS.md`, `README.md`, `docs/log.md`
 - Перевірка: official validator повернув `Skill is valid!`; GREEN structural check — `HW6_PREFIX_GREEN_OK`; Markdown/diff check — `HW6_PREFIX_STRUCTURE_OK`; independent review — `APPROVED` без Critical, Important або Minor findings.
+
+## [2026-08-09] design | Модульний monolith для Task 2
+
+- Автор/інструмент: ilia makarov + Codex
+- Зміни: погоджено pure TypeScript pipeline agents, filesystem integrator, CLI entry points і read-only Fastify API; SQLite/Drizzle виключено з Task 2 як непотрібні для JSON protocol.
+- Файли: `docs/superpowers/specs/2026-08-09-task-2-modular-monolith-design.md`, `docs/research-notes.md`, `docs/log.md`
+- Перевірка: design звірено з `docs/specification.md` і sample data; Context7 queries 10–12 підтвердили Fastify app factory/inject, Decimal.js string comparisons і Vitest V8 coverage configuration; implementation очікує review дизайну.
+
+## [2026-08-09] design | HW6-команда запуску pipeline
+
+- Автор/інструмент: ilia makarov + Codex
+- Зміни: user-facing Claude Code command запуску зафіксовано як `/hw6-run-pipeline`; внутрішній application entry point залишається `npm run pipeline`.
+- Файли: `docs/superpowers/specs/2026-08-09-task-2-modular-monolith-design.md`, `docs/log.md`
+- Перевірка: command naming не змінює CLI contract і не додає unprefixed active alias; implementation включено до Task 2 plan.
+
+## [2026-08-09] plan | Реалізація Task 2 modular monolith
+
+- Автор/інструмент: Codex + Superpowers writing-plans
+- Зміни: створено TDD implementation plan для TypeScript scaffold, трьох pure pipeline agents, filesystem integrator, CLI, read-only Fastify API та `/hw6-run-pipeline`.
+- Файли: `docs/superpowers/plans/2026-08-09-task-2-modular-monolith.md`, `docs/log.md`
+- Перевірка: plan покриває всі Task 2 success criteria, exact interfaces, RED/GREEN commands, PII boundaries і no-commit policy; implementation ще не запускалась.
+
+## [2026-08-10] implement | Префікс команди запуску pipeline
+
+- Автор/інструмент: Codex
+- Зміни: файл Claude Code command переміщено до `hw6-run-pipeline.md`; prompt тепер перевіряє sample input, запускає `npm run pipeline`, читає тільки безпечний summary і показує rejected `transactionId` та `reasonCodes` без PII.
+- Файли: `.claude/commands/hw6-run-pipeline.md`, `README.md`, `docs/log.md`; видалено `.claude/commands/run-pipeline.md` через filesystem rename.
+- Перевірка: після plain `mv` підтверджено відсутність старого файлу та наявність нового; sample input є valid JSON array із 8 transaction IDs.
+
+## [2026-08-10] verify | Task 9 pipeline smoke з sandbox concern
+
+- Автор/інструмент: Codex
+- Зміни: зафіксовано фактичний pipeline summary: `total=8`, `approved=3`, `review=3`, `rejected=2`; rejected: `TXN006` — `UNSUPPORTED_CURRENCY`, `TXN007` — `NON_POSITIVE_AMOUNT`.
+- Файли: `shared/input/`, `shared/processing/`, `shared/output/`, `shared/results/`, `docs/log.md`.
+- Перевірка: перший `npm run pipeline` у sandbox завершився `EPERM` під час `tsx` IPC socket; повторний запуск поза sandbox завершився з exit code 0 і наведеним summary. За вказівкою студента після sandbox blocker не запускались `npm run validate:dry` і Fastify HTTP smoke.
+
+## [2026-08-10] verify | Завершення dry-run і Fastify smoke
+
+- Автор/інструмент: Codex
+- Зміни: після початкового sandbox concern окремо завершено пропущені Task 9 checks; документацію доповнено лише спостереженими результатами.
+- Файли: `README.md`, `docs/research-notes.md`, `docs/log.md`; `shared/` прочитано до і після dry-run.
+- Перевірка: `npm run validate:dry` повернув `total=8`, `valid=6`, `invalid=2`; SHA-256 усіх `shared/` files не змінилися; localhost Fastify smoke повернув 200 для `/health`, `/transactions/TXN001`, `/summary`; server зупинено, повторний connection check завершився відмовою.
+
+## [2026-08-10] implement | Task 2 modular monolith
+
+- Автор/інструмент: Codex + Superpowers subagent-driven development
+- Зміни: реалізовано TypeScript scaffold, pure validator/fraud/compliance modules, atomic filesystem infrastructure, runtime-validated results repository, sequential integrator з audit trail, dry-run і pipeline CLI, read-only Fastify API.
+- Файли: `package.json`, `package-lock.json`, `tsconfig.json`, `vitest.config.ts`, `src/`, `tests/`, `shared/results/`.
+- Перевірка: кожен implementation slice пройшов focused RED/GREEN або задокументований process check, незалежний spec/quality review і fix/re-review cycle; AI не виконував staging або commit.
+
+## [2026-08-10] test | Фінальний quality gate Task 2
+
+- Автор/інструмент: Codex
+- Зміни: закрито відкладений uncapped custom-weight test і повторено повний test/coverage/typecheck gate.
+- Файли: `tests/unit/fraud-detector.test.ts`, coverage artifacts у ignored output, `docs/log.md`.
+- Перевірка: 67/67 tests passed; coverage — statements 95.6%, branches 91.97%, functions 95.65%, lines 95.91%; TypeScript typecheck і `git diff --check` завершилися з exit code 0.
+
+## [2026-08-10] verify | Незалежний whole-project review Task 2
+
+- Автор/інструмент: Codex + independent reviewer subagent
+- Зміни: звірено Task 2 з `TASKS.md`, `docs/specification.md`, design і implementation plan; виправлено єдине Minor-зауваження про stale README status, неповний log і незакриті Task 10 checkboxes.
+- Файли: `README.md`, `docs/log.md`, `docs/superpowers/plans/2026-08-09-task-2-modular-monolith.md`.
+- Перевірка: TASK 2 SPEC COMPLIANCE — PASS; WHOLE-PROJECT CODE QUALITY — APPROVED; 0 Critical, 0 Important; automated PII scan перевірив 24 sample markers і не знайшов витоків.
+
+## [2026-08-10] implement | Git placeholders для shared stage directories
+
+- Автор/інструмент: Codex
+- Зміни: додано порожні `.gitkeep`, щоб Git зберігав runtime-каталоги `shared/input`, `shared/processing` і `shared/output` навіть після успішного pipeline run.
+- Файли: `shared/input/.gitkeep`, `shared/processing/.gitkeep`, `shared/output/.gitkeep`, `docs/log.md`.
+- Перевірка: перевірено наявність трьох placeholder files і видимість `shared/` у read-only `git status`; staging та commit не виконувались.
+
+## [2026-08-10] docs | Межа життєвого циклу shared placeholders
+
+- Автор/інструмент: Codex
+- Зміни: уточнено, що `.gitkeep` забезпечують присутність порожніх stage directories у коміті, але чинний `clearPipelineDirectories()` видаляє їх під час наступного повного pipeline run.
+- Файли: `docs/log.md`.
+- Перевірка: `.gitkeep` мають лише один newline і зараз видимі Git; cleanup behavior підтверджено реалізацією `src/infrastructure/file-store.ts` без зміни application code.

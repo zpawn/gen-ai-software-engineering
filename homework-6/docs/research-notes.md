@@ -2,7 +2,7 @@
 
 Цей файл є хронологією фактично виконаних Context7-запитів. Кожен запис містить search text, обраний library ID, основний висновок і спосіб застосування.
 
-> Поточні записи зроблено під час проєктування документаційного фундаменту. Коли code-generation meta-agent реалізовуватиме pipeline, він повинен додати щонайменше два окремі запити саме для code-generation stage, як вимагає Homework 6.
+> Записи охоплюють проєктування та code-generation stage. Запити 13–14 виконано безпосередньо перед реалізацією Fastify API.
 
 ## [2026-08-09] Query 1 | Fastify TypeScript project structure
 
@@ -39,7 +39,7 @@
 - **Search:** `How should project-scoped custom slash commands be defined under .claude/commands, including frontmatter, arguments, and invoking a subagent?`
 - **Selected Context7 library ID:** `/websites/code_claude`
 - **Key insight:** project commands are Markdown prompts with optional frontmatter including `description`, `allowed-tools`, `model` and argument hints.
-- **Applied:** `/write-spec`, `/run-pipeline` and `/validate-transactions` are represented by project command files with explicit allowed tools and honest precondition checks.
+- **Applied:** `/write-spec`, `/hw6-run-pipeline` and `/validate-transactions` are represented by project command files with explicit allowed tools and honest precondition checks.
 
 ## [2026-08-09] Query 6 | Claude Code blocking hooks
 
@@ -68,3 +68,42 @@
 - **Selected Context7 library ID:** `/websites/code_claude`
 - **Key insight:** a command can request delegation by naming the custom subagent; `Agent` must be available for auto-approved subagent calls.
 - **Applied:** `/write-spec` explicitly names `hw6-specification-agent` and includes `Agent` in `allowed-tools`.
+
+## [2026-08-09] Query 10 | Fastify app factory та route testing
+
+- **Search:** `How should a strict TypeScript Fastify application expose typed read-only GET routes, separate app construction from listen startup, and test routes using Fastify inject?`
+- **Selected Context7 library ID:** `/fastify/fastify`
+- **Why selected:** official Fastify repository documentation, high source reputation, exact framework match.
+- **Key insight:** Fastify рекомендує відокремлювати app factory від server startup; typed route generics і JSON schemas забезпечують request typing, а `fastify.inject()` тестує routes без відкриття network port.
+- **Applied:** Task 2 design використовує `buildApp(options)` у `src/api/app.ts`, окремий `src/api/server.ts` і API tests через `app.inject()`.
+
+## [2026-08-09] Query 11 | Decimal.js для monetary comparisons
+
+- **Search:** `How should Decimal.js validate decimal strings and perform exact greater-than comparisons in TypeScript without converting monetary values to JavaScript number?`
+- **Selected Context7 library ID:** `/mikemcl/decimal.js`
+- **Why selected:** official Decimal.js repository, high source reputation і найкращий exact package match.
+- **Key insight:** monetary values треба передавати в `Decimal` як strings, invalid constructor input обробляти явно, а comparisons виконувати через Decimal methods на кшталт `gt`/`gte`.
+- **Applied:** validator parsing і fraud threshold comparison не використовуватимуть `number`, `parseFloat` або implicit numeric coercion.
+
+## [2026-08-09] Query 12 | Vitest V8 coverage
+
+- **Search:** `How to configure Vitest V8 coverage thresholds, include source files, and test Node filesystem code with temporary directories in a TypeScript project?`
+- **Selected Context7 library ID:** `/vitest-dev/vitest/v4.1.6`
+- **Why selected:** official Vitest documentation із version-specific ID для актуальної major version.
+- **Key insight:** `coverage.provider: "v8"`, explicit `coverage.include` і numeric thresholds дозволяють врахувати навіть неімпортовані source files та блокувати suite нижче заданого рівня.
+- **Applied:** `vitest.config.ts` включатиме `src/**/*.ts`, gate 80% і text/html/lcov reporters; integration tests використовуватимуть OS temporary directories.
+
+## [2026-08-10] Query 13 | Fastify 5 typed route schemas
+
+- **Search:** `Fastify 5 TypeScript app factory with typed route params and JSON response schemas for GET routes.`
+- **Selected Context7 library ID:** `/fastify/fastify`
+- **Why selected:** official Fastify repository, high source reputation, exact framework match.
+- **Key insight:** Fastify 5 потребує full JSON Schema з `type: "object"` для params/query/body; route generics типізують params/replies, а response schemas задаються за HTTP status code.
+- **Applied:** `src/api/app.ts` використовує typed `TransactionParams`, typed replies і full schemas для health, transaction result, summary та controlled errors.
+
+## [2026-08-10] Query 14 | Fastify inject testing
+
+- **Search:** `Fastify 5 testing an app factory with app.inject for GET routes without listen, and proper app.close cleanup.`
+- **Selected Context7 library ID:** `/fastify/fastify`
+- **Key insight:** application factory тестується через `app.inject()` без network listener; кожен test app треба закривати через `app.close()`.
+- **Applied:** `tests/api/app.test.ts` перевіряє всі read-only routes через inject і закриває Fastify instances у cleanup.

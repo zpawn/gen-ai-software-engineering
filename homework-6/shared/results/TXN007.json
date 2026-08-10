@@ -1,0 +1,19 @@
+{
+  "transactionId": "TXN007",
+  "status": "rejected",
+  "reasonCodes": [
+    "NON_POSITIVE_AMOUNT"
+  ],
+  "explanation": "Transaction failed validation.",
+  "auditTrail": [
+    {
+      "timestamp": "2026-08-10T07:47:33.098Z",
+      "agent_name": "transaction-validator",
+      "transaction_id": "TXN007",
+      "outcome": "rejected",
+      "reason_codes": [
+        "NON_POSITIVE_AMOUNT"
+      ]
+    }
+  ]
+}
