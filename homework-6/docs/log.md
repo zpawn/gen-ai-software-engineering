@@ -280,3 +280,17 @@
 - Зміни: повторно перевірено попередні PII/data-integrity findings, safe MCP projection/error boundary і повноту allowlist проти validator, fraud detector, compliance checker та committed fixtures.
 - Файли: усі Task 4 implementation і test artifacts; reviewer працював read-only.
 - Перевірка: 0 Critical, 0 Important, 0 Minor; allowlist покриває всі 26 generated codes; reviewer verdict — `Ready to commit: Yes`; 87/87 tests, typecheck і `git diff --check` пройшли; `npm audit --omit=dev` — 0 vulnerabilities.
+
+## [2026-08-10] docs | Покроковий запуск Homework 6
+
+- Автор/інструмент: Codex + Context7 + Superpowers brainstorming
+- Зміни: створено канонічну українську інструкцію для встановлення dependencies, запуску pipeline і dry-run validator, тестів, Fastify API, prefixed Claude Code commands, MCP servers та coverage hook; за прямою вказівкою студента окремі feature spec і implementation plan для цієї документаційної зміни пропущено.
+- Файли: `HOWTORUN.md`, `README.md`, `docs/log.md`.
+- Перевірка: структура та команди звірені з `package.json`, application entry points, `.claude/commands/`, `.claude/settings.json`, `.mcp.json` і актуальною Claude Code documentation через Context7; runtime verification виконується окремо після редагування.
+
+## [2026-08-10] verify | Перевірка HOWTORUN сценаріїв
+
+- Автор/інструмент: Codex + Superpowers verification-before-completion
+- Зміни: свіжим локальним запуском перевірено основні команди й очікувані результати з `HOWTORUN.md`; Fastify server після smoke test зупинено, інтерактивний MCP approval навмисно залишено студенту.
+- Файли: `HOWTORUN.md`, `docs/log.md`; runtime results у `shared/results/` тимчасово перегенеровано для smoke test і повернуто до committed стану, application code не змінювався.
+- Перевірка: Node.js `v24.14.1`, npm `11.11.0`, Claude Code `2.1.226`; `npm run pipeline` — summary 8/3/3/2; `npm run validate:dry` — 8/6/2; `npm test` і `npm run test:coverage` — 87/87 tests, coverage 95.93% statements, 92.35% branches, 96.61% functions, 96.16% lines; `npm run typecheck` — exit 0; Fastify smoke підтвердив `/health`, `/summary`, `/transactions/TXN001`; `claude mcp get` виявив обидва project servers у стані `Pending approval`.

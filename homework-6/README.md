@@ -185,7 +185,7 @@ SQLite та Drizzle не додаються без конкретної потр
 - `docs/specifications/<feature-slug>.md` — окремі специфікації features перед їх реалізацією.
 - [`docs/research-notes.md`](./docs/research-notes.md) — Context7 queries та застосовані висновки.
 - [`docs/log.md`](./docs/log.md) — append-only хронологія змін.
-- `HOWTORUN.md` — буде створено разом із runnable TypeScript pipeline.
+- [`HOWTORUN.md`](./HOWTORUN.md) — покроковий запуск pipeline, тестів, Fastify API, Claude Code команд і MCP servers.
 
 ### Як створюється feature specification
 
