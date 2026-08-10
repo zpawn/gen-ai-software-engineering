@@ -1,18 +1,14 @@
-# Як запустити Homework 6
+# How to Run Homework 6
 
-Цей документ описує повний локальний запуск TypeScript pipeline, тестів, Fastify API, Claude Code команд і MCP servers.
+Run all commands from the `homework-6` root directory unless a step says otherwise.
 
-Усі команди виконуй із кореня директорії `homework-6`, якщо не зазначено інше.
+## 1. Requirements
 
-## 1. Передумови
-
-Потрібні:
-
-- Node.js 24 або новіший;
+- Node.js 22 or newer;
 - npm;
-- Claude Code — лише для запуску AI meta-agents, slash-команд і MCP demo.
+- Claude Code for AI meta-agents, slash commands, hooks, and MCP demos.
 
-Перевір версії:
+Check installed versions:
 
 ```bash
 node --version
@@ -20,31 +16,25 @@ npm --version
 claude --version
 ```
 
-Якщо потрібно запустити тільки TypeScript-застосунок і тести, Claude Code не обов'язковий.
+Claude Code is not required when you only run the TypeScript application and tests.
 
-## 2. Встановлення залежностей
+## 2. Install Dependencies
 
 ```bash
 npm install
 ```
 
-Ця команда встановить Fastify, Decimal.js, TypeScript MCP SDK, Vitest та інші залежності з `package-lock.json`.
+This installs Fastify, Decimal.js, the TypeScript MCP SDK, Vitest, and other locked dependencies.
 
-## 3. Запуск transaction pipeline
+## 3. Run the Transaction Pipeline
 
 ```bash
 npm run pipeline
 ```
 
-Pipeline:
+The pipeline reads `sample-transactions.json`, runs the validator, fraud detector, and compliance checker in sequence, writes final results, and creates `shared/results/summary.json`.
 
-1. читає `sample-transactions.json`;
-2. послідовно передає кожну транзакцію через `transaction-validator`, `fraud-detector` і `compliance-checker`;
-3. записує проміжні JSON messages у `shared/`;
-4. записує final results у `shared/results/`;
-5. створює `shared/results/summary.json`.
-
-Для поточного sample очікується такий безпечний summary:
+Expected safe output:
 
 ```text
 total=8
@@ -55,25 +45,25 @@ rejected=TXN006: UNSUPPORTED_CURRENCY
 rejected=TXN007: NON_POSITIVE_AMOUNT
 ```
 
-Перевір створені результати:
+Check the result files:
 
 ```bash
 ls shared/results
 ```
 
-Мають бути файли `TXN001.json`–`TXN008.json` і `summary.json`.
+The directory contains `TXN001.json` through `TXN008.json` and `summary.json`.
 
-> Повний pipeline очищає runtime-вміст `shared/input`, `shared/processing`, `shared/output` і `shared/results` перед новим запуском. Не зберігай у цих директоріях власні файли.
+> A full run clears runtime files in `shared/input`, `shared/processing`, `shared/output`, and `shared/results`. Do not store personal files there.
 
-## 4. Dry-run валідації
-
-Щоб перевірити input без fraud та compliance stages і без зміни `shared/results/`, виконай:
+## 4. Run Validation Only
 
 ```bash
 npm run validate:dry
 ```
 
-Очікуваний результат для поточного sample:
+This command does not run fraud or compliance stages and does not change `shared/results/`.
+
+Expected output:
 
 ```text
 total=8
@@ -83,40 +73,26 @@ rejected=TXN006: UNSUPPORTED_CURRENCY
 rejected=TXN007: NON_POSITIVE_AMOUNT
 ```
 
-## 5. Перевірка коду
-
-Запусти весь test suite:
+## 5. Run Project Checks
 
 ```bash
 npm test
-```
-
-Запусти тести зі звітом coverage:
-
-```bash
 npm run test:coverage
-```
-
-Проєкт вимагає щонайменше 80% для statements, branches, functions і lines. Ціль домашнього завдання — не менше 90% test coverage.
-
-Перевір TypeScript types:
-
-```bash
 npm run typecheck
 ```
 
-## 6. Запуск Fastify API
+The coverage gate requires at least 80% for statements, branches, functions, and lines. The project target is at least 90%.
 
-Перед запуском API спочатку створи актуальні results:
+## 6. Run the Fastify API
+
+Create current results and start the server:
 
 ```bash
 npm run pipeline
 npm run api
 ```
 
-За замовчуванням server працює на `http://127.0.0.1:3000`. Не закривай цей terminal, поки перевіряєш API.
-
-В іншому terminal виконай:
+The default address is `http://127.0.0.1:3000`. In another terminal, run:
 
 ```bash
 curl http://127.0.0.1:3000/health
@@ -124,155 +100,99 @@ curl http://127.0.0.1:3000/summary
 curl http://127.0.0.1:3000/transactions/TXN001
 ```
 
-Основні endpoints:
-
-| Method | Endpoint | Результат |
-|---|---|---|
-| `GET` | `/health` | Health status API |
-| `GET` | `/summary` | Останній pipeline summary |
-| `GET` | `/transactions/:transactionId` | Final result конкретної транзакції |
-
-Зупини server через `Ctrl+C`.
-
-Якщо порт `3000` зайнятий, задай інший:
+Stop the server with `Ctrl+C`. Use another port when needed:
 
 ```bash
 PORT=3001 npm run api
 ```
 
-## 7. Запуск через Claude Code
+## 7. Use Claude Code Commands
 
-Запусти Claude Code з кореня репозиторію:
+Start Claude Code from the repository root:
 
 ```bash
 claude
 ```
 
-Claude Code спочатку прочитає project instructions. Усередині інтерактивної Claude Code сесії доступні команди з префіксом `hw6`.
-
-### Повний pipeline
+Available project commands:
 
 ```text
 /hw6-run-pipeline
-```
-
-Команда запускає `npm run pipeline`, перевіряє results і показує лише безпечний summary без account numbers та інших PII.
-
-### Dry-run validator
-
-```text
 /hw6-validate-transactions
+/hw6-write-spec <feature-name>
 ```
 
-Команда запускає лише validator, показує valid/invalid counts і не змінює `shared/results/`.
+The first command runs the full pipeline and shows a safe summary. The second runs validation only. The third creates a feature specification in `docs/specifications/<feature-slug>.md`.
 
-### Створення feature specification
+## 8. Use MCP Servers
 
-```text
-/hw6-write-spec назва-feature
-```
-
-Feature specification буде створена в `docs/specifications/<feature-slug>.md` на основі project template.
-
-## 8. Підключення MCP у Claude Code
-
-У корені репозиторію вже є один project-scoped файл `.mcp.json`. Він підключає:
-
-- `context7` — пошук актуальної документації;
-- `pipeline-status` — read-only доступ до результатів pipeline.
-
-Перед MCP demo створи результати:
+The root `.mcp.json` configures `context7` and `pipeline-status`. First create current results:
 
 ```bash
 npm run pipeline
-```
-
-Після цього запусти Claude Code:
-
-```bash
 claude
 ```
 
-Під час першого запуску Claude Code попросить підтвердити project MCP servers із `.mcp.json`. Перевір configuration і дозволь `context7` та `pipeline-status` для цього проєкту.
-
-Стан servers можна переглянути в Claude Code через `/mcp` або у звичайному terminal:
+Approve both project MCP servers when Claude Code asks. Use `/mcp` in Claude Code to inspect them, or run:
 
 ```bash
 claude mcp get context7
 claude mcp get pipeline-status
 ```
 
-До підтвердження configuration може відображатися статус `Pending approval`.
-
-### Приклади MCP-запитів у Claude Code
-
-Отримати summary через custom MCP tool:
+Example prompts:
 
 ```text
-Використай MCP tool list_pipeline_results і покажи останній pipeline summary.
+Use Context7 to find the current Fastify documentation for creating a GET route in TypeScript. Briefly show the recommended pattern.
 ```
-
-Перевірити одну транзакцію:
 
 ```text
-Використай MCP tool get_transaction_status для transaction_id TXN002.
+Use the pipeline-status MCP tool list_pipeline_results and show the latest pipeline summary.
 ```
-
-Прочитати MCP resource:
 
 ```text
-Прочитай MCP resource pipeline://summary.
+Use the pipeline-status MCP tool get_transaction_status for transaction_id TXN002.
 ```
-
-Перевірити Context7:
 
 ```text
-Використай Context7, щоб знайти актуальну документацію Fastify про створення GET route у TypeScript.
+Read the MCP resource pipeline://summary.
 ```
 
-Custom MCP server повертає лише безпечні поля: `transactionId`, `status`, `reasonCodes`, `riskScore` і `riskFlags`. Raw transaction, account data, `explanation` та `auditTrail` через MCP не повертаються.
+The custom MCP server does not expose raw transactions, account data, explanations, or audit trails.
 
-## 9. Coverage hook у Claude Code
+## 9. Test the Coverage Hook Safely
 
-Project hook перевіряє Bash-команди Claude Code. Коли Claude Code намагається виконати `git push`, hook спочатку запускає:
+The configured hook is a Claude Code `PreToolUse` hook, not a native Git hook. A regular `git push` typed in a separate terminal does not trigger it.
+
+Simulate the Claude Code hook without a real push:
 
 ```bash
-npm run test:coverage
+printf '%s' '{"tool_input":{"command":"git push"}}' | CLAUDE_PROJECT_DIR="$PWD" .claude/hooks/coverage-gate.sh
 ```
 
-Якщо тести падають або будь-який configured coverage threshold нижчий за 80%, push блокується. Самостійно виконувати `git push` для звичайної перевірки проєкту не потрібно.
+The hook runs `npm run test:coverage` and ends with `Coverage gate passed.` when all checks pass.
 
-## 10. Типові проблеми
+## 10. Troubleshooting
 
-### `npm` повідомляє про несумісну версію Node.js
+### Unsupported Node.js version
 
-Перевір `node --version`. Проєкт вимагає Node.js 22 або новіший.
+Run `node --version`. The project requires Node.js 22 or newer.
 
-### API або MCP не знаходить summary
+### API or MCP cannot find a summary
 
-Спочатку виконай:
+Run `npm run pipeline`, then repeat the request.
 
-```bash
-npm run pipeline
-```
+### MCP status is `Pending approval`
 
-Потім повтори API або MCP-запит.
+Start interactive `claude` from the repository root and approve the project configuration through the prompt or `/mcp`.
 
-### MCP server має статус `Pending approval`
-
-Запусти інтерактивний `claude` з кореня репозиторію та підтвердь project MCP configuration через запит Claude Code або `/mcp`.
-
-### Порт API зайнятий
-
-Запусти API на іншому порту:
+### Port 3000 is busy
 
 ```bash
 PORT=3001 npm run api
 ```
 
-### Потрібне повне перевстановлення dependencies
-
-Не видаляй файли проєкту. Повторно виконай:
+### Dependencies need repair
 
 ```bash
 npm install

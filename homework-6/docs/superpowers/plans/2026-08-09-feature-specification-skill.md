@@ -2,26 +2,26 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Завершити Task 1 reusable Claude Code skill, який створює окремі feature specifications за адаптованим Homework 3 template.
+**Goal:** Complete Task 1 reusable Claude Code skill, which creates separate feature specifications according to the adapted Homework 3 template.
 
-**Architecture:** `/write-spec <feature-name>` делегує роботу `hw6-specification-agent`, який використовує project skill `hw6-writing-feature-specifications`. Загальна специфікація залишається в `docs/specification.md`, а нові feature specs створюються в `docs/specifications/<feature-slug>.md` із bundled template asset.
+**Architecture:** `/write-spec <feature-name>` delegates work to `hw6-specification-agent`, who uses project skill `hw6-writing-feature-specifications`. The general specification remains in `docs/specification.md`, and new feature specs are created in `docs/specifications/<feature-slug>.md` from the bundled template asset.
 
 **Tech Stack:** Claude Code project skills/subagents/commands, Markdown, Homework 3 specification template, Superpowers skill-TDD, skill-creator validation scripts.
 
 ## Global Constraints
 
-- Документація залишається українською до окремої команди на переклад.
-- `docs/specification.md` залишається загальною project specification.
-- Feature specs зберігаються лише в `docs/specifications/<feature-slug>.md`.
-- Skill використовує локальну адаптовану копію `homework-3/specification-TEMPLATE-example.md`.
-- Skill не реалізує feature code.
-- У generated specs немає `TBD`, `TODO` або незаповнених bracket placeholders.
-- Після матеріальних змін додаються append-only entries у `docs/log.md`.
-- AI не виконує `git add` або `git commit`; після verification лише пропонує commit message.
+- Project documentation uses clear B1+ English.
+- `docs/specification.md` remains the general project specification.
+- Feature specs are stored only in `docs/specifications/<feature-slug>.md`.
+- Skill uses a local adapted copy of `homework-3/specification-TEMPLATE-example.md`.
+- Skill does not implement feature code.
+- There are no `TBD`, `TODO` or unfilled bracket placeholders in the generated specs.
+- After material changes, append-only entries are added to `docs/log.md`.
+- AI does not execute `git add` or `git commit`; after verification only offers a commit message.
 
 ---
 
-### Task 1: RED baseline для specification workflow
+### Task 1: RED baseline for specification workflow
 
 **Files:**
 - Create: `docs/skill-evaluations/hw6-writing-feature-specifications.md`
@@ -30,12 +30,12 @@
 - Reference: `.claude/commands/write-spec.md`
 
 **Interfaces:**
-- Consumes: fresh-agent response на feature-specification request без нового skill.
-- Produces: documented baseline omissions, які skill повинен виправити.
+- Consumes: fresh-agent response to feature-specification request without a new skill.
+- Produces: documented baseline omissions that the skill should correct.
 
-- [x] Запустити fresh subagent без specification skill із запитом створити структуру specification для нової feature.
-- [x] Зафіксувати exact prompt, observed output shape, output-path choice, template usage та omissions.
-- [x] Визначити мінімальні success criteria для GREEN run: canonical feature path, template sections, no implementation, assumptions/out-of-scope/DoD, no placeholders.
+- [x] Run a fresh subagent without a specification skill with a request to create a specification structure for a new feature.
+- [x] Fix exact prompt, observed output shape, output-path choice, template usage and omissions.
+- [x] Define minimum success criteria for GREEN run: canonical feature path, template sections, no implementation, assumptions/out-of-scope/DoD, no placeholders.
 
 Verification:
 
@@ -46,7 +46,7 @@ rg -n "RED baseline|Observed|GREEN success criteria" docs/skill-evaluations/hw6-
 
 ---
 
-### Task 2: Ініціалізація та реалізація project skill
+### Task 2: Initialization and implementation of project skill
 
 **Files:**
 - Create: `.claude/skills/hw6-writing-feature-specifications/SKILL.md`
@@ -57,11 +57,11 @@ rg -n "RED baseline|Observed|GREEN success criteria" docs/skill-evaluations/hw6-
 - Consumes: baseline failures, Homework 3 template, canonical project docs.
 - Produces: reusable workflow and bundled output template.
 
-- [x] Запустити official `init_skill.py` для `hw6-writing-feature-specifications` у `.claude/skills/` із `assets` resource.
-- [x] Замінити generated placeholders у `SKILL.md` на concise trigger, workflow, routing contract, self-review і no-commit behavior.
-- [x] Створити universal bundled template, адаптований із `../homework-3/specification-TEMPLATE-example.md`.
-- [x] Явно зазначити source template path у `SKILL.md` і template header.
-- [x] Перевірити skill через `quick_validate.py`.
+- [x] Run official `init_skill.py` for `hw6-writing-feature-specifications` in `.claude/skills/` with `assets` resource.
+- [x] Replace generated placeholders in `SKILL.md` with concise trigger, workflow, routing contract, self-review and no-commit behavior.
+- [x] Create a universal bundled template adapted from `../homework-3/specification-TEMPLATE-example.md`.
+- [x] Explicitly specify source template path in `SKILL.md` and template header.
+- [x] Check skill through `quick_validate.py`.
 
 Verification:
 
@@ -74,7 +74,7 @@ python3 /Users/illia.mak/.codex/skills/.system/skill-creator/scripts/quick_valid
 
 ---
 
-### Task 3: Інтеграція skill з agent, command та project instructions
+### Task 3: Integration of skill with agent, command and project instructions
 
 **Files:**
 - Modify: `.claude/agents/hw6-specification-agent.md`
@@ -87,11 +87,11 @@ python3 /Users/illia.mak/.codex/skills/.system/skill-creator/scripts/quick_valid
 - Consumes: `hw6-writing-feature-specifications` skill.
 - Produces: `/write-spec <feature-name>` end-to-end documentation workflow.
 
-- [x] Оновити agent: project mode працює з `docs/specification.md`; feature mode обов’язково використовує skill і feature path.
-- [x] Оновити command frontmatter з `argument-hint: [feature-name | --project]`; передати arguments agent і зупинитися, якщо аргумент відсутній.
-- [x] Додати в `AGENTS.md` canonical feature-spec paths, template source та requirement використовувати skill.
-- [x] Додати в README коротке пояснення skill → agent → command → spec.
-- [x] Через Context7 перевірити current Claude Code project skill syntax і записати query/insight у research notes.
+- [x] Update agent: project mode works with `docs/specification.md`; feature mode must use skill and feature path.
+- [x] Update command frontmatter with `argument-hint: [feature-name | --project]`; pass arguments to agent and stop if there is no argument.
+- [x] Add to `AGENTS.md` canonical feature-spec paths, template source and requirement to use skill.
+- [x] Add a short explanation of skill → agent → command → spec to the README.
+- [x] Through Context7, check current Claude Code project skill syntax and write query/insight in research notes.
 
 Verification:
 
@@ -102,7 +102,7 @@ rg -n "argument-hint|\$ARGUMENTS" .claude/commands/write-spec.md
 
 ---
 
-### Task 4: GREEN forward test і refactor
+### Task 4: GREEN forward test and refactor
 
 **Files:**
 - Update: `docs/skill-evaluations/hw6-writing-feature-specifications.md`
@@ -113,10 +113,10 @@ rg -n "argument-hint|\$ARGUMENTS" .claude/commands/write-spec.md
 - Consumes: completed skill and same scenario used for RED baseline.
 - Produces: evidence that fresh agent follows routing/template contract.
 
-- [x] Запустити fresh subagent із тим самим scenario, але з explicit skill path.
-- [x] Порівняти output із GREEN success criteria.
-- [x] Якщо є gaps, мінімально уточнити skill/template і повторити test.
-- [x] Записати GREEN result і refactor notes в evaluation document.
+- [x] Run a fresh subagent with the same scenario, but with an explicit skill path.
+- [x] Compare output with GREEN success criteria.
+- [x] If there are gaps, minimally clarify skill/template and repeat the test.
+- [x] Write the GREEN result and refactor notes in the evaluation document.
 
 Verification:
 
@@ -127,7 +127,7 @@ python3 /Users/illia.mak/.codex/skills/.system/skill-creator/scripts/quick_valid
 
 ---
 
-### Task 5: Log, review та Task 1 completion check
+### Task 5: Log, review and Task 1 completion check
 
 **Files:**
 - Append: `docs/log.md`
@@ -137,11 +137,11 @@ python3 /Users/illia.mak/.codex/skills/.system/skill-creator/scripts/quick_valid
 - Consumes: actual implementation and test evidence.
 - Produces: auditable Task 1 completion status and commit suggestion.
 
-- [x] Додати chronological `implement`, `test` і `verify` entries у `docs/log.md` без переписування старих entries.
-- [x] Провести structural verification, skill validation, Markdown fence check і canonical-path check.
-- [x] Провести independent review без file edits.
-- [x] Переконатися, що `docs/specification.md`, `AGENTS.md`, `/write-spec`, reusable skill і template присутні.
-- [x] Запропонувати commit message без staging/commit.
+- [x] Add chronological `implement`, `test` and `verify` entries to `docs/log.md` without overwriting old entries.
+- [x] Conduct structural verification, skill validation, Markdown fence check and canonical-path check.
+- [x] Conduct an independent review without file edits.
+- [x] Make sure `docs/specification.md`, `AGENTS.md`, `/write-spec`, reusable skill and template are present.
+- [x] Offer commit message without staging/commit.
 
 Final verification:
 

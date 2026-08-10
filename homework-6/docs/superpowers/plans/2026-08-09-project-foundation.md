@@ -1,28 +1,28 @@
-# Початковий фундамент Homework 6 — Implementation Plan
+# The initial foundation of Homework 6 — Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Створити українськомовну документацію та початкову Claude Code інфраструктуру, яка чітко розділяє AI meta-agents і TypeScript pipeline agents.
+**Goal:** Create project documentation and initial Claude Code infrastructure that clearly separates AI meta-agents from TypeScript pipeline agents.
 
-**Architecture:** `AGENTS.md` буде єдиним джерелом операційних правил, а `CLAUDE.md`, `CODEX.md` і `GEMINI.md` лише спрямовуватимуть до нього. Пояснювальна документація житиме в README та `docs/`, а Claude Code отримає чотири project subagents, три commands і початковий coverage hook без реалізації самого TypeScript pipeline.
+**Architecture:** `AGENTS.md` will be the only source of operational rules, and `CLAUDE.md`, `CODEX.md` and `GEMINI.md` will only point to it. Explanatory documentation will live in README and `docs/`, and Claude Code will receive four project subagents, three commands and an initial coverage hook without implementing the TypeScript pipeline itself.
 
-**Tech Stack:** Markdown, Claude Code project agents/commands/hooks, Node.js + TypeScript + Fastify як запланований application stack, SQLite + Drizzle ORM лише за доведеної потреби.
+**Tech Stack:** Markdown, Claude Code project agents/commands/hooks, Node.js + TypeScript + Fastify as a planned application stack, SQLite + Drizzle ORM only as needed.
 
 ## Global Constraints
 
-- Початкова документація пишеться українською; переклад виконується лише після окремої команди студента.
-- Студент зазначається як `ilia makarov`.
-- Завжди розрізняються `AI meta-agent` і `TypeScript pipeline agent`.
-- Канонічні шляхи: `docs/specification.md`, `docs/research-notes.md`, `docs/log.md`.
-- Кореневі дублікати цих трьох документів не створюються.
-- `docs/log.md` є chronological append-only журналом із заголовками `## [YYYY-MM-DD] <type> | <title>`.
-- AI не виконує `git commit`; після перевіреного етапу лише пропонує Conventional Commit назву.
-- TypeScript pipeline не реалізується в межах цього плану й не описується як готовий.
-- JSON-каталоги `shared/` залишаються обов’язковим майбутнім runtime protocol; SQLite не замінює їх.
+- Project documentation uses clear B1+ English.
+- The student is noted as `ilia makarov`.
+- `AI meta-agent` and `TypeScript pipeline agent` are always different.
+- Canonical paths: `docs/specification.md`, `docs/research-notes.md`, `docs/log.md`.
+- Root duplicates of these three documents are not created.
+- `docs/log.md` is a chronological append-only journal with `## [YYYY-MM-DD] <type> | <title>` headers.
+- AI does not perform `git commit`; after the verified stage only offers a Conventional Commit name.
+- TypeScript pipeline is not implemented within this plan and is not described as ready.
+- `shared/` JSON catalogs remain a mandatory future runtime protocol; SQLite does not replace them.
 
 ---
 
-### Task 1: README та міграція CLARIFY
+### Task 1: README and CLARIFY migration
 
 **Files:**
 - Create: `README.md`
@@ -31,47 +31,47 @@
 - Reference: `docs/superpowers/specs/2026-08-09-project-foundation-design.md`
 
 **Interfaces:**
-- Consumes: пояснення й Mermaid-схеми з `CLARIFY.md`.
-- Produces: канонічне людське пояснення проєкту, на яке посилатиметься `AGENTS.md`.
+- Consumes: explanations and Mermaid diagrams from `CLARIFY.md`.
+- Produces: The canonical human explanation of the project, which will be referenced by `AGENTS.md`.
 
-- [ ] **Step 1: Зафіксувати обов’язкову структуру README**
+- [ ] **Step 1: Fix mandatory README structure**
 
-README повинен містити саме такі змістові блоки:
+The README should contain exactly the following content blocks:
 
 ```text
-1. Назва, студент, статус проєкту
-2. Мета проєкту
-3. Чому тут два різні типи агентів
-4. Відповідальності чотирьох AI meta-agents
-5. Відповідальності TypeScript pipeline agents
-6. Загальний Claude Code workflow (Mermaid)
-7. Послідовність transaction pipeline (Mermaid)
+1. Name, student, project status
+2. The purpose of the project
+3. Why are there two different types of agents?
+4. Responsibilities of four AI meta-agents
+5. Responsibilities of TypeScript pipeline agents
+6. General Claude Code workflow (Mermaid)
+7. Transaction pipeline sequence (Mermaid)
 8. Claude Code + MCP interaction (Mermaid)
 9. ASCII pipeline diagram
-10. Файлова комунікація shared/
-11. Запланований technology stack
-12. Канонічна документація
-13. Поточний стан
+10. File communication shared/
+11. Planned technology stack
+12. Canonical documentation
+13. Current status
 ```
 
-- [ ] **Step 2: Написати README простою українською**
+- [ ] **Step 2: Write the README in simple B1+ English**
 
-README має прямо пояснити:
+The README should clearly explain:
 
 ```text
-Claude Code не обробляє транзакції замість застосунку.
-AI meta-agents створюють специфікацію, код, тести та документацію.
-TypeScript pipeline agents є детермінованими модулями без LLM.
-Integrator запускає pipeline agents послідовно однією npm-командою.
+Claude Code does not process transactions for the application.
+AI meta-agents create specification, code, tests and documentation.
+TypeScript pipeline agents are deterministic modules without LLM.
+Integrator starts pipeline agents sequentially with one npm command.
 ```
 
-Перенести й відредагувати три Mermaid-схеми з `CLARIFY.md`, не залишаючи тверджень про вже реалізований pipeline.
+Move and edit the three Mermaid diagrams from `CLARIFY.md`, without claiming that the pipeline is already implemented at this stage.
 
-- [ ] **Step 3: Видалити тимчасовий CLARIFY після міграції**
+- [ ] **Step 3: Delete temporary CLARIFY after migration**
 
-Видалити `CLARIFY.md` лише після того, як усі три схеми й ключове пояснення двох рівнів агентів присутні в README.
+Remove `CLARIFY.md` only after all three diagrams and a key explanation of the two agent levels are present in the README.
 
-- [ ] **Step 4: Перевірити README**
+- [ ] **Step 4: Check the README**
 
 Run:
 
@@ -80,11 +80,11 @@ rg -n "ilia makarov|AI meta-agent|TypeScript pipeline agent|```mermaid|docs/spec
 test ! -e CLARIFY.md
 ```
 
-Expected: ім’я, обидва рівні агентів, три Mermaid blocks і всі канонічні документаційні шляхи знайдено; `CLARIFY.md` відсутній.
+Expected: name, both levels of agents, three Mermaid blocks and all canonical documentation paths found; `CLARIFY.md` does not exist.
 
 ---
 
-### Task 2: Канонічні інструкції для AI-інструментів
+### Task 2: Canonical instructions for AI tools
 
 **Files:**
 - Create: `AGENTS.md`
@@ -93,18 +93,18 @@ Expected: ім’я, обидва рівні агентів, три Mermaid bloc
 - Create: `GEMINI.md`
 
 **Interfaces:**
-- Consumes: правила з design spec і термінологію README.
-- Produces: єдині project instructions для Claude Code, Codex і Gemini.
+- Consumes: design spec rules and README terminology.
+- Produces: single project instructions for Claude Code, Codex and Gemini.
 
-- [ ] **Step 1: Створити AGENTS.md**
+- [ ] **Step 1: Create AGENTS.md**
 
-Документ повинен містити:
+The document must contain:
 
 ```text
 - mandatory reading order;
 - canonical documentation paths;
 - two-agent-level terminology;
-- Ukrainian-first documentation rule;
+- B1+ English documentation rule;
 - planned TypeScript/Fastify/SQLite/Drizzle stack;
 - Context7 requirement for framework documentation;
 - file-based shared/ protocol;
@@ -114,16 +114,16 @@ Expected: ім’я, обидва рівні агентів, три Mermaid bloc
 - no-commit policy with commit-message suggestions only.
 ```
 
-- [ ] **Step 2: Створити три wrapper-файли**
+- [ ] **Step 2: Create three wrapper files**
 
-Кожен wrapper повинен мати platform-specific title і однакову обов’язкову інструкцію:
+Each wrapper must have a platform-specific title and the same mandatory instruction:
 
 ```markdown
-Перед будь-якою роботою обов’язково прочитайте `AGENTS.md`.
-Усі основні правила, канонічні шляхи, архітектурні рішення та процес роботи визначені там.
+Be sure to read `AGENTS.md` before doing any work.
+All ground rules, canonical paths, architectural decisions, and workflow are defined there.
 ```
 
-- [ ] **Step 3: Перевірити wrappers і canonical paths**
+- [ ] **Step 3: Check wrappers and canonical paths**
 
 Run:
 
@@ -132,11 +132,11 @@ for file in CLAUDE.md CODEX.md GEMINI.md; do rg -q 'AGENTS.md' "$file"; done
 rg -n "docs/specification.md|docs/research-notes.md|docs/log.md|git commit|Context7" AGENTS.md
 ```
 
-Expected: усі wrappers посилаються на `AGENTS.md`; усі канонічні шляхи та git policy знайдено.
+Expected: all wrappers refer to `AGENTS.md`; all canonical paths and git policy found.
 
 ---
 
-### Task 3: Канонічна специфікація та research notes
+### Task 3: Canonical specification and research notes
 
 **Files:**
 - Create: `docs/specification.md`
@@ -145,12 +145,12 @@ Expected: усі wrappers посилаються на `AGENTS.md`; усі кан
 - Reference: `sample-transactions.json`
 
 **Interfaces:**
-- Consumes: вимоги Homework 6 та погоджений technology direction.
-- Produces: специфікацію для code-generation agent і журнал фактично виконаних Context7 queries.
+- Consumes: requirements of Homework 6 and agreed technology direction.
+- Produces: specification for code-generation agent and log of actually executed Context7 queries.
 
-- [ ] **Step 1: Створити повну специфікацію у docs/**
+- [ ] **Step 1: Create a complete specification in docs/**
 
-`docs/specification.md` повинен мати п’ять обов’язкових секцій:
+`docs/specification.md` must have five mandatory sections:
 
 ```text
 1. High-Level Objective
@@ -160,11 +160,11 @@ Expected: усі wrappers посилаються на `AGENTS.md`; усі кан
 5. Low-Level Tasks — exact prompt, file, function and details per pipeline agent
 ```
 
-Специфікація фіксує TypeScript strict mode, precise decimal library, ISO 4217, redacted PII logging, JSON message envelope, sequential validator → fraud detector → compliance checker flow, all transactions represented in `shared/results/`, coverage target ≥90%.
+The specification fixes TypeScript strict mode, precise decimal library, ISO 4217, redacted PII logging, JSON message envelope, sequential validator → fraud detector → compliance checker flow, all transactions represented in `shared/results/`, coverage target ≥90%.
 
-- [ ] **Step 2: Створити research-notes із виконаних Context7 queries**
+- [ ] **Step 2: Create research-notes from the executed Context7 queries**
 
-Записати окремі секції для:
+Record separate sections for:
 
 ```text
 Fastify: /fastify/fastify
@@ -172,9 +172,9 @@ Drizzle ORM: /drizzle-team/drizzle-orm-docs
 Claude Code: /websites/code_claude
 ```
 
-Для кожної секції вказати search text, selected library ID, key insight і planned application. Окремо зазначити, що під час реалізації Agent 2 додасть щонайменше два code-generation queries, бо саме вони є graded requirement.
+For each section, specify search text, selected library ID, key insight and planned application. It should be noted separately that during implementation, Agent 2 will add at least two code-generation queries, because they are a graded requirement.
 
-- [ ] **Step 3: Перевірити структуру специфікації й нотаток**
+- [ ] **Step 3: Check the structure of the specification and notes**
 
 Run:
 
@@ -185,11 +185,11 @@ test ! -e specification.md
 test ! -e research-notes.md
 ```
 
-Expected: усі секції та library IDs присутні; кореневих дублікатів немає.
+Expected: all sections and library IDs are present; there are no root duplicates.
 
 ---
 
-### Task 4: Чотири Claude Code meta-agents
+### Task 4: Four Claude Code meta-agents
 
 **Files:**
 - Create: `.claude/agents/hw6-specification-agent.md`
@@ -198,58 +198,58 @@ Expected: усі секції та library IDs присутні; коренев�
 - Create: `.claude/agents/hw6-documentation-agent.md`
 
 **Interfaces:**
-- Consumes: `AGENTS.md`, README та canonical docs paths.
-- Produces: Claude Code project subagents із YAML frontmatter `name`, `description`, `tools` і role prompt.
+- Consumes: `AGENTS.md`, README and canonical docs paths.
+- Produces: Claude Code project subagents with YAML frontmatter `name`, `description`, `tools` and role prompt.
 
-- [ ] **Step 1: Створити hw6-specification-agent**
+- [ ] **Step 1: Create hw6-specification-agent**
 
 Frontmatter:
 
 ```yaml
 name: hw6-specification-agent
-description: Створює та перевіряє специфікацію transaction pipeline перед реалізацією.
+description: Creates and validates the transaction pipeline specification before implementation.
 tools: Read, Grep, Glob, Write, Edit
 ```
 
-Prompt вимагає читати `AGENTS.md` і `TASKS.md`, працювати лише з `docs/specification.md`, не писати application code і перевіряти п’ять required sections.
+Prompt requires reading `AGENTS.md` and `TASKS.md`, working only with `docs/specification.md`, not writing application code and checking five required sections.
 
-- [ ] **Step 2: Створити hw6-code-generation-agent**
+- [ ] **Step 2: Create hw6-code-generation-agent**
 
 Frontmatter:
 
 ```yaml
 name: hw6-code-generation-agent
-description: Реалізує TypeScript transaction pipeline за погодженою специфікацією.
+description: Implements the TypeScript transaction pipeline according to the agreed specification.
 tools: Read, Grep, Glob, Write, Edit, Bash
 ```
 
-Prompt вимагає TDD, Context7 research, оновлення `docs/research-notes.md`, sequential file protocol, precise decimals, PII redaction і відсутність git commits.
+Prompt requires TDD, Context7 research, `docs/research-notes.md` update, sequential file protocol, precise decimals, PII redaction and no git commits.
 
-- [ ] **Step 3: Створити hw6-unit-test-agent**
+- [ ] **Step 3: Create hw6-unit-test-agent**
 
 Frontmatter:
 
 ```yaml
 name: hw6-unit-test-agent
-description: Створює unit та integration тести й контролює coverage transaction pipeline.
+description: Creates unit and integration tests and monitors coverage transaction pipeline.
 tools: Read, Grep, Glob, Write, Edit, Bash
 ```
 
-Prompt вимагає unit tests for every pipeline agent, isolated integration test, coverage ≥90%, gate ≥80% і fresh verification output.
+Prompt requires unit tests for every pipeline agent, isolated integration test, coverage ≥90%, gate ≥80% and fresh verification output.
 
-- [ ] **Step 4: Створити hw6-documentation-agent**
+- [ ] **Step 4: Create hw6-documentation-agent**
 
 Frontmatter:
 
 ```yaml
 name: hw6-documentation-agent
-description: Підтримує українську документацію та інструкції запуску Homework 6.
+description: Maintains project documentation and run instructions for Homework 6.
 tools: Read, Grep, Glob, Write, Edit
 ```
 
-Prompt вимагає factual status, student name, canonical docs paths, no duplication of `AGENTS.md`, append-only log і no translation without request.
+Prompt requires factual status, student name, canonical docs paths, no duplication of `AGENTS.md`, and an append-only log.
 
-- [ ] **Step 5: Перевірити agents**
+- [ ] **Step 5: Check agents**
 
 Run:
 
@@ -258,7 +258,7 @@ for file in .claude/agents/*.md; do rg -q '^name:' "$file"; rg -q '^description:
 test "$(find .claude/agents -maxdepth 1 -name '*.md' | wc -l | tr -d ' ')" = "4"
 ```
 
-Expected: рівно чотири agent definitions із required frontmatter і посиланням на `AGENTS.md`.
+Expected: exactly four agent definitions with required frontmatter and a reference to `AGENTS.md`.
 
 ---
 
@@ -273,13 +273,13 @@ Expected: рівно чотири agent definitions із required frontmatter і
 - Consumes: project subagents and future npm scripts.
 - Produces: `/write-spec`, `/run-pipeline`, `/validate-transactions` entry points.
 
-- [ ] **Step 1: Створити write-spec command**
+- [ ] **Step 1: Create write-spec command**
 
-Frontmatter дозволяє `Read, Grep, Glob, Write, Edit` і описує command. Prompt наказує використати `hw6-specification-agent`, створити/оновити тільки `docs/specification.md`, перевірити структуру та показати summary.
+Frontmatter allows `Read, Grep, Glob, Write, Edit` and describes the command. Prompt tells to use `hw6-specification-agent`, create/update only `docs/specification.md`, check structure and show summary.
 
-- [ ] **Step 2: Створити run-pipeline command**
+- [ ] **Step 2: Create run-pipeline command**
 
-Command повинен:
+Command must:
 
 ```text
 1. Read AGENTS.md.
@@ -291,11 +291,11 @@ Command повинен:
 7. Never commit changes.
 ```
 
-- [ ] **Step 3: Створити validate-transactions command**
+- [ ] **Step 3: Create validate-transactions command**
 
-Command повинен перевірити required input, run future `npm run validate:dry`, show total/valid/invalid counts and a result table, or clearly report that the script is not implemented yet.
+Command should check required input, run future `npm run validate:dry`, show total/valid/invalid counts and a result table, or clearly report that the script is not implemented yet.
 
-- [ ] **Step 4: Перевірити commands**
+- [ ] **Step 4: Check commands**
 
 Run:
 
@@ -306,11 +306,11 @@ rg -n "npm run pipeline|shared/results" .claude/commands/run-pipeline.md
 rg -n "validate:dry|valid|invalid" .claude/commands/validate-transactions.md
 ```
 
-Expected: рівно три commands і всі required workflow steps знайдено.
+Expected: exactly three commands and all required workflow steps found.
 
 ---
 
-### Task 6: Початковий coverage hook
+### Task 6: Initial coverage hook
 
 **Files:**
 - Create: `.claude/hooks/coverage-gate.sh`
@@ -320,7 +320,7 @@ Expected: рівно три commands і всі required workflow steps знай�
 - Consumes: Claude Code PreToolUse JSON from stdin; future `npm run test:coverage` script.
 - Produces: hook scaffold that checks coverage before Claude-initiated `git push` once the test script exists.
 
-- [ ] **Step 1: Написати safe coverage hook**
+- [ ] **Step 1: Write safe coverage hook**
 
 Script behavior:
 
@@ -359,7 +359,7 @@ Expected: shell syntax and JSON parse pass; non-push command exits 0.
 
 ---
 
-### Task 7: Append-only log та фінальна перевірка
+### Task 7: Append-only log and final check
 
 **Files:**
 - Create: `docs/log.md`
@@ -374,10 +374,10 @@ Expected: shell syntax and JSON parse pass; non-push command exits 0.
 Add entries in this order:
 
 ```text
-## [2026-08-09] design | Початкова структура Homework 6
-## [2026-08-09] research | Context7 документація для обраного стеку
-## [2026-08-09] docs | Документаційний фундамент
-## [2026-08-09] implement | Початкова Claude Code інфраструктура
+## [2026-08-09] design | The initial structure of Homework 6
+## [2026-08-09] research | Context7 documentation for the selected stack
+## [2026-08-09] docs | Documentary foundation
+## [2026-08-09] implement | Initial Claude Code infrastructure
 ```
 
 Each entry includes author/tool, actual files, actual changes and actual verification. Do not report checks that were not run.
@@ -405,7 +405,7 @@ Expected: all commands exit 0 and log headings are parseable.
 Run:
 
 ```bash
-rg -n "готовий|реалізовано|працює|completed|production-ready" README.md docs/specification.md .claude/agents .claude/commands
+rg -n "ready|implemented|working|completed|production-ready" README.md docs/specification.md .claude/agents .claude/commands
 git status --short
 ```
 

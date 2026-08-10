@@ -1,144 +1,142 @@
-# Головні інструкції для AI-інструментів
+# Main Instructions for AI Tools
 
-`AGENTS.md` є канонічним джерелом правил для Claude Code, Codex, Gemini та інших AI-інструментів, які працюють із Homework 6.
+`AGENTS.md` is the canonical source of rules for Claude Code, Codex, Gemini, and other AI tools working on Homework 6.
 
-## Обов’язковий порядок читання
+## Required Reading Order
 
-Перед будь-якою роботою:
+Before any work:
 
-1. Прочитай `AGENTS.md` повністю.
-2. Прочитай `TASKS.md` як оригінальне джерело вимог.
-3. Прочитай `README.md`, щоб зрозуміти два рівні агентів і поточний стан.
-4. Прочитай `docs/specification.md`, якщо файл уже існує.
-5. Переглянь останні записи командою `grep "^## \[" docs/log.md | tail -5`, якщо `docs/log.md` уже існує.
-6. Для implementation task прочитай відповідний погоджений дизайн у `docs/superpowers/specs/` і план у `docs/superpowers/plans/`.
+1. Read `AGENTS.md` completely.
+2. Read `TASKS.md` as the original source of requirements.
+3. Read `README.md` to understand the two agent levels and current status.
+4. Read `docs/specification.md` if it exists.
+5. Review recent entries with `grep "^## \[" docs/log.md | tail -5` if `docs/log.md` exists.
+6. For an implementation task, read the approved design in `docs/superpowers/specs/` and the plan in `docs/superpowers/plans/`.
 
-Не стверджуй, що компонент реалізовано або перевірено, доки це не підтверджено файлами та свіжим результатом відповідної команди.
+Do not claim that a component is implemented or verified until files and fresh command output prove it.
 
-## Канонічні шляхи документації
+## Canonical Documentation Paths
 
-- Технічна специфікація: `docs/specification.md`.
-- Специфікації окремих features: `docs/specifications/<feature-slug>.md`.
+- Technical specification: `docs/specification.md`.
+- Feature specifications: `docs/specifications/<feature-slug>.md`.
 - Context7 research notes: `docs/research-notes.md`.
-- Append-only журнал змін: `docs/log.md`.
-- Погоджені дизайн-рішення Superpowers: `docs/superpowers/specs/`.
-- Implementation plans Superpowers: `docs/superpowers/plans/`.
-- Окремі ADR за потреби: `docs/decisions/`.
-- Screenshots для здачі: `docs/screenshots/`.
+- Append-only change log: `docs/log.md`.
+- Approved Superpowers designs: `docs/superpowers/specs/`.
+- Superpowers implementation plans: `docs/superpowers/plans/`.
+- Separate ADRs when needed: `docs/decisions/`.
+- Submission screenshots: `docs/screenshots/`.
 
-Не створюй кореневі дублікати `specification.md`, `research-notes.md` або `log.md`.
+Do not create root-level copies of `specification.md`, `research-notes.md`, or `log.md`.
 
-Для кожної нової feature до implementation створи окрему spec через project skill `hw6-writing-feature-specifications` у `.claude/skills/hw6-writing-feature-specifications/`. Skill використовує bundled asset, адаптований із `homework-3/specification-TEMPLATE-example.md`. Загальна `docs/specification.md` залишається project-level context і не перезаписується feature workflow.
+Before implementing a new feature, create a feature spec with the project skill `hw6-writing-feature-specifications` in `.claude/skills/hw6-writing-feature-specifications/`. The skill uses a bundled asset adapted from `homework-3/specification-TEMPLATE-example.md`. The general `docs/specification.md` remains project-level context and is not overwritten by the feature workflow.
 
-## Обов’язкова термінологія: два рівні агентів
+## Required Terms: Two Agent Levels
 
-Слово «агент» без уточнення є неоднозначним. Завжди використовуй одну з двох назв:
+The word “agent” is unclear without a level. Always use one of these names:
 
 ### AI meta-agent
 
-Claude Code workflow, який допомагає створювати проєкт:
+A Claude Code workflow that helps build the project:
 
-- `hw6-specification-agent` — специфікація;
-- `hw6-code-generation-agent` — TypeScript implementation і Context7 research;
-- `hw6-unit-test-agent` — тести та coverage;
-- `hw6-documentation-agent` — README, HOWTORUN та інша документація.
+- `hw6-specification-agent` — specification;
+- `hw6-code-generation-agent` — TypeScript implementation and Context7 research;
+- `hw6-unit-test-agent` — tests and coverage;
+- `hw6-documentation-agent` — README, HOWTORUN, and other documentation.
 
 ### TypeScript pipeline agent
 
-Детермінований runtime-модуль без LLM:
+A deterministic runtime module without an LLM:
 
 - `transaction-validator`;
 - `fraud-detector`;
 - `compliance-checker`.
 
-AI meta-agents створюють і перевіряють систему. TypeScript pipeline agents обробляють транзакції. Claude Code може запустити pipeline, але не замінює його бізнес-логіку.
+AI meta-agents build and verify the system. TypeScript pipeline agents process transactions. Claude Code can run the pipeline, but it does not replace business logic.
 
-## Мова документації
+## Documentation Language
 
-Пиши проєктну документацію українською. Не перекладай її англійською і не створюй англомовні дублікати без прямої команди студента.
+Write all project documentation in B1+ English. File names, API names, identifiers, library names, and standard technical terms remain in English.
 
-Імена файлів, API, identifiers, library names і стандартні технічні терміни можуть залишатися англійською.
-
-## Запланований технологічний стек
+## Planned Technology Stack
 
 - Runtime: Node.js LTS.
-- Language: TypeScript у strict mode.
+- Language: TypeScript in strict mode.
 - Framework: Fastify.
-- File protocol: JSON у `shared/`.
-- Money: точна decimal library; не використовувати JavaScript `number` для monetary arithmetic.
-- Database лише за доведеної потреби: SQLite.
-- ORM лише разом із базою: Drizzle ORM.
+- File protocol: JSON in `shared/`.
+- Money: a precise decimal library; never use JavaScript `number` for monetary arithmetic.
+- Database only when clearly needed: SQLite.
+- ORM only with a database: Drizzle ORM.
 - MCP server: TypeScript.
-- Tests: TypeScript test runner із coverage target не менше 90% і blocking gate нижче 80%.
+- Tests: a TypeScript test runner with a coverage target of at least 90% and a blocking gate below 80%.
 
-Fastify використовується для network/API або integration layer, якщо він потрібен. CLI transaction pipeline не повинен залежати від HTTP. SQLite/Drizzle не замінюють обов’язкові JSON-файли в `shared/`.
+Use Fastify only for a network/API or integration layer when needed. The CLI transaction pipeline must not depend on HTTP. SQLite/Drizzle do not replace the required JSON files in `shared/`.
 
-## Runtime protocol
+## Runtime Protocol
 
-Integrator повинен:
+The integrator must:
 
-1. Створити `shared/input`, `shared/processing`, `shared/output`, `shared/results`.
-2. Завантажити всі records із `sample-transactions.json`.
-3. Загорнути кожну транзакцію у стандартний JSON message envelope.
-4. Послідовно передати її через validator, fraud detector і compliance checker.
-5. Записати final outcome кожної input transaction у `shared/results/`, включно з rejected transactions.
-6. Створити pipeline summary report.
+1. Create `shared/input`, `shared/processing`, `shared/output`, and `shared/results`.
+2. Load all records from `sample-transactions.json`.
+3. Wrap each transaction in the standard JSON message envelope.
+4. Pass it in sequence through the validator, fraud detector, and compliance checker.
+5. Write a final outcome for every input transaction to `shared/results/`, including rejected transactions.
+6. Create a pipeline summary report.
 
-Для однієї транзакції pipeline stages виконуються послідовно. Асинхронні file operations дозволені, але не повинні порушувати залежність stage від попереднього result.
+For one transaction, pipeline stages run in sequence. Asynchronous file operations are allowed, but they must not break the dependency on the previous stage result.
 
-## Дані, гроші та безпека
+## Data, Money, and Security
 
-- Amount надходить як decimal string і обробляється precise decimal type.
-- Currency перевіряється як підтримуваний ISO 4217 code.
-- Timestamp використовує ISO 8601 UTC.
-- Audit entry містить timestamp, agent name, transaction ID і outcome.
-- Account numbers, names та інші PII не логуються plaintext; використовуй masking/redaction.
-- Rejected result завжди містить машинозчитуваний status і зрозумілу reason.
-- Не додавай зовнішню базу, queue, Docker або cloud service без вимоги, яку неможливо виконати простіше.
+- Amount arrives as a decimal string and is processed with a precise decimal type.
+- Currency is checked against supported ISO 4217 codes.
+- Timestamp uses ISO 8601 UTC.
+- An audit entry includes timestamp, agent name, transaction ID, and outcome.
+- Do not log account numbers, names, or other PII in plain text; use masking or redaction.
+- A rejected result always contains a machine-readable status and a clear reason.
+- Do not add an external database, queue, Docker, or cloud service without a requirement that cannot be met more simply.
 
-## Документація бібліотек
+## Library Documentation
 
-Для будь-якої роботи з framework, library, SDK, API або CLI використовуй Context7 перед реалізацією, навіть якщо API здається знайомим.
+For any framework, library, SDK, API, or CLI work, use Context7 before implementation, even when the API seems familiar.
 
-Порядок:
+Order:
 
-1. Resolve exact Context7 library ID.
-2. Query docs одним конкретним concept на запит.
-3. Застосуй отриманий pattern.
-4. Додай до `docs/research-notes.md`: search text, library ID, insight та фактичне застосування.
+1. Resolve the exact Context7 library ID.
+2. Query documentation for one specific concept at a time.
+3. Apply the returned pattern.
+4. Add the search text, library ID, insight, and actual use to `docs/research-notes.md`.
 
-Code-generation meta-agent повинен додати щонайменше два Context7 queries саме під час реалізації pipeline.
+The code-generation meta-agent must add at least two Context7 queries during pipeline implementation.
 
-## Процес розробки
+## Development Process
 
-- Перед creative/implementation work використовуй релевантні Superpowers skills.
-- Перед implementation створи або онови погоджений design і implementation plan.
-- Для feature або bugfix застосовуй TDD: failing test → мінімальна implementation → passing test → refactor.
-- Тести ізолюй від реального `shared/`, використовуючи temporary directory.
-- Перед завершенням запускай повну релевантну verification і читай її output.
-- Не змінюй unrelated user files і не роби destructive git operations.
+- Use relevant Superpowers skills before creative or implementation work.
+- Before implementation, create or update an approved design and implementation plan.
+- For a feature or bugfix, use TDD: failing test → minimal implementation → passing test → refactor.
+- Isolate tests from real `shared/` by using a temporary directory.
+- Before completion, run full relevant verification and read its output.
+- Do not change unrelated user files or run destructive Git operations.
 
-## Журнал змін
+## Change Log
 
-`docs/log.md` є chronological append-only record. Після кожної матеріальної зміни додай запис у кінець файлу:
+`docs/log.md` is a chronological append-only record. After each material change, add an entry at the end:
 
 ```markdown
-## [YYYY-MM-DD] <type> | <коротка назва>
+## [YYYY-MM-DD] <type> | <short title>
 
-- Автор/інструмент: <ім’я або AI-інструмент>
-- Зміни: <фактично виконані зміни>
-- Файли: <фактично змінені файли>
-- Перевірка: <фактично запущені команди або ручна перевірка>
+- Author/tool: <name or AI tool>
+- Changes: <changes actually made>
+- Files: <files actually changed>
+- Verification: <commands actually run or manual check>
 ```
 
-Основні типи: `design`, `docs`, `research`, `implement`, `test`, `fix`, `refactor`, `lint`, `verify`.
+Main types: `design`, `docs`, `research`, `implement`, `test`, `fix`, `refactor`, `lint`, `verify`.
 
-Не переписуй і не сортуй старі записи. Не додавай verification, якої фактично не було.
+Do not rewrite or sort older entries. Do not add verification that did not happen.
 
-## Git-політика
+## Git Policy
 
-- Ніколи не виконуй `git commit`.
-- Не виконуй `git add`, якщо студент прямо цього не попросив.
-- Можна використовувати read-only `git status`, `git diff` і `git log` для перевірки.
-- Після завершеного й перевіреного етапу запропонуй коротку Conventional Commit назву.
-- Студент самостійно рев’ювить, stage-ить і комітить зміни.
+- Never run `git commit`.
+- Do not run `git add` unless the student directly asks.
+- You may use read-only `git status`, `git diff`, and `git log` for verification.
+- After a completed and verified stage, suggest a short Conventional Commit title.
+- The student reviews, stages, and commits changes independently.

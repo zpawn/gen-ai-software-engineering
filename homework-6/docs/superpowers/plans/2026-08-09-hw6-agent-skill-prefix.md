@@ -2,19 +2,19 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Додати префікс `hw6-` до всіх створених у Homework 6 Claude Code skill та AI meta-agents.
+**Goal:** Add the `hw6-` prefix to all Homework 6 Claude Code skill and AI meta-agents created.
 
-**Architecture:** Rename directory/file identity, matching YAML frontmatter і всі active references виконується як одна атомарна documentation/configuration migration. Slash commands залишаються стабільними user-facing entry points.
+**Architecture:** Rename directory/file identity, matching YAML frontmatter and all active references is performed as one atomic documentation/configuration migration. Slash commands remain stable user-facing entry points.
 
 **Tech Stack:** Claude Code project skills, custom subagents, custom commands, Markdown, YAML, official skill-creator validator.
 
 ## Global Constraints
 
-- Перейменовуються лише створені у Homework 6 skill та agents.
-- Superpowers skills і slash commands не перейменовуються.
-- Префікс має точний формат `hw6-`.
-- Append-only `docs/log.md` не переписується.
-- AI не виконує `git add` або `git commit`.
+- Only skills and agents created in Homework 6 are renamed.
+- Superpowers skills and slash commands are not renamed.
+- The prefix has the exact format `hw6-`.
+- Append-only `docs/log.md` is not overwritten.
+- AI does not perform `git add` or `git commit`.
 
 ---
 
@@ -28,11 +28,11 @@
 - Consumes: approved naming map.
 - Produces: evidence that prefixed identities do not exist before rename.
 
-- [x] Перевірити, що `.claude/skills/hw6-writing-feature-specifications/SKILL.md` відсутній.
-- [x] Перевірити, що `.claude/agents/hw6-specification-agent.md` та інші prefixed agent files відсутні.
-- [x] Зафіксувати RED result: prefixed discovery check fails because rename ще не виконано.
+- [x] Check that `.claude/skills/hw6-writing-feature-specifications/SKILL.md` is missing.
+- [x] Check that `.claude/agents/hw6-specification-agent.md` and other prefixed agent files are missing.
+- [x] Fix RED result: prefixed discovery check fails because rename has not yet been performed.
 
-### Task 2: Rename skill and agents
+### Task 2: Rename skills and agents
 
 **Files:**
 - Move: `.claude/skills/writing-feature-specifications/` → `.claude/skills/hw6-writing-feature-specifications/`

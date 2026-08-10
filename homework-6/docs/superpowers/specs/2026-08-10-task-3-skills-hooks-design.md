@@ -1,40 +1,40 @@
-# Дизайн Task 3: Claude-команди та coverage hook
+# Design Task 3: Claude commands and coverage hook
 
-## Мета
+## Goal
 
-Завершити мінімально необхідну інфраструктуру Task 3 без створення скриншотів: уніфікувати назви створених у проєкті Claude-команд за префіксом `hw6-` і підтвердити, що coverage hook блокує `git push`, коли `npm run test:coverage` завершується помилкою.
+Complete the minimum necessary infrastructure Task 3 without creating screenshots: unify the names of the commands created in the Claude project with the prefix `hw6-` and confirm that the coverage hook blocks `git push` when `npm run test:coverage` terminates with an error.
 
-## Обсяг змін
+## Scope of changes
 
-- Залишити наявну команду `.claude/commands/hw6-run-pipeline.md` без зміни поведінки.
-- Перейменувати `.claude/commands/validate-transactions.md` на `.claude/commands/hw6-validate-transactions.md`.
-- Перейменувати `.claude/commands/write-spec.md` на `.claude/commands/hw6-write-spec.md`.
-- Оновити посилання на старі назви команд у проєктній документації.
-- Не додавати автоматизовані тести для shell hook у межах мінімального варіанта.
-- Не створювати screenshots: студент зробить їх під час фінального етапу.
+- Leave the existing command `.claude/commands/hw6-run-pipeline.md` without changing the behavior.
+- Rename `.claude/commands/validate-transactions.md` to `.claude/commands/hw6-validate-transactions.md`.
+- Rename `.claude/commands/write-spec.md` to `.claude/commands/hw6-write-spec.md`.
+- Update references to old team names in project documentation.
+- Do not add automated tests for shell hook within the minimum version.
+- Do not create screenshots: the student will make them during the final stage.
 
 ## Coverage gate
 
-Наявний `.claude/hooks/coverage-gate.sh` залишається механізмом блокування push. Hook повинен:
+The existing `.claude/hooks/coverage-gate.sh` remains the push blocking mechanism. Hook should:
 
-1. Ігнорувати Bash-команди, що не містять `git push`.
-2. Перед `git push` запускати `npm run test:coverage`.
-3. Завершуватися ненульовим кодом і блокувати push, якщо тести або coverage threshold не пройшли.
-4. Дозволяти push лише після успішного coverage run.
+1. Ignore Bash commands that do not contain `git push`.
+2. Run `npm run test:coverage` before `git push`.
+3. End with a non-zero code and block push if tests or coverage threshold are not passed.
+4. Allow push only after a successful coverage run.
 
-Поріг задається у `vitest.config.ts` і має бути не нижчим за обов’язкові 80%. Перевірка виконується вручну без реального push: hook отримує тестовий JSON через stdin.
+The threshold is set in `vitest.config.ts` and must not be lower than the mandatory 80%. Validation is done manually with no real push: the hook receives the test JSON via stdin.
 
-## Перевірка
+## Verification
 
-- Перевірити відсутність власних Claude-команд без префікса `hw6-`.
-- Запустити hook із безпечною командою, що не є push, і перевірити код `0`.
-- Запустити hook із тестовим значенням `git push`; він має виконати актуальний `npm run test:coverage` і завершитися успішно за поточного coverage.
-- Перевірити `npm run typecheck`.
-- Не виконувати `git add`, `git commit` або справжній `git push`.
+- Check the absence of own Claude commands without the `hw6-` prefix.
+- Run a hook with a secure non-push command and check the code `0`.
+- Run hook with test value `git push`; it should execute the current `npm run test:coverage` and complete successfully under the current coverage.
+- Check `npm run typecheck`.
+- Do not execute `git add`, `git commit` or genuine `git push`.
 
-## Поза обсягом
+## Out of scope
 
-- Автоматизовані unit-тести самого shell hook.
-- Навмисне зниження coverage для демонстрації блокування.
-- Скриншоти `skill-run-pipeline.png` та `hook-trigger.png`.
-- Зміни TypeScript pipeline або бізнес-логіки.
+- Automated unit tests of the shell hook itself.
+- Deliberate reduction of coverage to demonstrate blocking.
+- Screenshots of `skill-run-pipeline.png` and `hook-trigger.png`.
+- Changes to the TypeScript pipeline or business logic.

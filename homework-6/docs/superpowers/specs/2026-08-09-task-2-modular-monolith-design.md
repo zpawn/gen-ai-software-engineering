@@ -1,18 +1,18 @@
-# Дизайн Task 2: модульний TypeScript transaction pipeline
+# Design Task 2: modular TypeScript transaction pipeline
 
-## Мета та межі
+## Purpose and limits
 
-Реалізувати runnable TypeScript-застосунок, який послідовно обробляє всі записи з `sample-transactions.json` через validator, fraud detector і compliance checker, зберігає фінальні результати у `shared/results/` та надає read-only Fastify API для health, transaction status і summary.
+Implement a runnable TypeScript application that sequentially processes all records from `sample-transactions.json` through validator, fraud detector and compliance checker, stores final results in `shared/results/` and provides read-only Fastify API for health, transaction status and summary.
 
-Task 2 не включає custom MCP server, screenshots, HOWTORUN або фінальне налаштування coverage hook — вони завершуються у Tasks 3–5. Водночас код проєктується так, щоб MCP server у Task 4 повторно використав read-only results repository без дублювання business logic.
+Task 2 does not include the custom MCP server, screenshots, HOWTORUN, or the final configuration of the coverage hook — these are completed in Tasks 3–5. At the same time, the code is designed so that the MCP server in Task 4 reuses the read-only results repository without duplicating business logic.
 
-## Обрана архітектура
+## Selected architecture
 
-Застосунок є модульним monolith із трьома чіткими шарами:
+The application is a modular monolith with three distinct layers:
 
-1. **Domain:** types і pure deterministic pipeline agents без filesystem, HTTP або global state.
-2. **Application/infrastructure:** integrator, file store, results repository та audit-safe logger.
-3. **Delivery:** CLI entry points і read-only Fastify API.
+1. **Domain:** types and pure deterministic pipeline agents without filesystem, HTTP or global state.
+2. **Application/infrastructure:** integrator, file store, results repository and audit-safe logger.
+3. **Delivery:** CLI entry points and read-only Fastify API.
 
 ```text
 sample-transactions.json
@@ -32,9 +32,9 @@ shared/input/ → validator → shared/processing/
                   CLI + read-only Fastify API
 ```
 
-Pipeline не залежить від Fastify. HTTP layer ніколи не запускає та не змінює pipeline, а лише читає вже сформовані результати.
+Pipeline is independent of Fastify. The HTTP layer never starts or changes the pipeline, but only reads the already generated results.
 
-## Структура файлів
+## File structure
 
 ```text
 src/
@@ -73,102 +73,102 @@ tests/
 
 ## Domain contracts
 
-`RawTransaction` залишається `unknown` до validation. Після успішної перевірки створюється `ValidTransaction`, де `amount` залишається decimal string, а currency нормалізована до uppercase. `Decimal` instance не входить до serializable domain objects.
+`RawTransaction` remains `unknown` until validation. After successful verification, `ValidTransaction` is created, where `amount` remains a decimal string, and currency is normalized to uppercase. `Decimal` instance is not included in serializable domain objects.
 
-Agents повертають discriminated typed results:
+Agents return discriminated typed results:
 
-- validator: `{ valid: true, transaction }` або `{ valid: false, transactionId, reasonCodes }`;
+- validator: `{ valid: true, transaction }` or `{ valid: false, transactionId, reasonCodes }`;
 - fraud detector: `{ riskScore, riskFlags }`;
 - compliance checker: `{ status: "approved" | "review", reasonCodes, explanation }`;
-- integrator додає validation rejection як final `{ status: "rejected" }`.
+- integrator adds validation rejection as final `{ status: "rejected" }`.
 
-`riskScore` є цілим числом 0–100, а не monetary value. Усі amount parsing і threshold comparisons виконуються через Decimal.js зі string inputs; `number`, `parseFloat` та implicit coercion для грошей заборонені.
+`riskScore` is an integer from 0 to 100, not a monetary value. All amount parsing and threshold comparisons are performed via Decimal.js with string inputs; `number`, `parseFloat` and implicit coercion for money are prohibited.
 
 ## File protocol
 
-Для кожного input record integrator:
+For each input record integrator:
 
-1. створює initial `PipelineMessage` у `shared/input/`;
-2. validator читає input message;
-3. invalid record одразу atomically записується у `shared/results/` як rejected;
-4. valid record переходить у `shared/processing/`;
-5. fraud detector записує assessment message у `shared/output/`;
-6. compliance checker записує final result у `shared/results/`;
-7. integrator формує `summary.json` із total/approved/review/rejected counts.
+1. creates initial `PipelineMessage` in `shared/input/`;
+2. the validator reads the input message;
+3. invalid record is immediately atomically recorded in `shared/results/` as rejected;
+4. valid record goes to `shared/processing/`;
+5. fraud detector records assessment message in `shared/output/`;
+6. the compliance checker records the final result in `shared/results/`;
+7. the integrator forms `summary.json` from total/approved/review/rejected counts.
 
-Успішно спожитий stage file видаляється лише після успішного atomic write наступного stage. Atomic write використовує temporary sibling file та `rename`. Integrator очищає лише чотири відомі stage directories у configured shared root; сторонні paths не видаляються.
+A successfully consumed stage file is deleted only after a successful atomic write of the next stage. Atomic write uses temporary sibling file and `rename`. Integrator clears only the four known stage directories in the configured shared root; extraneous paths are not deleted.
 
-Result filenames базуються на safe transaction ID. Input index зберігається окремо, щоб summary рахував records, а duplicate ID отримував deterministic `DUPLICATE_TRANSACTION_ID` rejection без перезапису попереднього result.
+Result filenames are based on the safe transaction ID. Input index is stored separately so that summary counts records, and duplicate ID receives deterministic `DUPLICATE_TRANSACTION_ID` rejection without overwriting the previous result.
 
 ## Agent behavior
 
 ### Transaction validator
 
-Перевіряє object shape, required strings, unique transaction ID, strict ISO 8601 UTC timestamp, metadata country, decimal-string syntax, positive amount і configured currency allowlist. User-data errors не кидають exceptions і не містять input payload у reason text.
+Checks object shape, required strings, unique transaction ID, strict ISO 8601 UTC timestamp, metadata country, decimal-string syntax, positive amount and configured currency allowlist. User-data errors do not throw exceptions and do not contain an input payload in the reason text.
 
 ### Fraud detector
 
-Приймає лише `ValidTransaction`. Додає +50 за amount строго більше configured `10000.00`, +25 за UTC hour 00–04 і +25 за country, відмінну від configured domestic country `US`. Повертає score, обмежений 0–100, і stable risk flags.
+Only accepts `ValidTransaction`. Adds +50 for amount strictly greater than configured `10000.00`, +25 for UTC hour 00–04 and +25 for country other than configured domestic country `US`. Returns a score bounded by 0–100 and stable risk flags.
 
 ### Compliance checker
 
-Повертає `review`, якщо score більший або дорівнює configured threshold 50; інакше `approved`. Explanation формується зі stable safe phrases й не включає accounts, description або raw payload.
+Returns `review` if the score is greater than or equal to the configured threshold 50; otherwise `approved`. Explanation is formed from stable safe phrases and does not include accounts, description or raw payload.
 
-## Audit і PII
+## Audit and PII
 
-Кожний stage додає `AuditEntry` із timestamp, agent name, transaction ID, outcome і reason codes. Clock передається як dependency, щоб tests були детермінованими. Console output і JSON result не містять `source_account`, `destination_account`, description або повний input object.
+Each stage adds `AuditEntry` with timestamp, agent name, transaction ID, outcome and reason codes. Clock is passed as a dependency so that the tests are deterministic. Console output and JSON result do not contain `source_account`, `destination_account`, description or full input object.
 
-Raw account fields доступні лише validator та pure downstream functions як частина in-memory transaction. Вони не потрапляють у audit log, summary або Fastify responses.
+Raw account fields are only available to validator and pure downstream functions as part of an in-memory transaction. They do not get into the audit log, summary or Fastify responses.
 
 ## CLI
 
-- `npm run pipeline` запускає `src/cli/run-pipeline.ts`, очищає configured stage directories, обробляє sample input і друкує лише safe summary.
-- `npm run validate:dry` використовує той самий validator, але не створює `shared/` і не викликає fraud/compliance stages.
-- `npm run api` запускає Fastify server на configurable host/port.
-- User-facing Claude Code command має назву `/hw6-run-pipeline` і делегує запуск перевіреній npm-команді `npm run pipeline`; старий unprefixed `/run-pipeline` не є активним project command.
+- `npm run pipeline` runs `src/cli/run-pipeline.ts`, clears configured stage directories, processes sample input and prints only safe summary.
+- `npm run validate:dry` uses the same validator, but does not create `shared/` and does not call fraud/compliance stages.
+- `npm run api` starts Fastify server on configurable host/port.
+- User-facing Claude Code command is called `/hw6-run-pipeline` and delegates the launch to the verified npm command `npm run pipeline`; the old unprefixed `/run-pipeline` is not an active project command.
 
-Record-level validation failures не змінюють process exit code. Malformed top-level input JSON, недоступний input file або неможливість записати stage/result є system errors і завершують CLI з non-zero exit code.
+Record-level validation failures do not change the process exit code. Malformed top-level input JSON, unavailable input file, or inability to write stage/result are system errors and terminate the CLI with a non-zero exit code.
 
 ## Read-only Fastify API
 
-Fastify app створюється factory function `buildApp(options)` окремо від `listen()`, щоб routes тестувалися через `app.inject()` без network port.
+Fastify app is created factory function `buildApp(options)` separately from `listen()` so that routes are tested through `app.inject()` without network port.
 
-- `GET /health` → `200` і `{ "status": "ok" }`;
-- `GET /transactions/:transactionId` → safe final result або `404 TRANSACTION_NOT_FOUND`;
-- `GET /summary` → latest summary або `404 SUMMARY_NOT_FOUND` до першого run.
+- `GET /health` → `200` and `{ "status": "ok" }`;
+- `GET /transactions/:transactionId` → safe final result or `404 TRANSACTION_NOT_FOUND`;
+- `GET /summary` → latest summary or `404 SUMMARY_NOT_FOUND` before the first run.
 
-API читає configurable results directory через `results-repository.ts`. Malformed result files повертають controlled `500 RESULTS_READ_ERROR` без raw file content у response/logs.
+The API reads the configurable results directory via `results-repository.ts`. Malformed result files return controlled `500 RESULTS_READ_ERROR` without raw file content in response/logs.
 
-## Dependencies та runtime
+## Dependencies and runtime
 
-- Node.js `>=22`, ESM і TypeScript strict mode;
-- Fastify 5 для read-only API;
-- Decimal.js для exact monetary parsing/comparison;
-- Vitest 4 та `@vitest/coverage-v8` для tests і coverage;
-- `tsx` для development CLI execution;
-- SQLite/Drizzle не додаються, бо обов’язковий JSON protocol уже забезпечує persistence цього student scope.
+- Node.js `>=22`, ESM and TypeScript strict mode;
+- Fastify 5 for read-only API;
+- Decimal.js for exact monetary parsing/comparison;
+- Vitest 4 and `@vitest/coverage-v8` for tests and coverage;
+- `tsx` for development CLI execution;
+- SQLite/Drizzle are not added, because the mandatory JSON protocol already ensures the persistence of this student scope.
 
 ## Testing strategy
 
-Реалізація йде TDD у такому порядку: validator → fraud detector → compliance checker → file store/integrator → dry-run CLI → Fastify API.
+The implementation follows TDD in the following order: validator → fraud detector → compliance checker → file store/integrator → dry-run CLI → Fastify API.
 
-- unit tests перевіряють pure functions, boundaries і stable reason codes;
-- integration test використовує OS temporary directory та власний sample fixture;
-- API tests використовують Fastify `inject()` і temporary results directory;
-- tests перевіряють відсутність plaintext account IDs та descriptions у captured output/results;
-- V8 coverage включає `src/**/*.ts`, gate встановлюється на 80%, фактична ціль Task 5 — щонайменше 90%.
+- unit tests check pure functions, boundaries and stable reason codes;
+- integration test uses the OS temporary directory and its own sample fixture;
+- API tests use Fastify `inject()` and temporary results directory;
+- tests check the absence of plaintext account IDs and descriptions in captured output/results;
+- V8 coverage includes `src/**/*.ts`, gate is set to 80%, actual target of Task 5 is at least 90%.
 
 ## Success criteria Task 2
 
-1. `npm run pipeline` обробляє всі 8 sample records без system error.
-2. `shared/results/` містить 8 final transaction results і `summary.json`.
-3. TXN006 і TXN007 rejected; high-risk records отримують review згідно з rules.
-4. `npm run validate:dry` показує total/valid/invalid counts без створення stage files.
-5. Fastify routes повертають health, transaction result і summary з actual result files.
-6. Unit, integration та API tests проходять у temporary directories.
-7. Application output, audits і HTTP responses не містять plaintext account IDs або descriptions.
-8. Claude Code виявляє `/hw6-run-pipeline`, яка виконує повний pipeline та показує safe summary і rejected reasons.
+1. `npm run pipeline` processes all 8 sample records without a system error.
+2. `shared/results/` contains 8 final transaction results and `summary.json`.
+3. TXN006 and TXN007 rejected; high-risk records receive a review according to the rules.
+4. `npm run validate:dry` shows total/valid/invalid counts without creating stage files.
+5. Fastify routes return health, transaction result and summary from actual result files.
+6. Unit, integration and API tests are conducted in temporary directories.
+7. Application output, audits and HTTP responses do not contain plaintext account IDs or descriptions.
+8. Claude Code detects `/hw6-run-pipeline`, which executes the full pipeline and shows the safe summary and rejected reasons.
 
 ## Git policy
 
-AI не виконує `git add` або `git commit`. Після перевіреного етапу студент отримує лише рекомендовану Conventional Commit назву.
+AI does not do `git add` or `git commit`. After the verified stage, the student receives only the recommended Conventional Commit name.

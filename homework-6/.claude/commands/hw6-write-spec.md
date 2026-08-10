@@ -1,32 +1,32 @@
 ---
-description: Створити або оновити окрему feature specification; --project оновлює загальну pipeline specification.
+description: Create or update a feature specification; --project updates the general pipeline specification.
 argument-hint: [feature-name | --project]
 allowed-tools: Read, Grep, Glob, Write, Edit, Agent
 ---
 
-Використай project subagent `hw6-specification-agent` через `/hw6-write-spec` для створення або оновлення специфікації.
+Use the project subagent `hw6-specification-agent` through `/hw6-write-spec` to create or update a specification.
 
-Передай йому arguments: `$ARGUMENTS`.
+Pass these arguments: `$ARGUMENTS`.
 
-- Якщо `$ARGUMENTS` порожній, зупинись і попроси назву feature. Не вигадуй feature name.
-- Якщо `$ARGUMENTS` дорівнює `--project`, працюй у project mode з `docs/specification.md`.
-- В іншому разі працюй у feature mode, використовуй preloaded skill `hw6-writing-feature-specifications` і записуй результат у `docs/specifications/<feature-slug>.md`.
+- If `$ARGUMENTS` is empty, stop and ask for a feature name. Do not invent one.
+- If `$ARGUMENTS` is `--project`, use project mode with `docs/specification.md`.
+- Otherwise, use feature mode with the preloaded skill `hw6-writing-feature-specifications` and write to `docs/specifications/<feature-slug>.md`.
 
-Обов’язковий workflow:
+Required workflow:
 
-1. Прочитай `AGENTS.md`, `TASKS.md`, `README.md` і погоджені designs у `docs/superpowers/specs/`.
-2. У feature mode прочитай `docs/specification.md` як project context, але не змінюй його.
-3. У project mode перевір existing `docs/specification.md` перед редагуванням; не перезаписуй погоджені рішення без пояснення.
-4. Не створюй specification files у корені.
-5. Переконайся, що документ містить:
+1. Read `AGENTS.md`, `TASKS.md`, `README.md`, and approved designs in `docs/superpowers/specs/`.
+2. In feature mode, read `docs/specification.md` as project context but do not change it.
+3. In project mode, review the existing `docs/specification.md` before editing. Do not overwrite approved decisions without an explanation.
+4. Do not create specification files in the root.
+5. Make sure the document includes:
    - High-Level Objective;
-   - у project mode — 4–5 measurable Mid-Level Objectives;
-   - у feature mode — 3–5 measurable Mid-Level Objectives;
+   - in project mode, 4–5 measurable Mid-Level Objectives;
+   - in feature mode, 3–5 measurable Mid-Level Objectives;
    - Implementation Notes;
    - Beginning/Ending Context;
-   - Low-Level Tasks із exact prompt, file, function і details.
-6. Для feature spec також перевір assumptions, out-of-scope boundary, Definition of Done і відсутність template placeholders.
-7. Перевір precise money, ISO 4217, audit logging, PII redaction, JSON message envelope, `shared/` directories, summary і coverage requirements, якщо вони релевантні feature.
-8. Покажи короткий summary внесених змін і список assumptions.
-9. Додай append-only запис у `docs/log.md`, якщо журнал існує.
-10. Не виконуй `git add` або `git commit`; запропонуй студенту Conventional Commit назву.
+   - Low-Level Tasks with an exact prompt, file, function, and details.
+6. For a feature spec, also check assumptions, out-of-scope boundaries, Definition of Done, and absence of template placeholders.
+7. Check precise money, ISO 4217, audit logging, PII redaction, the JSON message envelope, `shared/` directories, summary, and coverage requirements when relevant.
+8. Show a short summary of changes and a list of assumptions.
+9. Append an entry to `docs/log.md` if it exists.
+10. Do not run `git add` or `git commit`; suggest a Conventional Commit title.

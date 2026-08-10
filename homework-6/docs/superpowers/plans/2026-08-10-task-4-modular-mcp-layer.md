@@ -2,21 +2,21 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Створити read-only модульний TypeScript MCP server і один project-scoped `.mcp.json`, через які Claude Code читає безпечні transaction statuses та pipeline summary.
+**Goal:** Create a read-only modular TypeScript MCP server and one project-scoped `.mcp.json` through which Claude Code reads secure transaction statuses and pipeline summary.
 
-**Architecture:** `mcp/handlers.ts` повторно використовує existing results repository та формує safe projections; `mcp/server.ts` реєструє protocol tools/resource; `mcp/stdio.ts` підключає `StdioServerTransport`. Claude Code запускає custom server і Context7 із єдиного `.mcp.json`.
+**Architecture:** `mcp/handlers.ts` reuses existing results repository and forms safe projections; `mcp/server.ts` registers protocol tools/resource; `mcp/stdio.ts` connects `StdioServerTransport`. Claude Code runs custom server and Context7 from a single `.mcp.json`.
 
-**Tech Stack:** Node.js 22+, TypeScript strict mode, `@modelcontextprotocol/sdk` v1.30.x, Zod, Vitest, JSON files у `shared/results/`.
+**Tech Stack:** Node.js 22+, TypeScript strict mode, `@modelcontextprotocol/sdk` v1.30.x, Zod, Vitest, JSON files in `shared/results/`.
 
 ## Global Constraints
 
-- Створити тільки `.mcp.json`; окремий `mcp.json` не створювати.
-- MCP layer є read-only і не запускає pipeline.
-- Не повертати raw transaction, account identifiers, names, descriptions, `explanation` або `auditTrail`.
-- MCP tests використовують temporary directories та in-memory transport, а не real `shared/`.
-- stdout stdio process зарезервований для MCP protocol.
-- Не виконувати `git add`, `git commit` або `git push`.
-- `docs/log.md` оновлювати лише append-only.
+- Create only `.mcp.json`; do not create a separate `mcp.json`.
+- MCP layer is read-only and does not start the pipeline.
+- Do not return raw transaction, account identifiers, names, descriptions, `explanation` or `auditTrail`.
+- MCP tests use temporary directories and in-memory transport, not real `shared/`.
+- stdout stdio process is reserved for MCP protocol.
+- Do not execute `git add`, `git commit` or `git push`.
+- `docs/log.md` update only append-only.
 
 ---
 
@@ -27,12 +27,12 @@
 - Create: `mcp/handlers.ts`
 
 **Interfaces:**
-- Consumes: `readTransactionResult(resultsDirectory, transactionId)` і `readPipelineSummary(resultsDirectory)` із `src/infrastructure/results-repository.ts`.
+- Consumes: `readTransactionResult(resultsDirectory, transactionId)` and `readPipelineSummary(resultsDirectory)` with `src/infrastructure/results-repository.ts`.
 - Produces: `SafeTransactionStatus`, `getTransactionStatus`, `listPipelineResults`, `getPipelineSummaryResource`.
 
-- [x] **Step 1: Написати failing handler tests**
+- [x] **Step 1: Write failing handler tests**
 
-Tests створюють temporary `results/`, записують valid result із private markers і перевіряють exact safe projection:
+Tests create temporary `results/`, record valid result with private markers and check exact safe projection:
 
 ```ts
 expect(await getTransactionStatus(resultsDirectory, "TXN001")).toEqual({
@@ -44,14 +44,14 @@ expect(await getTransactionStatus(resultsDirectory, "TXN001")).toEqual({
 });
 ```
 
-Окремо перевірити result без optional risk fields, exact summary object, exact text `Pipeline summary: total=3, approved=1, review=1, rejected=1.` і безпечні repository errors.
+Separately check the result without optional risk fields, exact summary object, exact text `Pipeline summary: total=3, approved=1, review=1, rejected=1.` and safe repository errors.
 
-- [x] **Step 2: Запустити RED**
+- [x] **Step 2: Run RED**
 
-Run: `npm test -- tests/mcp/handlers.test.ts`  
-Expected: FAIL, тому що `mcp/handlers.ts` не існує.
+Run: `npm test -- tests/mcp/handlers.test.ts`
+Expected: FAIL because `mcp/handlers.ts` does not exist.
 
-- [x] **Step 3: Реалізувати мінімальні handlers**
+- [x] **Step 3: Implement minimal handlers**
 
 ```ts
 export interface SafeTransactionStatus {
@@ -76,9 +76,9 @@ export const getPipelineSummaryResource = async (
 ): Promise<string> => { /* deterministic counters */ };
 ```
 
-- [x] **Step 4: Запустити GREEN**
+- [x] **Step 4: Run GREEN**
 
-Run: `npm test -- tests/mcp/handlers.test.ts`  
+Run: `npm test -- tests/mcp/handlers.test.ts`
 Expected: handler tests PASS.
 
 ### Task 2: MCP protocol registration
@@ -90,17 +90,17 @@ Expected: handler tests PASS.
 - Create: `mcp/server.ts`
 
 **Interfaces:**
-- Consumes: Task 1 handlers і `ResultsRepositoryError` codes.
-- Produces: `createPipelineStatusServer(options: { resultsDirectory: string }): McpServer`.
+- Consumes: Task 1 handlers and `ResultsRepositoryError` codes.
+- Produced by: `createPipelineStatusServer(options: { resultsDirectory: string }): McpServer`.
 
-- [x] **Step 1: Встановити documented dependencies**
+- [x] **Step 1: Install documented dependencies**
 
-Run: `npm install @modelcontextprotocol/sdk@1.30.0 zod`  
-Expected: dependencies додані до package files; існуючі tests не ламаються.
+Run: `npm install @modelcontextprotocol/sdk@1.30.0 zod`
+Expected: dependencies added to package files; existing tests do not break.
 
-- [x] **Step 2: Написати failing protocol tests**
+- [x] **Step 2: Write failing protocol tests**
 
-Через SDK `Client` і `InMemoryTransport.createLinkedPair()` перевірити:
+Through SDK `Client` and `InMemoryTransport.createLinkedPair()` check:
 
 ```ts
 expect((await client.listTools()).tools.map(({ name }) => name)).toEqual([
@@ -109,16 +109,16 @@ expect((await client.listTools()).tools.map(({ name }) => name)).toEqual([
 ]);
 ```
 
-Також викликати обидва tools, прочитати `pipeline://summary`, перевірити Zod rejection для missing `transaction_id`, safe `isError: true` для absent result і відсутність private markers у serialized responses.
+Also call both tools, read `pipeline://summary`, check Zod rejection for missing `transaction_id`, safe `isError: true` for absent result and lack of private markers in serialized responses.
 
-- [x] **Step 3: Запустити RED**
+- [x] **Step 3: Run RED**
 
-Run: `npm test -- tests/mcp/server.test.ts`  
-Expected: FAIL, тому що `mcp/server.ts` не існує.
+Run: `npm test -- tests/mcp/server.test.ts`
+Expected: FAIL because `mcp/server.ts` does not exist.
 
-- [x] **Step 4: Реалізувати server factory**
+- [x] **Step 4: Implement server factory**
 
-Зареєструвати:
+Register:
 
 ```ts
 server.registerTool("get_transaction_status", {
@@ -138,14 +138,14 @@ server.registerResource(
 );
 ```
 
-Tool callbacks повертають JSON text content; known repository errors мапляться на generic safe messages і `isError: true`.
+Tool callbacks return JSON text content; known repository errors are mapped to generic safe messages and `isError: true`.
 
-- [x] **Step 5: Запустити GREEN**
+- [x] **Step 5: Run GREEN**
 
-Run: `npm test -- tests/mcp/server.test.ts`  
+Run: `npm test -- tests/mcp/server.test.ts`
 Expected: protocol tests PASS.
 
-### Task 3: Stdio entry point і Claude Code configuration
+### Task 3: Studio entry point and Claude Code configuration
 
 **Files:**
 - Create: `mcp/stdio.ts`
@@ -155,18 +155,18 @@ Expected: protocol tests PASS.
 
 **Interfaces:**
 - Consumes: `createPipelineStatusServer`.
-- Produces: runnable stdio process і project MCP servers `context7`, `pipeline-status`.
+- Produces: runnable stdio process and project MCP servers `context7`, `pipeline-status`.
 
-- [x] **Step 1: Написати failing config test**
+- [x] **Step 1: Write failing config test**
 
-Test читає `.mcp.json` і перевіряє exact server names, Context7 command, local pipeline command, `RESULTS_DIR`, а також inclusion `mcp/**/*.ts` у TypeScript config.
+Test reads `.mcp.json` and checks exact server names, Context7 command, local pipeline command, `RESULTS_DIR`, as well as inclusion of `mcp/**/*.ts` in TypeScript config.
 
-- [x] **Step 2: Запустити RED**
+- [x] **Step 2: Run RED**
 
-Run: `npm test -- tests/mcp/config.test.ts`  
-Expected: FAIL, тому що `.mcp.json` і `mcp/stdio.ts` не існують.
+Run: `npm test -- tests/mcp/config.test.ts`
+Expected: FAIL because `.mcp.json` and `mcp/stdio.ts` do not exist.
 
-- [x] **Step 3: Реалізувати stdio/config**
+- [x] **Step 3: Implement stdio/config**
 
 `mcp/stdio.ts`:
 
@@ -176,7 +176,7 @@ const server = createPipelineStatusServer({ resultsDirectory });
 await server.connect(new StdioServerTransport());
 ```
 
-`.mcp.json` містить:
+`.mcp.json` contains:
 
 ```json
 {
@@ -194,17 +194,17 @@ await server.connect(new StdioServerTransport());
 }
 ```
 
-`tsconfig.json` включає `mcp/**/*.ts`.
+`tsconfig.json` includes `mcp/**/*.ts`.
 
-- [x] **Step 4: Запустити GREEN і smoke**
+- [x] **Step 4: Run GREEN and smoke**
 
-Run: `npm test -- tests/mcp/config.test.ts && npm run typecheck`  
-Expected: config test і typecheck PASS.
+Run: `npm test -- tests/mcp/config.test.ts && npm run typecheck`
+Expected: config test and typecheck PASS.
 
-Run: `claude mcp list`  
-Expected: Claude Code бачить `context7` і `pipeline-status`; first-use approval може вимагати ручного підтвердження студента.
+Run: `claude mcp list`
+Expected: Claude Code sees `context7` and `pipeline-status`; first-use approval may require manual confirmation by the student.
 
-### Task 4: Documentation та final gate
+### Task 4: Documentation and final gate
 
 **Files:**
 - Modify: `README.md`
@@ -213,18 +213,18 @@ Expected: Claude Code бачить `context7` і `pipeline-status`; first-use ap
 - Modify: `docs/superpowers/plans/2026-08-10-task-4-modular-mcp-layer.md`
 
 **Interfaces:**
-- Consumes: фактично перевірені commands, tools, resource та Context7 queries.
-- Produces: точні інструкції для Claude Code й append-only implementation record.
+- Consumes: actually tested commands, tools, resource and Context7 queries.
+- Produces: exact instructions for Claude Code and append-only implementation record.
 
-- [x] **Step 1: Оновити README фактичним MCP workflow**
+- [x] **Step 1: Update README with actual MCP workflow**
 
-Описати один `.mcp.json`, first-use approval, restart Claude Code після config changes, два tools, resource і safe response boundary. Screenshot не позначати виконаним.
+Describe one `.mcp.json`, first-use approval, restart Claude Code after config changes, two tools, resource and safe response boundary. Do not mark the screenshot as completed.
 
-- [x] **Step 2: Оновити research/log**
+- [x] **Step 2: Update research/log**
 
-Уточнити фактичне застосування Queries 15–17 та append implementation/verification entries в `docs/log.md` із реальними command results.
+Clarify the actual application of Queries 15–17 and append implementation/verification entries in `docs/log.md` with real command results.
 
-- [x] **Step 3: Запустити full verification**
+- [x] **Step 3: Run full verification**
 
 Run:
 
@@ -235,15 +235,15 @@ npm run typecheck
 git diff --check
 ```
 
-Expected: усі tests PASS, configured coverage thresholds виконані, typecheck і diff check мають exit code 0.
+Expected: all tests PASS, configured coverage thresholds are fulfilled, typecheck and diff check have exit code 0.
 
-- [x] **Step 4: Перевірити security boundary**
+- [x] **Step 4: Check the security boundary**
 
-Serialized MCP tool/resource outputs не містять `sourceAccount`, `destinationAccount`, `description`, `explanation`, `auditTrail` або private test markers.
+Serialized MCP tool/resource outputs do not contain `sourceAccount`, `destinationAccount`, `description`, `explanation`, `auditTrail` or private test markers.
 
-- [x] **Step 5: Завершити без Git mutations**
+- [x] **Step 5: Finish without Git mutations**
 
-Не stage-ити й не commit-ити. Запропонувати студенту commit title:
+Do not stage and do not commit. Offer the student a commit title:
 
 ```text
 feat: add Claude Code MCP pipeline status server

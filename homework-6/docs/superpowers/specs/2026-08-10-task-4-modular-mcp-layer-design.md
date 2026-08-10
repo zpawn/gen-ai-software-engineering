@@ -1,14 +1,14 @@
-# Дизайн Task 4: модульний MCP-шар
+# Design Task 4: modular MCP layer
 
-## Мета й межі
+## Purpose and limits
 
-Task 4 додає read-only інтеграцію між Claude Code та вже створеними JSON results. MCP server не є новим pipeline agent, не виконує банківських рішень і не запускає pipeline. Він лише читає validated files через existing results repository та повертає мінімальну безпечну проєкцію.
+Task 4 adds read-only integration between Claude Code and already generated JSON results. MCP server is not a new pipeline agent, does not execute banking decisions and does not run a pipeline. It only reads validated files through the existing results repository and returns the minimum safe projection.
 
-Канонічні feature requirements описані в `docs/specifications/task-4-mcp-integration.md`.
+Canonical feature requirements are described in `docs/specifications/task-4-mcp-integration.md`.
 
-## Обраний підхід
+## Selected approach
 
-Використовується модульний TypeScript MCP layer із трьох компонентів:
+A modular TypeScript MCP layer of three components is used:
 
 ```text
 Claude Code
@@ -29,11 +29,11 @@ src/infrastructure/results-repository.ts
 shared/results/*.json
 ```
 
-- `handlers.ts` не залежить від MCP SDK і містить safe projection та summary formatting.
-- `server.ts` реєструє protocol-facing tools/resource і перетворює domain errors на безпечні MCP responses.
-- `stdio.ts` є мінімальним process entry point без business logic.
+- `handlers.ts` is independent of the MCP SDK and includes safe projection and summary formatting.
+- `server.ts` registers protocol-facing tools/resource and converts domain errors into secure MCP responses.
+- `stdio.ts` is a minimal process entry point without business logic.
 
-Відхилено single-file server через змішування filesystem, security projection і protocol concerns. Відхилено Fastify bridge, оскільки local stdio integration не потребує HTTP.
+Rejected single-file server due to mixing filesystem, security projection and protocol concerns. Rejected Fastify bridge because local stdio integration does not require HTTP.
 
 ## MCP contract
 
@@ -45,7 +45,7 @@ Input:
 { "transaction_id": "TXN001" }
 ```
 
-Output містить тільки:
+Output contains only:
 
 ```json
 {
@@ -57,11 +57,11 @@ Output містить тільки:
 }
 ```
 
-Optional risk fields пропускаються, якщо їх немає у final result. `explanation`, `auditTrail` та raw data ніколи не входять до MCP response.
+Optional risk fields are skipped if they are not in the final result. `explanation`, `auditTrail` and raw data are never included in the MCP response.
 
 ### `list_pipeline_results`
 
-Повертає validated content `summary.json`:
+Returns validated content `summary.json`:
 
 ```json
 { "total": 8, "approved": 3, "review": 3, "rejected": 2 }
@@ -69,32 +69,32 @@ Optional risk fields пропускаються, якщо їх немає у fin
 
 ### `pipeline://summary`
 
-Static text resource повертає deterministic human-readable summary з тими самими чотирма counters і MIME type `text/plain`.
+Static text resource returns a deterministic human-readable summary with the same four counters and MIME type `text/plain`.
 
-## Конфігурація
+## Configuration
 
-Формулювання Homework 6 називає файл `mcp.json`, але актуальний Claude Code автоматично завантажує project servers із `.mcp.json`. Студент обрав один робочий `.mcp.json` для фактичного Claude Code workflow; duplicate config не створюється.
+The Homework 6 formulation calls the file `mcp.json`, but the current Claude Code automatically loads the project servers with `.mcp.json`. The student chose one working `.mcp.json` for the actual Claude Code workflow; duplicate config is not created.
 
 - `context7`: `npx -y @upstash/context7-mcp@latest`.
-- `pipeline-status`: local Node process із TypeScript entry point `mcp/stdio.ts` через installed `tsx` loader.
-- `RESULTS_DIR`: `shared/results` за замовчуванням і configurable environment override.
+- `pipeline-status`: local Node process with TypeScript entry point `mcp/stdio.ts` through installed `tsx` loader.
+- `RESULTS_DIR`: `shared/results` by default and configurable environment override.
 
-Claude Code попросить користувача окремо approve-нути project MCP server при першому виявленні `.mcp.json`.
+Claude Code will ask the user to separately approve the MCP server project the first time `.mcp.json` is detected.
 
-## Помилки й безпека
+## Bugs and security
 
-Existing `results-repository.ts` залишається єдиним місцем path validation та JSON shape validation. MCP handlers не читають files напряму.
+Existing `results-repository.ts` remains the only place for path validation and JSON shape validation. MCP handlers do not read files directly.
 
-Tool failures повертають `isError: true` і стабільний safe message. Resource failure використовує protocol error без absolute path або malformed content. Unsafe transaction ID має той самий зовнішній результат, що й absent ID, щоб не розкривати filesystem details.
+Tool failures return `isError: true` and a stable safe message. Resource failure uses protocol error without absolute path or malformed content. Unsafe transaction ID has the same external result as absent ID so as not to reveal filesystem details.
 
-Server не реєструє write operations. stdout stdio process зарезервований для MCP JSON-RPC; diagnostics, якщо будуть потрібні, спрямовуються тільки в stderr.
+Server does not register write operations. stdout stdio process is reserved for MCP JSON-RPC; diagnostics, if needed, are sent only to stderr.
 
-## Тестування
+## Testing
 
-1. Handlers тестуються через temporary directory: safe projection, summary text, missing/malformed input і відсутність PII.
-2. Server тестується SDK `Client` та `InMemoryTransport`: list/call tools, list/read resource, schema validation і controlled errors.
-3. Config verification перевіряє valid JSON і required server names у `.mcp.json`.
-4. Stdio smoke підтверджує protocol startup без HTTP і без writes до `shared/`.
-5. Фінальний gate: full tests, coverage, typecheck, diff check і PII scan MCP output.
+1. Handlers are tested through a temporary directory: safe projection, summary text, missing/malformed input and no PII.
+2. Server is tested by SDK `Client` and `InMemoryTransport`: list/call tools, list/read resource, schema validation and controlled errors.
+3. Config verification checks valid JSON and required server names in `.mcp.json`.
+4. Stdio smoke confirms the startup protocol without HTTP and without writes to `shared/`.
+5. Final gate: full tests, coverage, typecheck, diff check and PII scan MCP output.
 
-Скриншот Claude interaction не входить до implementation slice: студент зробить його разом з іншими submission screenshots наприкінці.
+The Claude interaction screenshot is not included in the implementation slice: the student will make it along with the other submission screenshots at the end.

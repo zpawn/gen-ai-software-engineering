@@ -1,29 +1,29 @@
 ---
-description: Перевірити sample transactions у dry-run режимі без fraud та compliance stages.
+description: Validate sample transactions in dry-run mode without fraud and compliance stages.
 allowed-tools: Read, Grep, Glob, Bash(npm run validate:dry), Bash(node *)
 ---
 
-Перевір усі records із `sample-transactions.json` через `/hw6-validate-transactions` без запуску повного pipeline.
+Validate all records from `sample-transactions.json` with `/hw6-validate-transactions` without running the full pipeline.
 
 Workflow:
 
-1. Прочитай `AGENTS.md` і validation requirements у `docs/specification.md`.
-2. Перевір, що `sample-transactions.json` існує та є valid JSON array.
-3. Перевір `package.json` і наявність npm script `validate:dry`.
-   - Якщо script відсутній, зупинись і повідом, що dry-run validator ще не реалізовано.
-   - Не імітуй output вручну й не заявляй про успішну validation.
-4. Запусти:
+1. Read `AGENTS.md` and validation requirements in `docs/specification.md`.
+2. Check that `sample-transactions.json` exists and is a valid JSON array.
+3. Check `package.json` and the npm script `validate:dry`.
+   - If the script is missing, stop and report that the dry-run validator is not implemented.
+   - Do not create output manually or claim successful validation.
+4. Run:
 
 ```bash
 npm run validate:dry
 ```
 
-5. Покажи:
+5. Show:
    - total count;
    - valid count;
    - invalid count;
-   - reason codes для кожної invalid transaction.
-6. Виведи таблицю з колонками `transaction_id`, `status`, `reasons`.
-7. Не запускай fraud detector або compliance checker і не змінюй `shared/results/`.
-8. Не показуй account numbers, descriptions або інші PII.
-9. Не виконуй `git add` або `git commit`.
+   - reason codes for each invalid transaction.
+6. Show a table with `transaction_id`, `status`, and `reasons` columns.
+7. Do not run the fraud detector or compliance checker, and do not change `shared/results/`.
+8. Do not show account numbers, descriptions, or other PII.
+9. Do not run `git add` or `git commit`.

@@ -1,48 +1,48 @@
-# Технічна специфікація: Multi-Agent Banking Transaction Pipeline
+# Technical specification: Multi-Agent Banking Transaction Pipeline
 
-**Студент:** ilia makarov  
-**Статус:** початкова погоджена специфікація перед реалізацією  
-**Мова реалізації:** TypeScript
+**Student:** ilia makarov
+**Status:** implemented and verified
+**Implementation language:** TypeScript
 
-## 1. High-Level Objective / Високорівнева мета
+## 1. High-Level Objective / High-level objective
 
-Створити TypeScript pipeline, який послідовно перевіряє банківські транзакції, оцінює fraud risk, виконує compliance-рішення та зберігає простежуваний фінальний результат кожної вхідної транзакції у `shared/results/`.
+Create a TypeScript pipeline that consistently checks bank transactions, assesses fraud risk, makes compliance decisions and stores the traceable final result of each incoming transaction in `shared/results/`.
 
-## 2. Mid-Level Objectives / Середньорівневі цілі
+## 2. Mid-Level Objectives
 
-1. **Валідація:** кожна транзакція перевіряється на обов’язкові поля, унікальний `transaction_id`, коректний ISO 8601 timestamp, додатну precise-decimal суму та підтримуваний ISO 4217 currency code.
-2. **Fraud scoring:** кожна валідна транзакція отримує детермінований `risk_score` і `risk_flags` щонайменше за трьома факторами: high value, unusual UTC time та cross-border ознака; high-risk outcomes спрямовуються на review.
-3. **Compliance outcome:** compliance checker створює один фінальний status — `approved`, `review` або `rejected` — і додає машинозчитувані reason codes та зрозуміле текстове пояснення.
-4. **File-based protocol:** agents обмінюються стандартними JSON messages через `shared/input`, `shared/processing`, `shared/output`, `shared/results`; кожна транзакція з `sample-transactions.json`, включно з невалідною, має фінальний result.
-5. **Auditability and quality:** усі stage outcomes мають ISO 8601 UTC audit entries без plaintext PII; pipeline формує summary report, unit/integration tests ізолюються від реального `shared/`, coverage target становить щонайменше 90%, а gate блокує дію нижче 80%.
+1. **Validation:** each transaction is checked for mandatory fields, unique `transaction_id`, correct ISO 8601 timestamp, positive precise-decimal amount and supported ISO 4217 currency code.
+2. **Fraud scoring:** each valid transaction receives a determined `risk_score` and `risk_flags` based on at least three factors: high value, unusual UTC time and cross-border feature; high-risk outcomes are sent for review.
+3. **Compliance outcome:** compliance checker creates one final status — `approved`, `review` or `rejected` — and adds machine-readable reason codes and a clear text explanation.
+4. **File-based protocol:** agents exchange standard JSON messages via `shared/input`, `shared/processing`, `shared/output`, `shared/results`; each transaction with `sample-transactions.json`, including the invalid one, has a final result.
+5. **Auditability and quality:** all stage outcomes have ISO 8601 UTC audit entries without plaintext PII; pipeline generates summary report, unit/integration tests are isolated from real `shared/`, coverage target is at least 90%, and gate blocks action below 80%.
 
-## 3. Implementation Notes / Нотатки реалізації
+## 3. Implementation Notes
 
-### 3.1. Технології та межі
+### 3.1. Technologies and boundaries
 
 - Runtime: Node.js LTS.
-- Language: TypeScript із `strict: true`.
-- Application framework: Fastify для network/API або integration layer, якщо такий layer потрібен.
-- Основний transaction pipeline є CLI workflow і запускається через `npm run pipeline`; HTTP не є передумовою обробки.
-- SQLite разом із Drizzle ORM додається лише за конкретної потреби в durable history або metadata. База не замінює обов’язкові JSON results.
-- MCP status server реалізується на TypeScript і читає фактичні файли з `shared/results/`.
+- Language: TypeScript with `strict: true`.
+- Application framework: Fastify for network/API or integration layer, if such a layer is needed.
+- The main transaction pipeline is a CLI workflow and is launched via `npm run pipeline`; HTTP is not a prerequisite for processing.
+- SQLite together with Drizzle ORM is added only if there is a specific need for durable history or metadata. A database does not replace the required JSON results.
+- MCP status server is implemented in TypeScript and reads actual files from `shared/results/`.
 
-### 3.2. Грошові значення
+### 3.2. Monetary values
 
-- `amount` зберігається і передається як decimal string, наприклад `"1500.00"`.
-- Для parsing, comparison та arithmetic використовується precise decimal library.
-- JavaScript `number`, `parseFloat` і binary floating-point arithmetic для грошей заборонені.
-- Negative або zero amount є validation error, незалежно від `transaction_type`; refund у sample data з від’ємною сумою має бути rejected.
+- `amount` is stored and transmitted as a decimal string, for example `"1500.00"`.
+- Precise decimal library is used for parsing, comparison and arithmetic.
+- JavaScript `number`, `parseFloat` and binary floating-point arithmetic for money are prohibited.
+- Negative or zero amount is a validation error, regardless of `transaction_type`; refund in sample data with a negative amount should be rejected.
 
-### 3.3. Валюти
+### 3.3. Currencies
 
-- Currency code нормалізується до uppercase і перевіряється за явним allowlist підтримуваних ISO 4217 codes.
-- Початковий allowlist повинен щонайменше включати `USD`, `EUR`, `GBP`, `JPY`.
-- `XYZ` із sample data є invalid currency і має завершитися `rejected` result.
+- Currency code is normalized to uppercase and checked against the explicit allowlist of supported ISO 4217 codes.
+- The initial allowlist should at least include `USD`, `EUR`, `GBP`, `JPY`.
+- `XYZ` from sample data is invalid currency and should end with `rejected` result.
 
 ### 3.4. Standard message envelope
 
-Кожен stage читає і записує JSON у такому форматі:
+Each stage reads and writes JSON in the following format:
 
 ```ts
 interface PipelineMessage<TData> {
@@ -55,31 +55,31 @@ interface PipelineMessage<TData> {
 }
 ```
 
-Вимоги:
+Requirements:
 
-- `message_id` генерується через `crypto.randomUUID()`;
+- `message_id` is generated through `crypto.randomUUID()`;
 - `timestamp` — ISO 8601 UTC;
-- output попереднього stage є input наступного;
-- JSON записується atomically настільки, наскільки це практично для локального filesystem;
-- malformed message не падає безслідно, а створює rejected result або audit error із доступним transaction identifier.
+- the output of the previous stage is the input of the next one;
+- JSON is written atomically as much as it is practical for the local filesystem;
+- malformed message does not drop without a trace, but creates a rejected result or an audit error with an available transaction identifier.
 
 ### 3.5. Fraud rules
 
-Початкові детерміновані фактори:
+Initial deterministic factors:
 
-| Фактор | Умова | Початковий внесок |
+| Factor | Condition | Initial contribution |
 |---|---|---:|
-| High value | amount > 10,000 у transaction currency | +50 |
-| Unusual time | UTC hour від 00:00 до 04:59 включно | +25 |
-| Cross-border | transaction country не відповідає configured domestic country | +25 |
+| High value | amount > 10,000 in transaction currency | +50 |
+| Unusual time | UTC hour from 00:00 to 04:59 inclusive | +25 |
+| Cross-border | transaction country does not match configured domestic country | +25 |
 
-`risk_score` обмежується діапазоном 0–100. Score від 50 включно призводить щонайменше до `review`; validation error завжди має пріоритет і завершується `rejected`.
+`risk_score` is limited to the range 0-100. Score from 50 inclusive leads to at least `review`; validation error always has priority and ends with `rejected`.
 
-Cross-border rule залежить від явної configuration, наприклад domestic country `US`; значення не повинно бути прихованою константою всередині business function.
+Cross-border rule depends on explicit configuration, for example domestic country `US`; the value must not be a hidden constant inside the business function.
 
-### 3.6. Audit logging і PII
+### 3.6. Audit logging and PII
 
-Audit entry містить:
+Audit entry contains:
 
 ```ts
 interface AuditEntry {
@@ -91,9 +91,9 @@ interface AuditEntry {
 }
 ```
 
-- Не логувати `source_account`, `destination_account`, names або descriptions plaintext.
-- Якщо account identifier потрібен для diagnostics, використовувати redacted форму на кшталт `ACC-****-1001` або irreversible hash.
-- Error messages не повинні дублювати весь input payload.
+- Do not log `source_account`, `destination_account`, names or descriptions plaintext.
+- If the account identifier is needed for diagnostics, use a redacted form like `ACC-****-1001` or an irreversible hash.
+- Error messages should not duplicate the entire input payload.
 
 ### 3.7. File lifecycle
 
@@ -109,61 +109,60 @@ shared/output/
 shared/results/
 ```
 
-Integrator створює каталоги, але очищає лише відомі pipeline directories. Для однієї транзакції stages виконуються послідовно. Async filesystem API дозволений, проте не можна запускати dependent stages до завершення попереднього.
+Integrator creates directories, but cleans only known pipeline directories. For one transaction, stages are executed sequentially. Async filesystem API is allowed, but dependent stages cannot be started before the previous one has completed.
 
-## 4. Context / Контекст
+## 4. Context / Context
 
 ### Beginning state
 
-- У корені є `sample-transactions.json` із сирими transaction records.
-- TypeScript application code, package configuration, tests, `shared/` runtime data та MCP status server на початку відсутні.
-- Документація й Claude Code scaffold можуть бути створені раніше за application implementation.
+- At the root is `sample-transactions.json` with raw transaction records.
+- TypeScript application code, package configuration, tests, `shared/` runtime data and MCP status server are missing at the beginning.
+- Documentation and Claude Code scaffold can be created before application implementation.
 
 ### Ending state
 
-- `npm run pipeline` завершується без помилок на наданому sample input.
-- Усі input transaction IDs присутні у `shared/results/` рівно один раз як final outcomes.
-- `shared/results/` містить pipeline summary із total, approved, review, rejected counts.
-- `npm run validate:dry` показує total/valid/invalid counts і причини без запуску fraud/compliance stages.
-- Unit tests покривають кожен pipeline agent; integration test покриває повний file flow у temporary directory.
-- Coverage становить не менше 90%; action/push gate відмовляє при coverage нижче 80%.
-- README і HOWTORUN описують лише фактично перевірений спосіб запуску.
-- Custom MCP tools повертають status із фактичних `shared/results/`, а resource `pipeline://summary` повертає latest summary text.
+- `npm run pipeline` completes without errors on the given sample input.
+- All input transaction IDs are present in `shared/results/` exactly once as final outcomes.
+- `shared/results/` contains pipeline summary with total, approved, review, rejected counts.
+- `npm run validate:dry` shows total/valid/invalid counts and reasons without running fraud/compliance stages.
+- Unit tests cover each pipeline agent; integration test covers the complete file flow in the temporary directory.
+- Coverage is at least 90%; action/push gate refuses at coverage below 80%.
+- README and HOWTORUN describe only the actually tested way of running.
+- Custom MCP tools return status from actual `shared/results/`, and resource `pipeline://summary` returns latest summary text.
 
-## 5. Low-Level Tasks / Низькорівневі завдання
+## 5. Low-Level Tasks / Low-level tasks
 
 ### Task: Transaction Integrator
 
-**Prompt:** "Прочитай `AGENTS.md`, `TASKS.md` і `docs/specification.md`. Через TDD створи TypeScript integrator, який безпечно готує `shared/input`, `shared/processing`, `shared/output`, `shared/results`, завантажує всі records із `sample-transactions.json`, створює standard PipelineMessage для кожної транзакції, послідовно викликає validator, fraud detector і compliance checker, гарантує final result для кожного input ID та створює pipeline summary. Не використовуй HTTP як залежність CLI pipeline, не логуй PII, не виконуй git commit і після змін онови `docs/log.md`."  
-**File to CREATE:** `src/integrator.ts`  
-**Function to CREATE:** `runPipeline(options: PipelineOptions): Promise<PipelineSummary>`  
-**Details:** Приймає configurable input/shared paths для test isolation; не очищає невідомі каталоги; rejected validation result обходить fraud/compliance, але потрапляє в results; summary рахується з final files.
+**Prompt:** "Read `AGENTS.md`, `TASKS.md`, and `docs/specification.md`. Through TDD, create a TypeScript integrator that safely prepares `shared/input`, `shared/processing`, `shared/output`, `shared/results`, loads all records from `sample-transactions.json`, creates a standard PipelineMessage for each transaction, sequentially calls a validator, fraud detector, and compliance checker, guarantees a final result for each input ID, and creates a pipeline summary. Don't use HTTP as a CLI pipeline dependency, don't log PII, don't do git commit and update after changes `docs/log.md`."
+**File to CREATE:** `src/integrator.ts`
+**Function to CREATE:** `runPipeline(options: PipelineOptions): Promise<PipelineSummary>`
+**Details:** Accepts configurable input/shared paths for test isolation; does not clear unknown directories; rejected validation result bypasses fraud/compliance, but gets into results; summary is counted from final files.
 
 ### Task: Transaction Validator
 
-**Prompt:** "Прочитай `AGENTS.md` і `docs/specification.md`. Через TDD створи pure TypeScript transaction validator. Перевір required fields, unique transaction ID у межах run context, ISO 8601 timestamp, positive precise-decimal amount і configured ISO 4217 allowlist. Поверни typed validation result із reason codes; не кидай необроблені помилки через некоректний user data, не використовуй JavaScript number для money і не логуй PII."  
-**File to CREATE:** `src/agents/transaction-validator.ts`  
-**Function to CREATE:** `validateTransaction(transaction: unknown, context: ValidationContext): ValidationResult`  
-**Details:** Обов’язкові поля включають transaction ID, timestamp, source/destination account, amount, currency, transaction type і metadata country. Invalid amount/currency створюють deterministic reason codes; dry-run CLI використовує ту саму function.
+**Prompt:** "Read `AGENTS.md` and `docs/specification.md`. Create a pure TypeScript transaction validator through TDD. Check required fields, unique transaction ID within run context, ISO 8601 timestamp, positive precise-decimal amount and configured ISO 4217 allowlist. Return typed validation result with reason codes; do not throw raw errors due to incorrect user data, do not use JavaScript number for money and do not log PII."
+**File to CREATE:** `src/agents/transaction-validator.ts`
+**Function to CREATE:** `validateTransaction(transaction: unknown, context: ValidationContext): ValidationResult`
+**Details:** Mandatory fields include transaction ID, timestamp, source/destination account, amount, currency, transaction type and metadata country. Invalid amount/currency create deterministic reason codes; dry-run CLI uses the same function.
 
 ### Task: Fraud Detector
 
-**Prompt:** "Прочитай `AGENTS.md` і `docs/specification.md`. Через TDD створи pure deterministic fraud detector для валідної транзакції. Обчисли risk score 0–100 за configured high-value threshold, unusual UTC hours і domestic/cross-border country. Поверни score та stable risk flags. Використовуй precise decimal comparison, передавай rules через FraudConfig і не звертайся безпосередньо до filesystem."  
-**File to CREATE:** `src/agents/fraud-detector.ts`  
-**Function to CREATE:** `assessFraudRisk(transaction: ValidTransaction, config: FraudConfig): FraudAssessment`  
-**Details:** Початкові weights: high value +50, unusual time +25, cross-border +25; threshold та domestic country configurable; invalid transaction не є допустимим input цієї function.
+**Prompt:** "Read `AGENTS.md` and `docs/specification.md`. Use TDD to create a pure deterministic fraud detector for a valid transaction. Calculate risk score 0-100 for configured high-value threshold, unusual UTC hours, and domestic/cross-border country. Return score and stable risk flags. Use precise decimal comparison, pass rules through FraudConfig and don't directly access the filesystem."
+**File to CREATE:** `src/agents/fraud-detector.ts`
+**Function to CREATE:** `assessFraudRisk(transaction: ValidTransaction, config: FraudConfig): FraudAssessment`
+**Details:** Initial weights: high value +50, unusual time +25, cross-border +25; threshold and domestic country configurable; invalid transaction is not a valid input of this function.
 
 ### Task: Compliance Checker
 
-**Prompt:** "Прочитай `AGENTS.md` і `docs/specification.md`. Через TDD створи pure compliance checker, який приймає validated transaction і FraudAssessment, повертає фінальний `approved` або `review` outcome, reason codes і audit-safe explanation. Validation rejection формується validator/integrator path. Не включай account numbers, description або весь payload у result explanation чи logs."  
-**File to CREATE:** `src/agents/compliance-checker.ts`  
-**Function to CREATE:** `checkCompliance(transaction: ValidTransaction, assessment: FraudAssessment, config: ComplianceConfig): ComplianceResult`  
-**Details:** Score від configured review threshold включно створює `review`; нижчий score — `approved`; output є serializable та містить transaction ID, risk data, status, reasons і audit entry.
+**Prompt:** "Read `AGENTS.md` and `docs/specification.md`. Through TDD, create a pure compliance checker that accepts validated transaction and FraudAssessment, returns final `approved` or `review` outcome, reason codes and audit-safe explanation. Validation rejection is formed by validator/integrator path. Do not include account numbers, description or entire payload in result explanation or logs."
+**File to CREATE:** `src/agents/compliance-checker.ts`
+**Function to CREATE:** `checkCompliance(transaction: ValidTransaction, assessment: FraudAssessment, config: ComplianceConfig): ComplianceResult`
+**Details:** Score from configured review threshold inclusively creates `review`; lower score — `approved`; output is serializable and contains transaction ID, risk data, status, reasons and audit entry.
 
 ### Task: Pipeline Status MCP Server
 
-**Prompt:** "Прочитай `AGENTS.md`, `TASKS.md` і `docs/specification.md`. Використай актуальну Context7 документацію TypeScript MCP SDK. Створи MCP server, що тільки читає `shared/results/` і надає tools `get_transaction_status(transaction_id: string)`, `list_pipeline_results()` та resource `pipeline://summary`. Обробляй missing result directory і malformed files явними typed errors, не змінюй pipeline results і не логуй PII."  
-**File to CREATE:** `mcp/server.ts`  
-**Functions to CREATE:** `getTransactionStatus(transactionId: string): Promise<TransactionStatusResult>`; `listPipelineResults(): Promise<PipelineResultsSummary>`; `getPipelineSummaryResource(): Promise<string>`  
-**Details:** Runtime path configurable для tests; tool responses походять лише з actual result files; server configuration додається разом із Context7 до project `mcp.json`.
-
+**Prompt:** "Read `AGENTS.md`, `TASKS.md` and `docs/specification.md`. Use the current Context7 TypeScript MCP SDK documentation. Create an MCP server that only reads `shared/results/` and provides tools `get_transaction_status(transaction_id: string)`, `list_pipeline_results()` and resource `pipeline://summary`. Treat missing result directory and malformed files as explicit typed errors, do not change pipeline results and do not log PII."
+**File to CREATE:** `mcp/server.ts`
+**Functions to CREATE:** `getTransactionStatus(transactionId: string): Promise<TransactionStatusResult>`; `listPipelineResults(): Promise<PipelineResultsSummary>`; `getPipelineSummaryResource(): Promise<string>`
+**Details:** Runtime path configurable for tests; tool responses come only from actual result files; server configuration is added together with Context7 to project `mcp.json`.

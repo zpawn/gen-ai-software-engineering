@@ -1,5 +1,4 @@
-# Інструкції для Claude Code
+# Instructions for Claude Code
 
-Перед будь-якою роботою обов’язково прочитайте `AGENTS.md`.
-Усі основні правила, канонічні шляхи, архітектурні рішення та процес роботи визначені там.
-
+Before any work, read `AGENTS.md`.
+It contains all main rules, canonical paths, architecture decisions, and the work process.

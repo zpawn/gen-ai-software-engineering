@@ -2,24 +2,24 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Завершити мінімальний обсяг Task 3: дати всім власним Claude-командам префікс `hw6-` і безпечно перевірити coverage gate без реального `git push`.
+**Goal:** Complete the minimum scope of Task 3: Give all custom Claude commands the prefix `hw6-` and safely test the coverage gate without the actual `git push`.
 
-**Architecture:** Claude-команди залишаються Markdown entry points у `.claude/commands/`, а `.claude/settings.json` підключає shell hook до `PreToolUse` для Bash. Hook розпізнає `git push`, делегує перевірку наявному `npm run test:coverage` і покладається на thresholds із `vitest.config.ts`.
+**Architecture:** Claude commands remain Markdown entry points in `.claude/commands/`, and `.claude/settings.json` connects the shell hook to `PreToolUse` for Bash. Hook recognizes `git push`, delegates verification to existing `npm run test:coverage`, and relies on thresholds from `vitest.config.ts`.
 
 **Tech Stack:** Claude Code project commands, POSIX shell, Node.js, npm, Vitest coverage.
 
 ## Global Constraints
 
-- Усі створені для Homework 6 AI meta-agents, project skills і Claude-команди мають префікс `hw6-`.
-- Coverage gate блокує push, якщо coverage нижче 80% або coverage run завершується помилкою.
-- Скриншоти не створюються в цьому етапі.
-- Не змінювати TypeScript pipeline або бізнес-логіку.
-- Не виконувати `git add`, `git commit` або справжній `git push`.
-- `docs/log.md` оновлювати лише append-only.
+- All AI meta-agents, project skills and Claude teams created for Homework 6 have the prefix `hw6-`.
+- Coverage gate blocks push if coverage is below 80% or coverage run ends with an error.
+- Screenshots are not created at this stage.
+- Do not change TypeScript pipeline or business logic.
+- Don't do `git add`, `git commit` or real `git push`.
+- `docs/log.md` update only append-only.
 
 ---
 
-### Task 1: Уніфікувати назви Claude-команд
+### Task 1: Unify the names of Claude commands
 
 **Files:**
 - Move: `.claude/commands/validate-transactions.md` → `.claude/commands/hw6-validate-transactions.md`
@@ -32,10 +32,10 @@
 - Modify: `docs/research-notes.md`
 
 **Interfaces:**
-- Consumes: наявні `/hw6-run-pipeline`, `/validate-transactions`, `/write-spec` workflows.
-- Produces: `/hw6-run-pipeline`, `/hw6-validate-transactions`, `/hw6-write-spec` як однозначно project-owned entry points.
+- Consumes: available `/hw6-run-pipeline`, `/validate-transactions`, `/write-spec` workflows.
+- Produces: `/hw6-run-pipeline`, `/hw6-validate-transactions`, `/hw6-write-spec` as uniquely project-owned entry points.
 
-- [x] **Step 1: Зафіксувати поточний failing naming check**
+- [x] **Step 1: Fix current failing naming check**
 
 Run:
 
@@ -43,17 +43,17 @@ Run:
 find .claude/commands -maxdepth 1 -type f ! -name 'hw6-*' -print
 ```
 
-Expected: output містить `.claude/commands/validate-transactions.md` і `.claude/commands/write-spec.md`.
+Expected: output contains `.claude/commands/validate-transactions.md` and `.claude/commands/write-spec.md`.
 
-- [x] **Step 2: Перейменувати два command files**
+- [x] **Step 2: Rename the two command files**
 
-Застосувати filesystem rename без staging. Усередині command prompts замінити user-facing назви на `/hw6-validate-transactions` і `/hw6-write-spec`.
+Apply filesystem rename without staging. Inside the command prompts, replace the user-facing names with `/hw6-validate-transactions` and `/hw6-write-spec`.
 
-- [x] **Step 3: Оновити активні посилання**
+- [x] **Step 3: Update active links**
 
-Замінити user-facing `/write-spec` і `/validate-transactions` на prefixed names у `README.md`, `docs/research-notes.md`, `hw6-specification-agent` і project skill. Не переписувати історичні записи `docs/log.md`, старі design docs або implementation plans.
+Replace user-facing `/write-spec` and `/validate-transactions` with prefixed names in `README.md`, `docs/research-notes.md`, `hw6-specification-agent` and project skill. Do not overwrite historical records `docs/log.md`, old design docs or implementation plans.
 
-- [x] **Step 4: Перевірити naming gate**
+- [x] **Step 4: Check naming gate**
 
 Run:
 
@@ -62,9 +62,9 @@ find .claude/commands -maxdepth 1 -type f ! -name 'hw6-*' -print
 rg -n '/(write-spec|validate-transactions)' README.md docs/research-notes.md .claude/agents .claude/skills/hw6-writing-feature-specifications .claude/commands
 ```
 
-Expected: `find` і `rg` не повертають unprefixed project command names.
+Expected: `find` and `rg` do not return unprefixed project command names.
 
-### Task 2: Перевірити coverage gate
+### Task 2: Check the coverage gate
 
 **Files:**
 - Verify: `.claude/hooks/coverage-gate.sh`
@@ -73,10 +73,10 @@ Expected: `find` і `rg` не повертають unprefixed project command na
 - Modify: `docs/log.md`
 
 **Interfaces:**
-- Consumes: Claude Code `PreToolUse` JSON із полем `tool_input.command`.
-- Produces: exit code `0` для non-push або успішного coverage run; exit code `2` для failed coverage run перед push.
+- Consumes: Claude Code `PreToolUse` JSON with field `tool_input.command`.
+- Produces: exit code `0` for non-push or successful coverage run; exit code `2` for failed coverage run before push.
 
-- [x] **Step 1: Перевірити shell syntax і non-push path**
+- [x] **Step 1: Check shell syntax and non-push path**
 
 Run:
 
@@ -85,9 +85,9 @@ sh -n .claude/hooks/coverage-gate.sh
 printf '%s' '{"tool_input":{"command":"git status"}}' | CLAUDE_PROJECT_DIR="$PWD" .claude/hooks/coverage-gate.sh
 ```
 
-Expected: обидві команди завершуються з exit code `0`, coverage не запускається.
+Expected: both commands end with exit code `0`, coverage is not started.
 
-- [x] **Step 2: Перевірити configured threshold**
+- [x] **Step 2: Check configured threshold**
 
 Run:
 
@@ -95,19 +95,19 @@ Run:
 rg -n 'lines: 80|functions: 80|branches: 80|statements: 80' vitest.config.ts
 ```
 
-Expected: знайдено всі чотири thresholds зі значенням `80`.
+Expected: found all four thresholds with the value `80`.
 
-- [x] **Step 3: Перевірити успішний push simulation**
+- [x] **Step 3: Check successful push simulation**
 
-Run без справжнього push:
+Run without real push:
 
 ```bash
 printf '%s' '{"tool_input":{"command":"git push"}}' | CLAUDE_PROJECT_DIR="$PWD" .claude/hooks/coverage-gate.sh
 ```
 
-Expected: hook запускає `npm run test:coverage`, coverage проходить, hook завершується з exit code `0`.
+Expected: hook starts `npm run test:coverage`, coverage passes, hook ends with exit code `0`.
 
-- [x] **Step 4: Виконати загальну статичну перевірку**
+- [x] **Step 4: Perform a general static check**
 
 Run:
 
@@ -116,13 +116,13 @@ npm run typecheck
 git diff --check
 ```
 
-Expected: обидві команди завершуються з exit code `0`.
+Expected: both commands end with exit code `0`.
 
-- [x] **Step 5: Оновити журнал**
+- [x] **Step 5: Update log**
 
-Append у `docs/log.md` запис `implement` або `verify` із фактично перейменованими файлами та фактично запущеними командами. Не заявляти про failed-gate simulation або screenshots, яких не виконували.
+Append to `docs/log.md` the `implement` or `verify` entry with the files actually renamed and the commands actually run. Do not claim about failed-gate simulation or screenshots that were not executed.
 
-- [x] **Step 6: Запропонувати commit title без staging**
+- [x] **Step 6: Offer commit title without staging**
 
 Suggested title:
 

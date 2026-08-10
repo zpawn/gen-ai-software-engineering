@@ -1,43 +1,43 @@
-# Дизайн початкової структури Homework 6
+# Homework 6 initial structure design
 
-**Дата:** 2026-08-09  
-**Статус:** погоджено в діалозі, очікує рев’ю записаного документа  
-**Студент:** ilia makarov
+**Date:** 2026-08-09
+**Status:** agreed in dialogue, waiting for review of recorded document
+**Student:** ilia makarov
 
-## 1. Мета
+## 1. Purpose
 
-Створити зрозумілий документаційний фундамент і початкову Claude Code інфраструктуру для Homework 6, чітко розділивши два різні значення слова «агент»: AI meta-agents, які допомагають розробляти проєкт, і TypeScript pipeline agents, які виконують детерміновану банківську логіку.
+Create a clear documentation foundation and initial Claude Code infrastructure for Homework 6 by clearly separating two different meanings of the word "agent": AI meta-agents that help develop the project, and TypeScript pipeline agents that perform deterministic banking logic.
 
-Цей етап не реалізує TypeScript pipeline. Він фіксує правила, структуру, відповідальності та відтворювані AI-workflows, на основі яких pipeline буде спроєктований і реалізований наступними етапами.
+This stage does not implement the TypeScript pipeline. It fixes the rules, structure, responsibilities and reproducible AI-workflows, on the basis of which the pipeline will be designed and implemented in the following stages.
 
-## 2. Мова документації
+## 2. Documentation style
 
-Початкова документація створюється українською мовою. Переклад англійською виконується лише після окремої команди студента. До моменту такого запиту AI-інструменти не повинні самостійно перекладати або дублювати документацію англійською.
+Project documentation uses clear B1+ English. AI tools keep one canonical version of each document and do not create language duplicates.
 
-## 3. Два рівні агентів
+## 3. Two levels of agents
 
 ### 3.1. AI meta-agents
 
-AI meta-agents працюють усередині Claude Code та створюють артефакти проєкту:
+AI meta-agents work inside Claude Code and create project artifacts:
 
-1. `hw6-specification-agent` створює й оновлює технічну специфікацію.
-2. `hw6-code-generation-agent` реалізує TypeScript pipeline та документує використання Context7.
-3. `hw6-unit-test-agent` створює unit та integration тести й контролює coverage.
-4. `hw6-documentation-agent` підтримує README, HOWTORUN та іншу документацію.
+1. `hw6-specification-agent` creates and updates the technical specification.
+2. `hw6-code-generation-agent` implements the TypeScript pipeline and documents the use of Context7.
+3. `hw6-unit-test-agent` creates unit and integration tests and monitors coverage.
+4. `hw6-documentation-agent` supports README, HOWTORUN and other documentation.
 
-Meta-agents не обробляють банківські транзакції під час роботи застосунку. Їхня відповідальність — розробка, тестування, документування та автоматизація.
+Meta-agents do not process banking transactions while the application is running. Their responsibility is development, testing, documentation and automation.
 
 ### 3.2. TypeScript pipeline agents
 
-Pipeline agents є звичайними TypeScript-модулями без LLM або іншого AI:
+Pipeline agents are regular TypeScript modules without LLM or other AI:
 
-1. `transaction-validator` перевіряє структуру транзакції, суму й ISO 4217 currency code.
-2. `fraud-detector` визначає risk score за сумою, часом і cross-border ознаками.
-3. `compliance-checker` виконує фінальну перевірку та формує результат.
+1. `transaction-validator` checks the transaction structure, amount and ISO 4217 currency code.
+2. `fraud-detector` determines the risk score by amount, time and cross-border features.
+3. `compliance-checker` performs the final check and generates the result.
 
-`integrator.ts` послідовно викликає ці модулі та організовує JSON-комунікацію через каталоги `shared/`. Claude Code запускає pipeline однією командою, але не замінює його бізнес-логіку.
+`integrator.ts` sequentially calls these modules and organizes JSON communication through the `shared/` directories. Claude Code runs the pipeline with a single command, but does not replace its business logic.
 
-## 4. Канонічна структура документації
+## 4. Canonical structure of documentation
 
 ```text
 homework-6/
@@ -60,35 +60,35 @@ homework-6/
         └── plans/
 ```
 
-За прямим рішенням студента канонічна специфікація зберігається в `docs/specification.md`, нотатки про використання Context7 — у `docs/research-notes.md`, а журнал змін — у `docs/log.md`. Кореневі дублікати цих файлів не створюються. `AGENTS.md` повинен явно визначати ці шляхи для Claude Code, Codex і Gemini.
+By direct decision of the student, the canonical specification is stored in `docs/specification.md`, the Context7 usage notes in `docs/research-notes.md`, and the changelog in `docs/log.md`. Root duplicates of these files are not created. `AGENTS.md` should explicitly define these paths for Claude Code, Codex, and Gemini.
 
-`CLARIFY.md` є тимчасовим особистим поясненням студента, а не канонічною документацією проєкту. Його корисні пояснення та схеми переносяться в `README.md`, після чого файл видаляється, щоб не підтримувати два джерела однакової інформації.
+`CLARIFY.md` is a student's temporary personal explanation, not canonical project documentation. Its useful explanations and diagrams are transferred to `README.md`, after which the file is deleted so as not to support two sources of the same information.
 
-`docs/superpowers/specs/` містить погоджені дизайн-документи, а `docs/superpowers/plans/` — покрокові плани реалізації. `docs/decisions/` використовується лише для окремих архітектурних рішень, які потребують самостійного обґрунтування. Wiki на початковому етапі не створюється.
+`docs/superpowers/specs/` contains agreed design documents and `docs/superpowers/plans/` contains step-by-step implementation plans. `docs/decisions/` is used only for individual architectural solutions that require independent justification. The wiki is not initially created.
 
-## 5. Головні AI-інструкції
+## 5. Main AI instructions
 
-`AGENTS.md` є єдиним канонічним джерелом правил для AI-інструментів. Він повинен вимагати:
+`AGENTS.md` is the only canonical source of rules for AI tools. It should require:
 
-- перед роботою читати `TASKS.md`, `README.md` і `docs/specification.md`, якщо вона вже існує;
-- завжди уточнювати, про який рівень агентів ідеться: AI meta-agent чи TypeScript pipeline agent;
-- не створювати `specification.md`, `research-notes.md` або `log.md` у корені;
-- після кожної матеріальної зміни додавати append-only запис у `docs/log.md`;
-- використовувати Context7 для актуальної документації бібліотек і фреймворків;
-- не логувати PII;
-- використовувати точний decimal-тип для грошей, а не JavaScript `number`;
-- писати код через тести та перевіряти результат перед заявою про завершення;
-- ніколи не виконувати `git commit`: студент самостійно рев’ювить і комітить зміни;
-- після завершення перевіреного етапу пропонувати студенту коротку conventional commit назву;
-- зберігати початкову документацію українською до окремої команди на переклад.
+- read `TASKS.md`, `README.md` and `docs/specification.md` before work, if it already exists;
+- always specify which level of agents we are talking about: AI meta-agent or TypeScript pipeline agent;
+- do not create `specification.md`, `research-notes.md` or `log.md` in the root;
+- after each material change, add an append-only record to `docs/log.md`;
+- use Context7 for up-to-date documentation of libraries and frameworks;
+- do not log PII;
+- use the exact decimal type for money, not JavaScript `number`;
+- write code through tests and check the result before declaring completion;
+- never perform `git commit`: the student independently reviews and commits changes;
+- after completing the verified stage, offer the student a short conventional commit name;
+- keep project documentation clear, consistent, and in B1+ English.
 
-`CLAUDE.md`, `CODEX.md` і `GEMINI.md` залишаються короткими файлами-покажчиками. Кожен із них зобов’язує відповідний інструмент спочатку прочитати `AGENTS.md` і не дублює основні правила.
+`CLAUDE.md`, `CODEX.md` and `GEMINI.md` remain short pointer files. Each of them obligates the corresponding tool to first read `AGENTS.md` and does not duplicate the underlying rules.
 
-### 5.1. Git-політика
+### 5.1. Git policy
 
-AI-інструменти можуть переглядати git status і diff, щоб перевіряти власні зміни, але не повинні створювати коміти. Після того як зміни перевірено, AI пропонує назву коміта у форматі Conventional Commits. Студент самостійно проводить фінальний рев’ю, додає потрібні файли до staging area та виконує commit.
+AI tools can look at git status and diff to check their own changes, but should not create commits. After the changes are verified, the AI ​​suggests a commit name in the Conventional Commits format. The student independently conducts the final review, adds the necessary files to the staging area and commits.
 
-## 6. Claude Code інфраструктура
+## 6. Claude Code infrastructure
 
 ```text
 .claude/
@@ -106,89 +106,89 @@ AI-інструменти можуть переглядати git status і diff
 └── settings.json
 ```
 
-Команди є користувацькими entry points, а meta-agent definitions містять спеціалізовані ролі й обмеження. `write-spec` делегує роботу specification agent; `run-pipeline` запускає повний TypeScript pipeline та показує summary; `validate-transactions` запускає validator у dry-run режимі.
+Commands are custom entry points, and meta-agent definitions contain specialized roles and restrictions. `write-spec` delegates the work of the specification agent; `run-pipeline` runs the full TypeScript pipeline and shows a summary; `validate-transactions` starts the validator in dry-run mode.
 
-Coverage hook запускає перевірку тестового покриття перед дозволеним push або відповідною Claude Code дією. Поріг блокування — нижче 80%, ціль проєкту — не менше 90%.
+A coverage hook triggers a test coverage check before a push is allowed or the corresponding Claude Code action. The blocking threshold is below 80%, the project goal is at least 90%.
 
-## 7. Технологічний напрям
+## 7. Technological direction
 
-Основний стек застосунку:
+Main application stack:
 
-| Частина | Технологія |
+| Part | Technology |
 |---|---|
 | Runtime | Node.js LTS |
-| Мова | TypeScript у strict mode |
-| Фреймворк | Fastify |
-| Файловий протокол | JSON у `shared/` |
-| База даних за потреби | SQLite |
-| ORM за потреби | Drizzle ORM |
-| Тести | TypeScript test runner із coverage gate |
+| Language | TypeScript in strict mode |
+| Framework | Fastify |
+| File protocol | JSON in `shared/` |
+| Database as needed | SQLite |
+| ORM as needed | Drizzle ORM |
+| Tests TypeScript test runner with coverage gate |
 | MCP | TypeScript MCP server |
 
-Fastify використовується як фреймворк для мережевого/API шару та інтеграційного сервера, якщо вони потрібні реалізації. Основний transaction pipeline залишається CLI-workflow і не залежить від HTTP для обробки транзакцій.
+Fastify is used as a framework for the network/API layer and the integration server if they are required by the implementation. The main transaction pipeline remains a CLI workflow and does not depend on HTTP for transaction processing.
 
-SQLite разом із Drizzle додається лише тоді, коли з’явиться конкретна потреба в довготривалому зберіганні історії або metadata. База даних не замінює обов’язковий файловий JSON-протокол і результати в `shared/results/`.
+SQLite with Drizzle is added only when there is a specific need for long-term history or metadata storage. The database does not replace the mandatory JSON file protocol and results in `shared/results/`.
 
-## 8. Журнал змін
+## 8. Log of changes
 
-`docs/log.md` є хронологічним append-only журналом того, що відбулося в проєкті та коли. Нові записи завжди додаються в кінець файлу; наявні записи не переписуються, крім виправлення фактичної помилки.
+`docs/log.md` is a chronological append-only log of what happened in the project and when. New entries are always added to the end of the file; existing records are not overwritten except to correct the actual error.
 
-Кожен запис починається зі стабільного машинозчитуваного префікса:
+Each entry begins with a stable machine-readable prefix:
 
 ```text
-## [YYYY-MM-DD] <тип> | <коротка назва>
+## [YYYY-MM-DD] <type> | <short name>
 ```
 
-Допустимі типи початкового етапу: `design`, `docs`, `research`, `implement`, `test`, `fix`, `refactor`, `lint` і `verify`. За потреби список можна розширити, але назви типів мають залишатися короткими й послідовними.
+Valid seed types are `design`, `docs`, `research`, `implement`, `test`, `fix`, `refactor`, `lint`, and `verify`. The list can be expanded if necessary, but the type names should be kept short and consistent.
 
-Формат запису:
+Recording format:
 
 ```markdown
-## [2026-08-09] design | Початкова структура Homework 6
+## [2026-08-09] design | The initial structure of Homework 6
 
-- Автор/інструмент: <ім’я або AI-інструмент>
-- Зміни: <що зроблено>
-- Файли: <перелік файлів>
-- Перевірка: <команди або спосіб перевірки>
+- Author/tool: <name or AI tool>
+- Changes: <what is done>
+- Files: <list of files>
+- Validation: <commands or validation method>
 ```
 
-Завдяки стабільному заголовку останні записи можна отримати простими Unix-командами, наприклад:
+Thanks to the stable header, recent entries can be retrieved with simple Unix commands, for example:
 
 ```bash
 grep "^## \[" docs/log.md | tail -5
 ```
 
-Журнал дає AI-інструментам коротку хронологію розвитку проєкту та допомагає перед початком роботи зрозуміти, що було зроблено останнім часом.
+The log gives the AI tools a brief timeline of the project's development and helps them understand what has been done recently before starting work.
 
 ## 9. README
 
-README має бути написаний простою українською мовою та містити:
+The README must use simple B1+ English and contain:
 
-- студента `ilia makarov`;
-- короткий опис мети проєкту;
-- окремий розділ про два рівні агентів;
-- відповідальності чотирьох AI meta-agents;
-- відповідальності TypeScript pipeline agents;
-- адаптовані пояснення та три схеми з `CLARIFY.md`: загальний Claude Code workflow, послідовність TypeScript pipeline і взаємодію Claude Code з MCP;
-- окрему ASCII-схему pipeline flow, яку прямо вимагає Homework 6;
-- технологічний стек;
-- пояснення ролі Fastify та умовного використання SQLite/Drizzle;
-- посилання на `docs/specification.md`, `docs/research-notes.md`, `docs/log.md` і майбутній HOWTORUN.
+- student `ilia makarov`;
+- a brief description of the purpose of the project;
+- a separate section on two levels of agents;
+- responsibility of four AI meta-agents;
+- responsibility of TypeScript pipeline agents;
+- adapted explanations and three diagrams from `CLARIFY.md`: general Claude Code workflow, TypeScript pipeline sequence, and Claude Code interaction with MCP;
+- a separate ASCII pipeline flow diagram, which is directly required by Homework 6;
+- technological stack;
+- explanation of the role of Fastify and conditional use of SQLite/Drizzle;
+- links to `docs/specification.md`, `docs/research-notes.md`, `docs/log.md` and the upcoming HOWTORUN.
 
-README не повинен стверджувати, що ще не реалізовані компоненти вже працюють. Заплановані компоненти явно позначаються як заплановані.
+The README should not claim that not yet implemented components are already working. Planned components are explicitly marked as planned.
 
-`AGENTS.md` не дублює навчальні схеми з README. Він містить лише операційні правила, канонічні шляхи, термінологію та обмеження, потрібні AI-інструментам під час роботи.
+`AGENTS.md` does not duplicate tutorials from the README. It contains only the operational rules, canonical paths, terminology, and constraints needed by AI tools at runtime.
 
-## 10. Перевірка початкового етапу
+## 10. Inspection of the initial stage
 
-Після створення документаційного фундаменту потрібно перевірити:
+After creating the documentation foundation, you need to check:
 
-1. Усі wrapper-файли спрямовують AI до `AGENTS.md`.
-2. `AGENTS.md` використовує канонічні шляхи `docs/specification.md`, `docs/research-notes.md` і `docs/log.md`.
-3. README послідовно розрізняє два рівні агентів.
-4. Claude Code scaffold містить чотири meta-agent definitions і три commands.
-5. Документація не заявляє про готовність TypeScript pipeline.
-6. `docs/log.md` містить запис про створені файли.
-7. У документах немає незаповнених placeholder-ів або суперечливих шляхів.
-8. AI не створив git-коміт і запропонував назву коміта для завершеного етапу.
-9. Корисний зміст `CLARIFY.md` перенесено в README, після чого тимчасовий файл видалено.
+1. All wrapper files direct AI to `AGENTS.md`.
+2. `AGENTS.md` uses the canonical paths `docs/specification.md`, `docs/research-notes.md`, and `docs/log.md`.
+3. The README consistently distinguishes two levels of agents.
+4. Claude Code scaffold contains four meta-agent definitions and three commands.
+5. The documentation does not declare the readiness of the TypeScript pipeline.
+6. `docs/log.md` contains a record of created files.
+7. There are no unfilled placeholders or conflicting paths in the documents.
+8. AI did not create a git commit and suggested a commit name for the completed stage.
+9. The useful content of `CLARIFY.md` has been moved to the README, after which the temporary file has been removed.

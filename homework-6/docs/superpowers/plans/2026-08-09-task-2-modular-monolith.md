@@ -2,28 +2,28 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Побудувати runnable TypeScript transaction pipeline із трьома deterministic agents, JSON file protocol, CLI entry points і read-only Fastify API.
+**Goal:** Build a runnable TypeScript transaction pipeline with three deterministic agents, JSON file protocol, CLI entry points and read-only Fastify API.
 
-**Architecture:** Domain agents є pure functions. `runPipeline()` послідовно оркеструє їх через injectable filesystem infrastructure; CLI запускає application workflow, а Fastify app лише читає готові results. Кожен behavior реалізується через RED → GREEN → REFACTOR.
+**Architecture:** Domain agents are pure functions. `runPipeline()` sequentially orchestrates them through an injectable filesystem infrastructure; The CLI starts the application workflow, and the Fastify app only reads ready results. Each behavior is implemented through RED → GREEN → REFACTOR.
 
 **Tech Stack:** Node.js >=22, TypeScript strict, ESM, Fastify 5, Decimal.js, Vitest 4, V8 coverage, tsx, npm.
 
 ## Global Constraints
 
-- `amount` залишається string; monetary parsing/comparison виконується лише Decimal.js.
+- `amount` remains a string; monetary parsing/comparison only executes Decimal.js.
 - Supported currencies: `USD`, `EUR`, `GBP`, `JPY`.
-- Fraud rules: amount `> 10000.00` → +50; UTC hour 00–04 → +25; country != `US` → +25.
+- Fraud rules: amount `> 10000.00` → +50; UTC hours 00–04 → +25; country != `US` → +25.
 - Compliance review threshold: score `>= 50`.
-- Validation rejection має пріоритет над fraud/compliance.
-- Console, audit, result і HTTP output не містять account IDs, description або raw payload.
-- Tests не змінюють repository `shared/`; filesystem tests використовують OS temporary directories.
-- Claude command запуску: `/hw6-run-pipeline`; internal script: `npm run pipeline`.
-- SQLite і Drizzle не входять до Task 2.
-- AI не виконує `git add` або `git commit`; commit title лише пропонується після verification.
+- Validation rejection has priority over fraud/compliance.
+- Console, audit, result and HTTP output do not contain account IDs, description or raw payload.
+- Tests do not change the repository `shared/`; filesystem tests use OS temporary directories.
+- Claude launch command: `/hw6-run-pipeline`; internal script: `npm run pipeline`.
+- SQLite and Drizzle are not included in Task 2.
+- AI does not perform `git add` or `git commit`; commit title is only offered after verification.
 
 ---
 
-### Task 1: Project scaffold і domain contracts
+### Task 1: Project scaffold and domain contracts
 
 **Files:**
 - Create: `package.json`
@@ -136,9 +136,9 @@ expect(assessFraudRisk(transaction({ amount: "10000.01" }), config)).toEqual({
 - [x] Run `npm test -- tests/unit/fraud-detector.test.ts`; expected FAIL because implementation is absent.
 - [x] Implement Decimal.js `gt(config.highValueThreshold)`, UTC hour extraction and explicit country comparison; keep function filesystem-free.
 - [x] Run fraud tests; expected PASS.
-- [x] Rerun validator + fraud tests and typecheck after refactor.
+- [x] Rerun validator + fraud tests and typecheck after refactoring.
 
-### Task 4: Compliance checker — RED/GREEN
+### Task 4: Compliance checker - RED/GREEN
 
 **Files:**
 - Create: `tests/unit/compliance-checker.test.ts`
@@ -146,14 +146,14 @@ expect(assessFraudRisk(transaction({ amount: "10000.01" }), config)).toEqual({
 
 **Interfaces:**
 - Consumes: `ValidTransaction`, `FraudAssessment`, `{ reviewThreshold: number }`.
-- Produces: `checkCompliance(transaction, assessment, config): ComplianceResult`.
+- Produced by: `checkCompliance(transaction, assessment, config): ComplianceResult`.
 
 - [x] Write RED tests for score 49 approved, score 50 review, stable reason codes and explanations that omit account IDs/description.
 - [x] Run `npm test -- tests/unit/compliance-checker.test.ts`; expected FAIL because implementation is absent.
 - [x] Implement deterministic approved/review mapping and safe explanation constants.
 - [x] Run compliance tests; expected PASS, then run all three agent suites and typecheck.
 
-### Task 5: Atomic file store, audit logger і results repository
+### Task 5: Atomic file store, audit logger and results repository
 
 **Files:**
 - Create: `tests/unit/file-store.test.ts`
@@ -171,7 +171,7 @@ expect(assessFraudRisk(transaction({ amount: "10000.01" }), config)).toEqual({
 - [x] Implement repository errors with codes `TRANSACTION_NOT_FOUND`, `SUMMARY_NOT_FOUND`, `RESULTS_READ_ERROR`; error messages must not include raw file content.
 - [x] Run infrastructure tests and typecheck; expected PASS.
 
-### Task 6: Integrator і full file flow — RED/GREEN
+### Task 6: Integrator and full file flow — RED/GREEN
 
 **Files:**
 - Create: `tests/integration/pipeline.test.ts`
@@ -179,7 +179,7 @@ expect(assessFraudRisk(transaction({ amount: "10000.01" }), config)).toEqual({
 
 **Interfaces:**
 - Consumes: agents, file store, audit logger, `PipelineConfig`.
-- Produces: `runPipeline(options: PipelineOptions): Promise<PipelineSummary>`.
+- Produced by: `runPipeline(options: PipelineOptions): Promise<PipelineSummary>`.
 
 ```ts
 export interface PipelineOptions {
@@ -229,7 +229,7 @@ export interface PipelineOptions {
 - [x] Implement `server.ts` with configurable `HOST`, `PORT`, `RESULTS_DIR`; startup failure logs only safe error metadata and sets non-zero exit code.
 - [x] Run API suite and typecheck; expected PASS without opening a network port.
 
-### Task 9: Claude command prefix та end-to-end smoke run
+### Task 9: Claude command prefix and end-to-end smoke run
 
 **Files:**
 - Move: `.claude/commands/run-pipeline.md` → `.claude/commands/hw6-run-pipeline.md`

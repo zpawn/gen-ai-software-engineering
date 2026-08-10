@@ -1,23 +1,23 @@
 # Context7 Research Notes
 
-Цей файл є хронологією фактично виконаних Context7-запитів. Кожен запис містить search text, обраний library ID, основний висновок і спосіб застосування.
+This file is a timeline of Context7 queries actually executed. Each record contains search text, selected library ID, main conclusion and method of application.
 
-> Записи охоплюють проєктування та code-generation stage. Запити 13–14 виконано безпосередньо перед реалізацією Fastify API.
+> Entries cover design and code-generation stage. Queries 13–14 are executed immediately before implementing the Fastify API.
 
 ## [2026-08-09] Query 1 | Fastify TypeScript project structure
 
 - **Search:** `Plan a TypeScript student project that uses Fastify as the application framework and may expose an MCP status server.`
 - **Selected Context7 library ID:** `/fastify/fastify`
 - **Why selected:** official Fastify repository documentation, high source reputation, exact framework match.
-- **Key insight:** мінімальна TypeScript setup потребує `fastify`, `typescript` і Node types; Fastify підтримує typed routes, schema validation та plugin-based extension.
-- **Applied:** Fastify зафіксовано як network/API integration framework, але CLI transaction pipeline не залежатиме від HTTP.
+- **Key insight:** minimal TypeScript setup requires `fastify`, `typescript` and Node types; Fastify supports typed routes, schema validation and plugin-based extension.
+- **Applied:** Fastify is used for the network/API layer, while the CLI transaction pipeline stays independent from HTTP.
 
 ## [2026-08-09] Query 2 | Fastify TypeScript plugins
 
 - **Search:** `What is the recommended basic TypeScript project setup and plugin-based application structure for a small Fastify application?`
 - **Selected Context7 library ID:** `/fastify/fastify`
 - **Key insight:** application can expose a Fastify factory and register typed plugins/routes, while startup/listen remains a separate responsibility.
-- **Applied:** майбутній network layer буде відокремлено від deterministic pipeline modules; Fastify не використовуватиметься всередині business functions.
+- **Applied:** the network layer is separate from deterministic pipeline modules; Fastify is not used inside business functions.
 
 ## [2026-08-09] Query 3 | Drizzle ORM with SQLite
 
@@ -25,13 +25,13 @@
 - **Selected Context7 library ID:** `/drizzle-team/drizzle-orm-docs`
 - **Why selected:** official Drizzle documentation with extensive TypeScript/SQLite examples.
 - **Key insight:** Drizzle supports SQLite through `node:sqlite`, `better-sqlite3`, libSQL and other drivers; a local file database can be initialized without a separate database server.
-- **Applied:** SQLite + Drizzle залишено optional persistence layer. Driver will be selected only if the specification gains a durable-storage requirement.
+- **Applied:** SQLite + Drizzle left optional persistence layer. Driver will be selected only if the specification gains a durable-storage requirement.
 
 ## [2026-08-09] Query 4 | Claude Code project subagents
 
 - **Search:** `How should project-scoped custom subagents be defined under .claude/agents, including required frontmatter and invocation from commands?`
 - **Selected Context7 library ID:** `/websites/code_claude`
-- **Key insight:** project subagents live in `.claude/agents/` as Markdown files with YAML frontmatter such as `name`, `description`, `tools`, optionally `model`; body text acts as the agent system prompt.
+- **Key insight:** project subagents live in `.claude/agents/` as Markdown files with YAML front matter such as `name`, `description`, `tools`, optionally `model`; body text acts as the agent system prompt.
 - **Applied:** architecture defines four project-scoped meta-agents with least-necessary tool lists.
 
 ## [2026-08-09] Query 5 | Claude Code custom commands
@@ -69,72 +69,72 @@
 - **Key insight:** a command can request delegation by naming the custom subagent; `Agent` must be available for auto-approved subagent calls.
 - **Applied:** `/hw6-write-spec` explicitly names `hw6-specification-agent` and includes `Agent` in `allowed-tools`.
 
-## [2026-08-09] Query 10 | Fastify app factory та route testing
+## [2026-08-09] Query 10 | Fastify app factory and route testing
 
 - **Search:** `How should a strict TypeScript Fastify application expose typed read-only GET routes, separate app construction from listen startup, and test routes using Fastify inject?`
 - **Selected Context7 library ID:** `/fastify/fastify`
 - **Why selected:** official Fastify repository documentation, high source reputation, exact framework match.
-- **Key insight:** Fastify рекомендує відокремлювати app factory від server startup; typed route generics і JSON schemas забезпечують request typing, а `fastify.inject()` тестує routes без відкриття network port.
-- **Applied:** Task 2 design використовує `buildApp(options)` у `src/api/app.ts`, окремий `src/api/server.ts` і API tests через `app.inject()`.
+- **Key insight:** Fastify recommends separating the app factory from the server startup; typed route generics and JSON schemas provide request typing, and `fastify.inject()` tests routes without opening a network port.
+- **Applied:** Task 2 design uses `buildApp(options)` in `src/api/app.ts`, separate `src/api/server.ts` and API tests via `app.inject()`.
 
-## [2026-08-09] Query 11 | Decimal.js для monetary comparisons
+## [2026-08-09] Query 11 | Decimal.js for monetary comparisons
 
 - **Search:** `How should Decimal.js validate decimal strings and perform exact greater-than comparisons in TypeScript without converting monetary values to JavaScript number?`
 - **Selected Context7 library ID:** `/mikemcl/decimal.js`
-- **Why selected:** official Decimal.js repository, high source reputation і найкращий exact package match.
-- **Key insight:** monetary values треба передавати в `Decimal` як strings, invalid constructor input обробляти явно, а comparisons виконувати через Decimal methods на кшталт `gt`/`gte`.
-- **Applied:** validator parsing і fraud threshold comparison не використовуватимуть `number`, `parseFloat` або implicit numeric coercion.
+- **Why selected:** official Decimal.js repository, high source reputation and the best exact package match.
+- **Key insight:** monetary values should be passed to `Decimal` as strings, invalid constructor input should be processed explicitly, and comparisons should be performed using Decimal methods like `gt`/`gte`.
+- **Applied:** validator parsing and fraud threshold comparison will not use `number`, `parseFloat` or implicit numeric coercion.
 
 ## [2026-08-09] Query 12 | Vitest V8 coverage
 
 - **Search:** `How to configure Vitest V8 coverage thresholds, include source files, and test Node filesystem code with temporary directories in a TypeScript project?`
 - **Selected Context7 library ID:** `/vitest-dev/vitest/v4.1.6`
-- **Why selected:** official Vitest documentation із version-specific ID для актуальної major version.
-- **Key insight:** `coverage.provider: "v8"`, explicit `coverage.include` і numeric thresholds дозволяють врахувати навіть неімпортовані source files та блокувати suite нижче заданого рівня.
-- **Applied:** `vitest.config.ts` включатиме `src/**/*.ts`, gate 80% і text/html/lcov reporters; integration tests використовуватимуть OS temporary directories.
+- **Why selected:** official Vitest documentation with version-specific ID for the current major version.
+- **Key insight:** `coverage.provider: "v8"`, explicit `coverage.include` and numeric thresholds allow you to take into account even non-imported source files and block the suite below a given level.
+- **Applied:** `vitest.config.ts` will include `src/**/*.ts`, gate 80% and text/html/lcov reporters; integration tests will use OS temporary directories.
 
 ## [2026-08-10] Query 13 | Fastify 5 typed route schemas
 
 - **Search:** `Fastify 5 TypeScript app factory with typed route params and JSON response schemas for GET routes.`
 - **Selected Context7 library ID:** `/fastify/fastify`
 - **Why selected:** official Fastify repository, high source reputation, exact framework match.
-- **Key insight:** Fastify 5 потребує full JSON Schema з `type: "object"` для params/query/body; route generics типізують params/replies, а response schemas задаються за HTTP status code.
-- **Applied:** `src/api/app.ts` використовує typed `TransactionParams`, typed replies і full schemas для health, transaction result, summary та controlled errors.
+- **Key insight:** Fastify 5 requires full JSON Schema with `type: "object"` for params/query/body; route generics are typed by params/replies, and response schemas are specified by HTTP status code.
+- **Applied:** `src/api/app.ts` uses typed `TransactionParams`, typed replies and full schemas for health, transaction result, summary and controlled errors.
 
-## [2026-08-10] Query 14 | Fastify inject testing
+## [2026-08-10] Query 14 | Fastify injection testing
 
 - **Search:** `Fastify 5 testing an app factory with app.inject for GET routes without listen, and proper app.close cleanup.`
 - **Selected Context7 library ID:** `/fastify/fastify`
-- **Key insight:** application factory тестується через `app.inject()` без network listener; кожен test app треба закривати через `app.close()`.
-- **Applied:** `tests/api/app.test.ts` перевіряє всі read-only routes через inject і закриває Fastify instances у cleanup.
+- **Key insight:** application factory is tested via `app.inject()` without network listener; each test app must be closed via `app.close()`.
+- **Applied:** `tests/api/app.test.ts` checks all read-only routes via inject and closes Fastify instances in cleanup.
 
-## [2026-08-10] Query 15 | TypeScript MCP stdio server
+## [2026-08-10] Query 15 | TypeScript MCP studio server
 
 - **Search:** `Build a Node.js TypeScript stdio MCP server that exposes tools with input schemas and a text resource, using the current official SDK.`
 - **Selected Context7 library ID:** `/modelcontextprotocol/typescript-sdk/v1.29.0`
-- **Why selected:** official TypeScript SDK repository, high source reputation, version-specific stable v1.x documentation і найбільше релевантних code snippets.
-- **Key insight:** local server використовує `McpServer`, `registerTool`, `registerResource` і `StdioServerTransport`; Zod raw shapes задають tool input validation; SDK та `zod` встановлюються разом.
-- **Applied:** реалізовано окремі `mcp/server.ts` і `mcp/stdio.ts`, Zod input schema, два tools та static resource `pipeline://summary`.
+- **Why selected:** official TypeScript SDK repository, high source reputation, version-specific stable v1.x documentation and the most relevant code snippets.
+- **Key insight:** local server uses `McpServer`, `registerTool`, `registerResource` and `StdioServerTransport`; Zod raw shapes set tool input validation; The SDK and `zod` are installed together.
+- **Applied:** implemented separate `mcp/server.ts` and `mcp/stdio.ts`, Zod input schema, two tools and static resource `pipeline://summary`.
 
 ## [2026-08-10] Query 16 | Claude Code project MCP configuration
 
 - **Search:** `What is the current Claude Code project-scoped MCP server configuration filename and JSON format for stdio servers? Does Claude Code load mcp.json or .mcp.json from the project root?`
 - **Selected Context7 library ID:** `/websites/code_claude`
-- **Why selected:** актуальна офіційна Claude Code documentation, використана раніше для project commands і hooks.
-- **Key insight:** Claude Code автоматично читає project-scoped servers із `.mcp.json`, вимагає first-use approval і підтримує stdio entries з `command` та `args`; literal `mcp.json` з Homework 6 сам по собі не є auto-loaded Claude config.
-- **Applied:** студент обрав єдиний `.mcp.json` для фактичного Claude Code runtime; duplicate `mcp.json` не створюється.
+- **Why selected:** current official Claude Code documentation, previously used for project commands and hooks.
+- **Key insight:** Claude Code automatically reads project-scoped servers with `.mcp.json`, requires first-use approval and supports stdio entries with `command` and `args`; The literal `mcp.json` from Homework 6 is not itself an auto-loaded Claude config.
+- **Applied:** the student chose a single `.mcp.json` for the actual Claude Code runtime; duplicate `mcp.json` is not created.
 
 ## [2026-08-10] Query 17 | In-memory MCP integration tests
 
 - **Search:** `How to integration test an McpServer in TypeScript without stdio using InMemoryTransport and Client, including listing and calling tools and reading a resource?`
 - **Selected Context7 library ID:** `/modelcontextprotocol/typescript-sdk/v1.29.0`
-- **Key insight:** `InMemoryTransport.createLinkedPair()` з’єднує SDK `Client` і `McpServer` без process/network transport та дозволяє перевірити validation, tool calls і resource reads end-to-end.
-- **Applied:** `tests/mcp/server.test.ts` використовує real SDK `Client` і `InMemoryTransport`, а `tests/mcp/config.test.ts` окремо запускає configured stdio process без network port і real `shared/`.
+- **Key insight:** `InMemoryTransport.createLinkedPair()` connects the `Client` and `McpServer` SDKs without the process/network transport and allows end-to-end validation, tool calls and resource reads.
+- **Applied:** `tests/mcp/server.test.ts` uses real SDK `Client` and `InMemoryTransport`, and `tests/mcp/config.test.ts` separately runs configured stdio process without network port and real `shared/`.
 
-## [2026-08-10] Query 18 | Актуальна MCP SDK v1.x після security audit
+## [2026-08-10] Query 18 | Current MCP SDK v1.x after security audit
 
 - **Search:** `Are McpServer registerTool, registerResource, StdioServerTransport, Client, and InMemoryTransport still the supported APIs in the current v1.x TypeScript SDK?`
 - **Selected Context7 library ID:** `/modelcontextprotocol/typescript-sdk/__branch__v1.x`
-- **Why selected:** Context7 ще не індексував release-specific ID v1.30.0, тому обрано офіційну актуальну v1.x branch documentation.
-- **Key insight:** `McpServer`, `registerTool`, `registerResource` і stdio залишаються supported v1.x APIs для local process-spawned integrations.
-- **Applied:** production dependency оновлено до `@modelcontextprotocol/sdk` 1.30.0; compatible transitive `@hono/node-server` оновлено до 2.1.0 після audit advisory, без API змін у MCP layer.
+- **Why selected:** Context7 has not yet indexed the release-specific ID v1.30.0, so the official up-to-date v1.x branch documentation is selected.
+- **Key insight:** `McpServer`, `registerTool`, `registerResource` and stdio remain supported v1.x APIs for local process-spawned integrations.
+- **Applied:** production dependency updated to `@modelcontextprotocol/sdk` 1.30.0; compatible transitive `@hono/node-server` updated to 2.1.0 after audit advisory, no API changes in MCP layer.
