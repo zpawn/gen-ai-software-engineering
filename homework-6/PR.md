@@ -39,8 +39,20 @@ For Homework 6, we built more than a banking transaction application — we also
 
 ## Screenshots for the PR
 
-- `docs/screenshots/pipeline-run.png` — full result of `npm run pipeline`.
-- `docs/screenshots/test-coverage.png` — result of `npm run test:coverage` with coverage above 80%.
-- `docs/screenshots/skill-run-pipeline.png` — running `/hw6-run-pipeline` in Claude Code.
-- `docs/screenshots/hook-trigger.png` — the coverage hook triggering before a simulated `git push`.
-- `docs/screenshots/mcp-interaction.png` — a Context7 request and a custom MCP tool call (`list_pipeline_results` or `get_transaction_status`).
+**Pipeline run** — full result of `npm run pipeline`.
+![pipeline run](https://raw.githubusercontent.com/zpawn/gen-ai-software-engineering/homework-6-submission/homework-6/docs/screenshots/nw6-pipeline-run.png)
+
+**Test coverage** — result of `npm run test:coverage` with coverage above 80%.
+![test coverage](https://raw.githubusercontent.com/zpawn/gen-ai-software-engineering/homework-6-submission/homework-6/docs/screenshots/hw6-test-coverage.png)
+
+**Skill run** — running `/hw6-run-pipeline` in Claude Code.
+![skill run pipeline](https://raw.githubusercontent.com/zpawn/gen-ai-software-engineering/homework-6-submission/homework-6/docs/screenshots/hw6-skill-run-pipeline.png)
+
+**Spec skill** — `/hw6-write-spec` generating a feature specification.
+![spec skill](https://raw.githubusercontent.com/zpawn/gen-ai-software-engineering/homework-6-submission/homework-6/docs/screenshots/hw6-spec-skill.png)
+
+**MCP: Context7** — a Context7 documentation query in Claude Code.
+![mcp context7](https://raw.githubusercontent.com/zpawn/gen-ai-software-engineering/homework-6-submission/homework-6/docs/screenshots/hw6-mcp-context7.png)
+
+**MCP: custom server** — the custom `pipeline-status` MCP tool call (`list_pipeline_results` or `get_transaction_status`).
+![mcp custom](https://raw.githubusercontent.com/zpawn/gen-ai-software-engineering/homework-6-submission/homework-6/docs/screenshots/hw6-mcp-custom.png)
