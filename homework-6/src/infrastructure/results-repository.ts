@@ -36,6 +36,39 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 const isStringArray = (value: unknown): value is string[] =>
   Array.isArray(value) && value.every((item) => typeof item === "string");
 
+const ALLOWED_RESULT_CODES = new Set([
+  "INVALID_TRANSACTION",
+  "MISSING_TRANSACTION_ID",
+  "INVALID_TRANSACTION_ID",
+  "DUPLICATE_TRANSACTION_ID",
+  "MISSING_TIMESTAMP",
+  "INVALID_TIMESTAMP",
+  "NON_UTC_TIMESTAMP",
+  "MISSING_SOURCE_ACCOUNT",
+  "INVALID_SOURCE_ACCOUNT",
+  "MISSING_DESTINATION_ACCOUNT",
+  "INVALID_DESTINATION_ACCOUNT",
+  "MISSING_AMOUNT",
+  "INVALID_AMOUNT",
+  "NON_POSITIVE_AMOUNT",
+  "MISSING_CURRENCY",
+  "INVALID_CURRENCY",
+  "UNSUPPORTED_CURRENCY",
+  "MISSING_TRANSACTION_TYPE",
+  "INVALID_TRANSACTION_TYPE",
+  "MISSING_COUNTRY",
+  "INVALID_COUNTRY",
+  "HIGH_VALUE",
+  "UNUSUAL_TIME",
+  "CROSS_BORDER",
+  "RISK_SCORE_BELOW_REVIEW_THRESHOLD",
+  "RISK_SCORE_AT_OR_ABOVE_REVIEW_THRESHOLD",
+  "COMPLIANCE_APPROVED",
+]);
+
+const isAllowedCodeArray = (value: unknown): value is string[] =>
+  isStringArray(value) && value.every((code) => ALLOWED_RESULT_CODES.has(code));
+
 const hasOnlyKeys = (
   record: Record<string, unknown>,
   allowedKeys: readonly string[],
@@ -54,7 +87,7 @@ const isAuditEntry = (value: unknown): boolean =>
   typeof value.agent_name === "string" &&
   typeof value.transaction_id === "string" &&
   typeof value.outcome === "string" &&
-  isStringArray(value.reason_codes);
+  isAllowedCodeArray(value.reason_codes);
 
 const isPipelineResult = (value: unknown): value is PipelineResult => {
   if (
@@ -70,7 +103,7 @@ const isPipelineResult = (value: unknown): value is PipelineResult => {
     ]) ||
     typeof value.transactionId !== "string" ||
     !["approved", "review", "rejected"].includes(String(value.status)) ||
-    !isStringArray(value.reasonCodes) ||
+    !isAllowedCodeArray(value.reasonCodes) ||
     typeof value.explanation !== "string" ||
     !Array.isArray(value.auditTrail) ||
     !value.auditTrail.every(isAuditEntry)
@@ -79,18 +112,32 @@ const isPipelineResult = (value: unknown): value is PipelineResult => {
   }
 
   return (
-    (value.riskScore === undefined || typeof value.riskScore === "number") &&
-    (value.riskFlags === undefined || isStringArray(value.riskFlags))
+    (value.riskScore === undefined ||
+      (typeof value.riskScore === "number" &&
+        Number.isFinite(value.riskScore) &&
+        value.riskScore >= 0 &&
+        value.riskScore <= 100)) &&
+    (value.riskFlags === undefined || isAllowedCodeArray(value.riskFlags))
   );
 };
 
-const isPipelineSummary = (value: unknown): value is PipelineSummary =>
-  isRecord(value) &&
-  hasOnlyKeys(value, ["total", "approved", "review", "rejected"]) &&
-  Number.isInteger(value.total) &&
-  Number.isInteger(value.approved) &&
-  Number.isInteger(value.review) &&
-  Number.isInteger(value.rejected);
+const isNonNegativeInteger = (value: unknown): value is number =>
+  Number.isInteger(value) && (value as number) >= 0;
+
+const isPipelineSummary = (value: unknown): value is PipelineSummary => {
+  if (
+    !isRecord(value) ||
+    !hasOnlyKeys(value, ["total", "approved", "review", "rejected"]) ||
+    !isNonNegativeInteger(value.total) ||
+    !isNonNegativeInteger(value.approved) ||
+    !isNonNegativeInteger(value.review) ||
+    !isNonNegativeInteger(value.rejected)
+  ) {
+    return false;
+  }
+
+  return value.total === value.approved + value.review + value.rejected;
+};
 
 const readResultFile = async <T>(
   filePath: string,
@@ -135,12 +182,21 @@ export const readTransactionResult = async (
     );
   }
 
-  return readResultFile<PipelineResult>(
+  const result = await readResultFile<PipelineResult>(
     join(resultsDirectory, `${transactionId}.json`),
     "TRANSACTION_NOT_FOUND",
     "Transaction result not found.",
     isPipelineResult,
   );
+
+  if (result.transactionId !== transactionId) {
+    throw new ResultsRepositoryError(
+      "RESULTS_READ_ERROR",
+      "Unable to read pipeline results.",
+    );
+  }
+
+  return result;
 };
 
 export const readPipelineSummary = async (

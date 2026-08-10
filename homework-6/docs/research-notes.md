@@ -107,3 +107,34 @@
 - **Selected Context7 library ID:** `/fastify/fastify`
 - **Key insight:** application factory тестується через `app.inject()` без network listener; кожен test app треба закривати через `app.close()`.
 - **Applied:** `tests/api/app.test.ts` перевіряє всі read-only routes через inject і закриває Fastify instances у cleanup.
+
+## [2026-08-10] Query 15 | TypeScript MCP stdio server
+
+- **Search:** `Build a Node.js TypeScript stdio MCP server that exposes tools with input schemas and a text resource, using the current official SDK.`
+- **Selected Context7 library ID:** `/modelcontextprotocol/typescript-sdk/v1.29.0`
+- **Why selected:** official TypeScript SDK repository, high source reputation, version-specific stable v1.x documentation і найбільше релевантних code snippets.
+- **Key insight:** local server використовує `McpServer`, `registerTool`, `registerResource` і `StdioServerTransport`; Zod raw shapes задають tool input validation; SDK та `zod` встановлюються разом.
+- **Applied:** реалізовано окремі `mcp/server.ts` і `mcp/stdio.ts`, Zod input schema, два tools та static resource `pipeline://summary`.
+
+## [2026-08-10] Query 16 | Claude Code project MCP configuration
+
+- **Search:** `What is the current Claude Code project-scoped MCP server configuration filename and JSON format for stdio servers? Does Claude Code load mcp.json or .mcp.json from the project root?`
+- **Selected Context7 library ID:** `/websites/code_claude`
+- **Why selected:** актуальна офіційна Claude Code documentation, використана раніше для project commands і hooks.
+- **Key insight:** Claude Code автоматично читає project-scoped servers із `.mcp.json`, вимагає first-use approval і підтримує stdio entries з `command` та `args`; literal `mcp.json` з Homework 6 сам по собі не є auto-loaded Claude config.
+- **Applied:** студент обрав єдиний `.mcp.json` для фактичного Claude Code runtime; duplicate `mcp.json` не створюється.
+
+## [2026-08-10] Query 17 | In-memory MCP integration tests
+
+- **Search:** `How to integration test an McpServer in TypeScript without stdio using InMemoryTransport and Client, including listing and calling tools and reading a resource?`
+- **Selected Context7 library ID:** `/modelcontextprotocol/typescript-sdk/v1.29.0`
+- **Key insight:** `InMemoryTransport.createLinkedPair()` з’єднує SDK `Client` і `McpServer` без process/network transport та дозволяє перевірити validation, tool calls і resource reads end-to-end.
+- **Applied:** `tests/mcp/server.test.ts` використовує real SDK `Client` і `InMemoryTransport`, а `tests/mcp/config.test.ts` окремо запускає configured stdio process без network port і real `shared/`.
+
+## [2026-08-10] Query 18 | Актуальна MCP SDK v1.x після security audit
+
+- **Search:** `Are McpServer registerTool, registerResource, StdioServerTransport, Client, and InMemoryTransport still the supported APIs in the current v1.x TypeScript SDK?`
+- **Selected Context7 library ID:** `/modelcontextprotocol/typescript-sdk/__branch__v1.x`
+- **Why selected:** Context7 ще не індексував release-specific ID v1.30.0, тому обрано офіційну актуальну v1.x branch documentation.
+- **Key insight:** `McpServer`, `registerTool`, `registerResource` і stdio залишаються supported v1.x APIs для local process-spawned integrations.
+- **Applied:** production dependency оновлено до `@modelcontextprotocol/sdk` 1.30.0; compatible transitive `@hono/node-server` оновлено до 2.1.0 після audit advisory, без API змін у MCP layer.

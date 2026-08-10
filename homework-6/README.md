@@ -2,7 +2,7 @@
 
 > **Студент:** ilia makarov  
 > **Мова реалізації:** TypeScript  
-> **Поточний стан:** Task 2 реалізовано; основна інфраструктура Task 3 — prefixed Claude-команди та coverage gate — перевірена, screenshots відкладено до фінального етапу
+> **Поточний стан:** Tasks 1–3 реалізовано; Task 4 має runnable TypeScript MCP server і Claude Code `.mcp.json`, screenshots відкладено до фінального етапу
 
 ## Про що цей проєкт
 
@@ -130,7 +130,23 @@ flowchart LR
     Context7 --> Claude
 ```
 
-Custom MCP server не обробляє транзакції. Він лише читає готові результати та надає Claude Code tools `get_transaction_status`, `list_pipeline_results` і resource `pipeline://summary`.
+Custom MCP server не обробляє транзакції. Він лише читає готові результати та надає Claude Code tools `get_transaction_status`, `list_pipeline_results` і resource `pipeline://summary`. Status tool повертає тільки `transactionId`, `status`, `reasonCodes`, `riskScore` та `riskFlags`; raw transaction, `explanation` і `auditTrail` не виходять через MCP.
+
+### MCP у Claude Code
+
+У корені є один project-scoped `.mcp.json`, який Claude Code автоматично виявляє. Він підключає:
+
+- `context7` для актуальної документації;
+- `pipeline-status` для read-only доступу до `shared/results/`.
+
+Після першого checkout або зміни `.mcp.json` запусти Claude Code з кореня Homework 6 і підтвердь використання project MCP servers. Перевірити їхній стан без запуску pipeline можна так:
+
+```bash
+claude mcp get context7
+claude mcp get pipeline-status
+```
+
+До ручного approval статус буде `Pending approval`. Після approval у Claude Code можна попросити викликати `get_transaction_status` для конкретного `transaction_id`, викликати `list_pipeline_results` або прочитати resource `pipeline://summary`. Custom server читає лише фактичні files; перед MCP demo спочатку виконай `npm run pipeline`.
 
 ## Файлова комунікація
 
@@ -188,6 +204,8 @@ Skill використовує локальний bundled template у `.claude/s
 ## Поточний стан
 
 TypeScript pipeline і read-only Fastify API наявні в репозиторії. Фактичний запуск `npm run pipeline` обробив 8 sample transactions: `approved=3`, `review=3`, `rejected=2`. Rejected results: `TXN006` — `UNSUPPORTED_CURRENCY`; `TXN007` — `NON_POSITIVE_AMOUNT`.
+
+TypeScript MCP layer реалізовано у `mcp/handlers.ts`, `mcp/server.ts` і `mcp/stdio.ts`. Focused tests перевірили safe handlers, обидва tools, `pipeline://summary`, controlled errors та реальний stdio process, запущений командою з `.mcp.json`. `claude mcp get` підтвердив, що Claude Code бачить `context7` і `pipeline-status` як project configuration; interactive approval і submission screenshot залишені студенту.
 
 Dry-run `npm run validate:dry` повернув `total=8`, `valid=6`, `invalid=2`; SHA-256 усіх файлів у `shared/` до і після запуску збіглися. Fastify smoke на тимчасовому localhost-порту підтвердив `GET /health`, `GET /transactions/TXN001` і `GET /summary`; після перевірки server process зупинено.
 

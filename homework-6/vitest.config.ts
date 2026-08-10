@@ -5,8 +5,8 @@ export default defineConfig({
     environment: "node",
     coverage: {
       provider: "v8",
-      include: ["src/**/*.ts"],
-      exclude: ["src/cli/**/*.ts", "src/api/server.ts"],
+      include: ["src/**/*.ts", "mcp/**/*.ts"],
+      exclude: ["src/cli/**/*.ts", "src/api/server.ts", "mcp/stdio.ts"],
       reporter: ["text", "html", "lcov"],
       thresholds: {
         lines: 80,

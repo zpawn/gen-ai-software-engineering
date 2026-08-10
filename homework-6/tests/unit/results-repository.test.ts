@@ -144,6 +144,27 @@ describe("results repository", () => {
     });
   });
 
+  it("rejects a result whose stored transaction ID does not match the requested file", async () => {
+    const resultsDirectory = await createResultsDirectory();
+    await writeFile(
+      join(resultsDirectory, "TXN-REQUESTED.json"),
+      JSON.stringify({
+        transactionId: "ACC-PLAINTEXT-SECRET",
+        status: "approved",
+        reasonCodes: [],
+        explanation: "Transaction approved.",
+        auditTrail: [],
+      }),
+    );
+
+    await expect(
+      readTransactionResult(resultsDirectory, "TXN-REQUESTED"),
+    ).rejects.toMatchObject({
+      code: "RESULTS_READ_ERROR",
+      message: "Unable to read pipeline results.",
+    });
+  });
+
   it.each([
     [
       "an unsupported result status",
@@ -173,6 +194,40 @@ describe("results repository", () => {
         reasonCodes: [],
         explanation: "Approved.",
         riskScore: "0",
+        auditTrail: [],
+      },
+    ],
+    [
+      "an unknown reason code",
+      {
+        transactionId: "TXN-UNSAFE-REASON",
+        status: "rejected",
+        reasonCodes: ["NAME: PRIVATE PERSON"],
+        explanation: "Rejected.",
+        auditTrail: [],
+      },
+    ],
+    [
+      "an unknown risk flag",
+      {
+        transactionId: "TXN-UNSAFE-FLAG",
+        status: "review",
+        reasonCodes: ["RISK_SCORE_AT_OR_ABOVE_REVIEW_THRESHOLD"],
+        explanation: "Review.",
+        riskScore: 50,
+        riskFlags: ["ACCOUNT: 123456789"],
+        auditTrail: [],
+      },
+    ],
+    [
+      "an out-of-range risk score",
+      {
+        transactionId: "TXN-INVALID-RISK-RANGE",
+        status: "review",
+        reasonCodes: ["RISK_SCORE_AT_OR_ABOVE_REVIEW_THRESHOLD"],
+        explanation: "Review.",
+        riskScore: 101,
+        riskFlags: [],
         auditTrail: [],
       },
     ],
@@ -231,6 +286,8 @@ describe("results repository", () => {
   it.each([
     ["an incomplete summary", { total: 1 }],
     ["a non-integer summary count", { total: 1.5, approved: 1, review: 0, rejected: 0 }],
+    ["a negative summary count", { total: -1, approved: -1, review: 0, rejected: 0 }],
+    ["inconsistent summary totals", { total: 2, approved: 2, review: 1, rejected: 0 }],
   ])("returns RESULTS_READ_ERROR for %s", async (_description, value) => {
     const resultsDirectory = await createResultsDirectory();
     await writeFile(join(resultsDirectory, "summary.json"), JSON.stringify(value));

@@ -224,3 +224,59 @@
 - Зміни: без справжнього push перевірено shell syntax, non-push path, чотири Vitest thresholds по 80% і успішний `git push` simulation через stdin hook.
 - Файли: `.claude/hooks/coverage-gate.sh`, `.claude/settings.json`, `vitest.config.ts`, `docs/log.md` — hook/config лише перевірено, без зміни поведінки.
 - Перевірка: simulated push запустив `npm run test:coverage`; 67/67 tests passed, coverage statements 95.6%, branches 91.97%, functions 95.65%, lines 95.91%; `npm run typecheck` і `git diff --check` завершилися з exit code 0; staging, commit і справжній push не виконувалися.
+
+## [2026-08-10] docs | Feature specification для Task 4 MCP Integration
+
+- Автор/інструмент: Codex + `hw6-writing-feature-specifications`
+- Зміни: створено implementation-ready feature spec для modular TypeScript MCP layer, safe tool/resource outputs, dual Homework/Claude config, TDD, error boundaries і відкладеного screenshot.
+- Файли: `docs/specifications/task-4-mcp-integration.md`, `docs/log.md`.
+- Перевірка: feature spec звірено з bundled Homework 3 template, `TASKS.md`, project specification, узгодженим safe response format і правилом відсутності unresolved placeholders.
+
+## [2026-08-10] design | Модульний MCP-шар Task 4
+
+- Автор/інструмент: Codex + Superpowers brainstorming
+- Зміни: погоджено handlers/server/stdio boundaries, safe MCP contracts, reuse results repository, dual `mcp.json`/`.mcp.json` configuration і protocol-level test strategy.
+- Файли: `docs/superpowers/specs/2026-08-10-task-4-modular-mcp-layer-design.md`, `docs/research-notes.md`, `docs/log.md`.
+- Перевірка: дизайн звірено з Task 4 rubric і Context7 docs `/modelcontextprotocol/typescript-sdk/v1.29.0` та `/websites/code_claude`; implementation ще не виконувалась.
+
+## [2026-08-10] docs | Єдина Claude Code MCP configuration
+
+- Автор/інструмент: Codex
+- Зміни: за прямим рішенням студента Task 4 використовує лише `.mcp.json`, яку Claude Code автоматично завантажує; duplicate `mcp.json` не створюється, попри literal-назву у rubric Homework 6.
+- Файли: `docs/specifications/task-4-mcp-integration.md`, `docs/superpowers/specs/2026-08-10-task-4-modular-mcp-layer-design.md`, `docs/research-notes.md`, `docs/log.md`.
+- Перевірка: рішення звірено з актуальною Context7 Claude Code documentation `/websites/code_claude` і підтверджено студентом.
+
+## [2026-08-10] implement | Модульний TypeScript MCP layer
+
+- Автор/інструмент: Codex + Context7 + Superpowers TDD
+- Зміни: створено safe handlers, MCP server factory, stdio entry point, один Claude Code `.mcp.json`, protocol/config tests; MCP source включено в coverage. Додано dependencies `@modelcontextprotocol/sdk` 1.30.0 і Zod.
+- Файли: `mcp/handlers.ts`, `mcp/server.ts`, `mcp/stdio.ts`, `.mcp.json`, `tests/mcp/*.test.ts`, `package.json`, `package-lock.json`, `tsconfig.json`, `vitest.config.ts`, `README.md`, Task 4 spec/design/plan, `docs/research-notes.md`, `docs/log.md`.
+- Перевірка: handler RED/GREEN — 4 tests; protocol RED/GREEN — 5 tests; config/real stdio RED/GREEN — 2 tests; `claude mcp get` виявив `context7` і `pipeline-status` як project config у стані Pending approval.
+
+## [2026-08-10] fix | Security update MCP dependencies
+
+- Автор/інструмент: Codex
+- Зміни: після npm audit MCP SDK оновлено з 1.29.0 до 1.30.0, а дозволений SDK range transitive dependency `@hono/node-server` — з 1.19.17 до 2.1.0, що усуває moderate Windows static-file traversal advisory.
+- Файли: `package.json`, `package-lock.json`, `docs/research-notes.md`, `docs/specifications/task-4-mcp-integration.md`, `docs/superpowers/plans/2026-08-10-task-4-modular-mcp-layer.md`, `docs/log.md`.
+- Перевірка: `npm ls` підтвердив SDK 1.30.0 і Hono 2.1.0; `npm update @hono/node-server` завершив audit повідомленням `found 0 vulnerabilities`; full post-update verification виконується окремо.
+
+## [2026-08-10] verify | Фінальний gate Task 4 MCP Integration
+
+- Автор/інструмент: Codex
+- Зміни: після dependency security update повторно перевірено весь project, MCP coverage scope, єдиний Claude Code config, project server discovery та production dependency audit.
+- Файли: усі Task 4 implementation, tests і documentation artifacts; staging та commit не виконувалися.
+- Перевірка: 78/78 tests passed; coverage — statements 95.07%, branches 91.09%, functions 96.42%, lines 95.3%; `npm run typecheck` і `git diff --check` — exit code 0; `.mcp.json` містить тільки `context7` і `pipeline-status`, `mcp.json` відсутній; `claude mcp get` бачить обидва project servers у стані Pending approval; `npm audit --omit=dev` — 0 vulnerabilities.
+
+## [2026-08-10] fix | Посилення MCP result boundary після review
+
+- Автор/інструмент: Codex + independent reviewer
+- Зміни: canonical results repository тепер перевіряє equality requested/stored transaction ID, allowlist pipeline-generated reason/risk codes, risk score у діапазоні 0–100, non-negative summary counters і рівність total сумі outcomes. Додано adversarial repository/handler/protocol tests, що блокують shape-valid private markers і corrupted summaries.
+- Файли: `src/infrastructure/results-repository.ts`, `tests/unit/results-repository.test.ts`, `tests/mcp/handlers.test.ts`, `tests/mcp/server.test.ts`, `docs/log.md`.
+- Перевірка: RED — 9 expected failures; GREEN — 31/31 focused tests; full suite — 87/87 tests; MCP coverage після fixes — statements 97.05%, branches 88.88%, functions 100%, lines 96.87%.
+
+## [2026-08-10] verify | Незалежний re-review Task 4
+
+- Автор/інструмент: Codex + independent reviewer subagent
+- Зміни: повторно перевірено попередні PII/data-integrity findings, safe MCP projection/error boundary і повноту allowlist проти validator, fraud detector, compliance checker та committed fixtures.
+- Файли: усі Task 4 implementation і test artifacts; reviewer працював read-only.
+- Перевірка: 0 Critical, 0 Important, 0 Minor; allowlist покриває всі 26 generated codes; reviewer verdict — `Ready to commit: Yes`; 87/87 tests, typecheck і `git diff --check` пройшли; `npm audit --omit=dev` — 0 vulnerabilities.
