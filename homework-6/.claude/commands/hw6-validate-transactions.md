@@ -3,7 +3,7 @@ description: Перевірити sample transactions у dry-run режимі б
 allowed-tools: Read, Grep, Glob, Bash(npm run validate:dry), Bash(node *)
 ---
 
-Перевір усі records із `sample-transactions.json` без запуску повного pipeline.
+Перевір усі records із `sample-transactions.json` через `/hw6-validate-transactions` без запуску повного pipeline.
 
 Workflow:
 
@@ -27,4 +27,3 @@ npm run validate:dry
 7. Не запускай fraud detector або compliance checker і не змінюй `shared/results/`.
 8. Не показуй account numbers, descriptions або інші PII.
 9. Не виконуй `git add` або `git commit`.
-

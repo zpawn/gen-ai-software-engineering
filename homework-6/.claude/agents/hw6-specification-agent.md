@@ -1,6 +1,6 @@
 ---
 name: hw6-specification-agent
-description: Створює та перевіряє специфікацію transaction pipeline перед реалізацією. Використовуй для /write-spec і змін вимог.
+description: Створює та перевіряє специфікацію transaction pipeline перед реалізацією. Використовуй для /hw6-write-spec і змін вимог.
 tools: Read, Grep, Glob, Write, Edit
 skills:
   - hw6-writing-feature-specifications

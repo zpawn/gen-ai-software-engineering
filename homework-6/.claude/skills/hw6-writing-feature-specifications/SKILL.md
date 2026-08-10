@@ -1,6 +1,6 @@
 ---
 name: hw6-writing-feature-specifications
-description: Use when creating or updating a technical specification for one feature before implementation, especially through /write-spec or hw6-specification-agent.
+description: Use when creating or updating a technical specification for one feature before implementation, especially through /hw6-write-spec or hw6-specification-agent.
 ---
 
 # Writing Feature Specifications

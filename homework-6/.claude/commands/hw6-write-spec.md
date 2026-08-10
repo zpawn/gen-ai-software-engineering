@@ -4,7 +4,7 @@ argument-hint: [feature-name | --project]
 allowed-tools: Read, Grep, Glob, Write, Edit, Agent
 ---
 
-Використай project subagent `hw6-specification-agent` для створення або оновлення специфікації.
+Використай project subagent `hw6-specification-agent` через `/hw6-write-spec` для створення або оновлення специфікації.
 
 Передай йому arguments: `$ARGUMENTS`.
 

@@ -39,7 +39,7 @@
 - **Search:** `How should project-scoped custom slash commands be defined under .claude/commands, including frontmatter, arguments, and invoking a subagent?`
 - **Selected Context7 library ID:** `/websites/code_claude`
 - **Key insight:** project commands are Markdown prompts with optional frontmatter including `description`, `allowed-tools`, `model` and argument hints.
-- **Applied:** `/write-spec`, `/hw6-run-pipeline` and `/validate-transactions` are represented by project command files with explicit allowed tools and honest precondition checks.
+- **Applied:** `/hw6-write-spec`, `/hw6-run-pipeline` and `/hw6-validate-transactions` are represented by project command files with explicit allowed tools and honest precondition checks.
 
 ## [2026-08-09] Query 6 | Claude Code blocking hooks
 
@@ -67,7 +67,7 @@
 - **Search:** `How should a custom Claude Code slash command delegate to a named custom subagent, and which allowed-tools entry is required for that delegation?`
 - **Selected Context7 library ID:** `/websites/code_claude`
 - **Key insight:** a command can request delegation by naming the custom subagent; `Agent` must be available for auto-approved subagent calls.
-- **Applied:** `/write-spec` explicitly names `hw6-specification-agent` and includes `Agent` in `allowed-tools`.
+- **Applied:** `/hw6-write-spec` explicitly names `hw6-specification-agent` and includes `Agent` in `allowed-tools`.
 
 ## [2026-08-09] Query 10 | Fastify app factory та route testing
 

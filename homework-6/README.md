@@ -2,7 +2,7 @@
 
 > **Студент:** ilia makarov  
 > **Мова реалізації:** TypeScript  
-> **Поточний стан:** Task 2 реалізовано й перевірено; TypeScript pipeline, CLI, Fastify API та `/hw6-run-pipeline` готові до review
+> **Поточний стан:** Task 2 реалізовано; основна інфраструктура Task 3 — prefixed Claude-команди та coverage gate — перевірена, screenshots відкладено до фінального етапу
 
 ## Про що цей проєкт
 
@@ -174,7 +174,7 @@ SQLite та Drizzle не додаються без конкретної потр
 ### Як створюється feature specification
 
 ```text
-/write-spec <feature-name>
+/hw6-write-spec <feature-name>
         ↓
 hw6-specification-agent
         ↓
@@ -194,3 +194,5 @@ Dry-run `npm run validate:dry` повернув `total=8`, `valid=6`, `invalid=2
 ## Команда запуску pipeline
 
 Claude Code команда `/hw6-run-pipeline` перевіряє `sample-transactions.json`, запускає внутрішню application-команду `npm run pipeline`, читає безпечний summary із `shared/results/summary.json` і повідомляє лише лічильники та `transactionId`/`reasonCodes` rejected results. Вона не виводить account numbers, descriptions, raw payload або інші PII.
+
+Claude Code команда `/hw6-validate-transactions` запускає лише validator у dry-run режимі через `npm run validate:dry`, показує безпечну таблицю validation results і не змінює `shared/results/`.

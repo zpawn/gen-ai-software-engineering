@@ -204,3 +204,23 @@
 - Зміни: уточнено, що `.gitkeep` забезпечують присутність порожніх stage directories у коміті, але чинний `clearPipelineDirectories()` видаляє їх під час наступного повного pipeline run.
 - Файли: `docs/log.md`.
 - Перевірка: `.gitkeep` мають лише один newline і зараз видимі Git; cleanup behavior підтверджено реалізацією `src/infrastructure/file-store.ts` без зміни application code.
+## [2026-08-10] design | Мінімальний дизайн Task 3
+
+- Автор/інструмент: Codex
+- Зміни: За погодженням студента визначено мінімальний обсяг Task 3: префікс `hw6-` для проєктних Claude-команд, ручна безпечна перевірка coverage hook і відкладені фінальні screenshots.
+- Файли: `docs/superpowers/specs/2026-08-10-task-3-skills-hooks-design.md`, `docs/log.md`.
+- Перевірка: Виконано self-review дизайну на placeholders, суперечності, неоднозначність і вихід за межі Task 3.
+
+## [2026-08-10] implement | Prefixed Claude-команди Task 3
+
+- Автор/інструмент: Codex
+- Зміни: Claude-команди `write-spec` і `validate-transactions` перейменовано на `hw6-write-spec` і `hw6-validate-transactions`; активні посилання в README, research notes, specification meta-agent і project skill оновлено. `hw6-run-pipeline` залишено без зміни поведінки.
+- Файли: `.claude/commands/hw6-write-spec.md`, `.claude/commands/hw6-validate-transactions.md`, `.claude/agents/hw6-specification-agent.md`, `.claude/skills/hw6-writing-feature-specifications/SKILL.md`, `README.md`, `docs/research-notes.md`, `docs/superpowers/specs/2026-08-10-task-3-skills-hooks-design.md`, `docs/superpowers/plans/2026-08-10-task-3-skills-hooks.md`, `docs/log.md`; видалено старі unprefixed command paths через filesystem rename.
+- Перевірка: naming check не знайшов project commands або активних user-facing command references без `hw6-`; baseline `npm test` — 67/67 tests passed.
+
+## [2026-08-10] verify | Coverage gate Task 3
+
+- Автор/інструмент: Codex
+- Зміни: без справжнього push перевірено shell syntax, non-push path, чотири Vitest thresholds по 80% і успішний `git push` simulation через stdin hook.
+- Файли: `.claude/hooks/coverage-gate.sh`, `.claude/settings.json`, `vitest.config.ts`, `docs/log.md` — hook/config лише перевірено, без зміни поведінки.
+- Перевірка: simulated push запустив `npm run test:coverage`; 67/67 tests passed, coverage statements 95.6%, branches 91.97%, functions 95.65%, lines 95.91%; `npm run typecheck` і `git diff --check` завершилися з exit code 0; staging, commit і справжній push не виконувалися.
