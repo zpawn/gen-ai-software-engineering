@@ -308,3 +308,10 @@ This is a chronological append-only record of project development. New entries a
 - Changes: verified the complete documentation set and confirmed that documentation edits did not break the TypeScript project.
 - Files: all project-owned Markdown documentation and AI instruction files.
 - Verification: language consistency and stale-policy scans returned no matches; `npm test` passed 87/87 tests; `npm run typecheck` and `git diff --check` completed successfully.
+
+## [2026-08-12] design | REST-configurable file pipeline
+
+- Author/tool: Codex + Superpowers brainstorming + `hw6-writing-feature-specifications`
+- Changes: documented the approved configurable three-step order, deterministic `pipeline-configurator` TypeScript pipeline agent, REST submission gateway around the existing file protocol, dependency-skip behavior, interactive Claude command, and zero-manual-step demo.
+- Files: `docs/specifications/rest-configurable-pipeline.md`, `docs/superpowers/specs/2026-08-12-rest-configurable-pipeline-design.md`, `docs/log.md`.
+- Verification: checked both documents against the approved decisions, the feature template, repository architecture, PII requirements, test isolation rules, and the challenge screenshot; implementation has not started.
