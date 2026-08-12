@@ -12,7 +12,8 @@
     "test:coverage": "vitest run --coverage",
     "pipeline": "tsx src/cli/run-pipeline.ts",
     "validate:dry": "tsx src/cli/validate-transactions.ts",
-    "api": "tsx src/api/server.ts"
+    "api": "tsx src/api/server.ts",
+    "demo": "./demo.sh"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",

@@ -32,7 +32,7 @@ This installs Fastify, Decimal.js, the TypeScript MCP SDK, Vitest, and other loc
 npm run pipeline
 ```
 
-The pipeline reads `sample-transactions.json`, runs the validator, fraud detector, and compliance checker in sequence, writes final results, and creates `shared/results/summary.json`.
+The pipeline reads `sample-transactions.json`, runs the validator, fraud detector, and compliance checker in the canonical order, writes final results, and creates `shared/results/summary.json`.
 
 Expected safe output:
 
@@ -100,13 +100,45 @@ curl http://127.0.0.1:3000/summary
 curl http://127.0.0.1:3000/transactions/TXN001
 ```
 
+Submit transactions through the REST gateway:
+
+```bash
+node --input-type=module -e '
+  import { readFileSync, writeFileSync } from "node:fs";
+  const transactions = JSON.parse(readFileSync("sample-transactions.json", "utf8"));
+  const steps = ["fraud-detector", "transaction-validator", "compliance-checker"];
+  writeFileSync("/tmp/hw6-run.json", JSON.stringify({ steps, transactions }));
+'
+
+curl --fail-with-body \
+  -H "content-type: application/json" \
+  --data-binary @/tmp/hw6-run.json \
+  http://127.0.0.1:3000/pipeline/run
+```
+
+Every request contains all three step names exactly once. A non-logical order is allowed. Missing dependencies produce skipped stage entries and `PIPELINE_DEPENDENCY_MISSING` results.
+
 Stop the server with `Ctrl+C`. Use another port when needed:
 
 ```bash
 PORT=3001 npm run api
 ```
 
-## 7. Use Claude Code Commands
+## 7. Run the Automatic Demo
+
+```bash
+./demo.sh
+```
+
+The script starts the API, waits for health, submits the sample transactions in the canonical order, repeats with a non-logical order, displays a safe result, and stops the server. It has no prompts or manual server steps.
+
+Use another port when needed:
+
+```bash
+PORT=3001 ./demo.sh
+```
+
+## 8. Use Claude Code Commands
 
 Start Claude Code from the repository root:
 
@@ -120,11 +152,12 @@ Available project commands:
 /hw6-run-pipeline
 /hw6-validate-transactions
 /hw6-write-spec <feature-name>
+/hw6-configure-pipeline
 ```
 
-The first command runs the full pipeline and shows a safe summary. The second runs validation only. The third creates a feature specification in `docs/specifications/<feature-slug>.md`.
+The first command runs the canonical pipeline and shows a safe summary. The second runs validation only. The third creates a feature specification in `docs/specifications/<feature-slug>.md`. The fourth asks for the order of all three steps and submits the sample transactions through REST.
 
-## 8. Use MCP Servers
+## 9. Use MCP Servers
 
 The root `.mcp.json` configures `context7` and `pipeline-status`. First create current results:
 
@@ -160,7 +193,7 @@ Read the MCP resource pipeline://summary.
 
 The custom MCP server does not expose raw transactions, account data, explanations, or audit trails.
 
-## 9. Test the Coverage Hook Safely
+## 10. Test the Coverage Hook Safely
 
 The configured hook is a Claude Code `PreToolUse` hook, not a native Git hook. A regular `git push` typed in a separate terminal does not trigger it.
 
@@ -172,7 +205,7 @@ printf '%s' '{"tool_input":{"command":"git push"}}' | CLAUDE_PROJECT_DIR="$PWD" 
 
 The hook runs `npm run test:coverage` and ends with `Coverage gate passed.` when all checks pass.
 
-## 10. Troubleshooting
+## 11. Troubleshooting
 
 ### Unsupported Node.js version
 

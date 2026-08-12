@@ -1,5 +1,5 @@
 import { fileURLToPath } from "node:url";
-import { resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 
 import { buildApp } from "./app.js";
 
@@ -20,15 +20,50 @@ const parsePort = (value: string | undefined): number => {
 export interface ServerOptions {
   host?: string;
   port?: number;
+  sharedRoot?: string;
   resultsDirectory?: string;
 }
+
+export interface ServerPaths {
+  sharedRoot: string;
+  resultsDirectory: string;
+}
+
+export const resolveServerPaths = ({
+  sharedRoot: requestedSharedRoot,
+  resultsDirectory: requestedResultsDirectory,
+}: Pick<ServerOptions, "sharedRoot" | "resultsDirectory">): ServerPaths => {
+  const environmentSharedRoot = process.env.SHARED_ROOT;
+  const environmentResultsDirectory = process.env.RESULTS_DIR;
+  const resultsDirectory =
+    requestedResultsDirectory ?? environmentResultsDirectory;
+  const sharedRoot =
+    requestedSharedRoot ??
+    environmentSharedRoot ??
+    (resultsDirectory === undefined ? resolve("shared") : dirname(resultsDirectory));
+  const canonicalResultsDirectory = join(sharedRoot, "results");
+
+  if (
+    resultsDirectory !== undefined &&
+    resolve(resultsDirectory) !== resolve(canonicalResultsDirectory)
+  ) {
+    throw new Error("Server paths must use the same pipeline results directory.");
+  }
+
+  return {
+    sharedRoot,
+    resultsDirectory: resultsDirectory ?? canonicalResultsDirectory,
+  };
+};
 
 export const startServer = async ({
   host = process.env.HOST ?? DEFAULT_HOST,
   port = parsePort(process.env.PORT),
-  resultsDirectory = process.env.RESULTS_DIR ?? resolve("shared", "results"),
+  sharedRoot,
+  resultsDirectory,
 }: ServerOptions = {}): Promise<void> => {
-  const app = buildApp({ resultsDirectory });
+  const paths = resolveServerPaths({ sharedRoot, resultsDirectory });
+  const app = buildApp(paths);
 
   try {
     await app.listen({ host, port });

@@ -1,3 +1,5 @@
+import type { StageExecution } from "./pipeline-step.js";
+
 export type FinalStatus = "approved" | "review" | "rejected";
 
 export interface AuditEntry {
@@ -16,6 +18,7 @@ export interface PipelineResult {
   riskScore?: number;
   riskFlags?: string[];
   auditTrail: AuditEntry[];
+  stageTrace: StageExecution[];
 }
 
 export interface PipelineSummary {

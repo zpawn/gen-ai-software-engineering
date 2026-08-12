@@ -3,15 +3,15 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import type { FastifyInstance } from "fastify";
-import { afterEach, describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { buildApp } from "../../src/api/app.js";
 
 const transactionResult = {
   transactionId: "TXN-API-001",
   status: "approved" as const,
-  reasonCodes: ["COMPLIANCE_APPROVED"],
-  explanation: "Transaction approved.",
+  reasonCodes: ["RISK_SCORE_BELOW_REVIEW_THRESHOLD"],
+  explanation: "Transaction meets compliance requirements.",
   riskScore: 0,
   riskFlags: [],
   auditTrail: [
@@ -20,7 +20,16 @@ const transactionResult = {
       agent_name: "compliance-checker",
       transaction_id: "TXN-API-001",
       outcome: "approved",
-      reason_codes: ["COMPLIANCE_APPROVED"],
+      reason_codes: ["RISK_SCORE_BELOW_REVIEW_THRESHOLD"],
+    },
+  ],
+  stageTrace: [
+    { step: "transaction-validator", status: "completed", reasonCodes: [] },
+    { step: "fraud-detector", status: "completed", reasonCodes: [] },
+    {
+      step: "compliance-checker",
+      status: "completed",
+      reasonCodes: ["RISK_SCORE_BELOW_REVIEW_THRESHOLD"],
     },
   ],
 };
@@ -61,6 +70,221 @@ afterEach(async () => {
 });
 
 describe("read-only results API", () => {
+  test("submits transactions through the REST gateway and stores file-based results", async () => {
+    const resultsDirectory = await createResultsDirectory();
+    const app = createApp(resultsDirectory);
+    const response = await app.inject({
+      method: "POST",
+      url: "/pipeline/run",
+      payload: {
+        steps: [
+          "transaction-validator",
+          "fraud-detector",
+          "compliance-checker",
+        ],
+        transactions: [
+          {
+            transaction_id: "TXN-REST-001",
+            timestamp: "2026-08-10T09:00:00Z",
+            source_account: "PRIVATE-REST-SOURCE-1001",
+            destination_account: "PRIVATE-REST-DESTINATION-1002",
+            amount: "125.00",
+            currency: "USD",
+            transaction_type: "transfer",
+            description: "Private REST description",
+            metadata: { country: "US" },
+          },
+        ],
+      },
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({
+      summary: { total: 1, approved: 1, review: 0, rejected: 0 },
+    });
+    expect(response.body).not.toContain("PRIVATE-REST-SOURCE-1001");
+    expect(response.body).not.toContain("PRIVATE-REST-DESTINATION-1002");
+    expect(response.body).not.toContain("Private REST description");
+
+    const storedResponse = await app.inject({
+      method: "GET",
+      url: "/transactions/TXN-REST-001",
+    });
+    expect(storedResponse.statusCode).toBe(200);
+    expect(storedResponse.json()).toMatchObject({
+      transactionId: "TXN-REST-001",
+      status: "approved",
+      stageTrace: [
+        { step: "transaction-validator", status: "completed" },
+        { step: "fraud-detector", status: "completed" },
+        { step: "compliance-checker", status: "completed" },
+      ],
+    });
+    expect(storedResponse.body).not.toContain("PRIVATE-REST-SOURCE-1001");
+  });
+
+  test("rejects duplicate pipeline steps before clearing stored results", async () => {
+    const resultsDirectory = await createResultsDirectory();
+    const sentinelPath = join(resultsDirectory, "sentinel.json");
+    await writeFile(sentinelPath, '{"preserved":true}', "utf8");
+    const response = await createApp(resultsDirectory).inject({
+      method: "POST",
+      url: "/pipeline/run",
+      payload: {
+        steps: [
+          "transaction-validator",
+          "fraud-detector",
+          "fraud-detector",
+        ],
+        transactions: [],
+      },
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.json()).toEqual({
+      code: "INVALID_PIPELINE_STEPS",
+      message: "Pipeline steps must contain every supported step exactly once.",
+    });
+    await expect(
+      import("node:fs/promises").then(({ readFile }) =>
+        readFile(sentinelPath, "utf8"),
+      ),
+    ).resolves.toBe('{"preserved":true}');
+  });
+
+  test("returns the pipeline-step error for an unknown step name", async () => {
+    const resultsDirectory = await createResultsDirectory();
+    const response = await createApp(resultsDirectory).inject({
+      method: "POST",
+      url: "/pipeline/run",
+      payload: {
+        steps: [
+          "transaction-validator",
+          "fraud-detector",
+          "private-account-reader",
+        ],
+        transactions: [],
+      },
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.json()).toEqual({
+      code: "INVALID_PIPELINE_STEPS",
+      message: "Pipeline steps must contain every supported step exactly once.",
+    });
+  });
+
+  test("returns a controlled request error for a malformed POST body", async () => {
+    const resultsDirectory = await createResultsDirectory();
+    const privateMarker = "PRIVATE-BODY-MARKER-MUST-NOT-LEAK";
+    const response = await createApp(resultsDirectory).inject({
+      method: "POST",
+      url: "/pipeline/run",
+      payload: {
+        steps: [
+          "transaction-validator",
+          "fraud-detector",
+          "compliance-checker",
+        ],
+        unexpectedPrivateField: privateMarker,
+      },
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.json()).toEqual({
+      code: "INVALID_PIPELINE_REQUEST",
+      message: "Pipeline run request is invalid.",
+    });
+    expect(response.body).not.toContain(privateMarker);
+  });
+
+  test("returns a controlled system error when pipeline execution fails", async () => {
+    const resultsDirectory = await createResultsDirectory();
+    const privateMarker = "PRIVATE-RUNNER-FAILURE-MUST-NOT-LEAK";
+    const app = buildApp({
+      resultsDirectory,
+      pipelineRunner: async () => {
+        throw new Error(privateMarker);
+      },
+    });
+    appInstances.push(app);
+
+    const response = await app.inject({
+      method: "POST",
+      url: "/pipeline/run",
+      payload: {
+        steps: [
+          "transaction-validator",
+          "fraud-detector",
+          "compliance-checker",
+        ],
+        transactions: [],
+      },
+    });
+
+    expect(response.statusCode).toBe(500);
+    expect(response.json()).toEqual({
+      code: "PIPELINE_SYSTEM_ERROR",
+      message: "Pipeline execution failed.",
+    });
+    expect(response.body).not.toContain(privateMarker);
+  });
+
+  test("rejects an overlapping run and releases the lock after completion", async () => {
+    const resultsDirectory = await createResultsDirectory();
+    const summary = { total: 0, approved: 0, review: 0, rejected: 0 };
+    let resolveFirstRun: ((value: typeof summary) => void) | undefined;
+    let callCount = 0;
+    const pipelineRunner = vi.fn(async () => {
+      callCount += 1;
+      if (callCount === 1) {
+        return new Promise<typeof summary>((resolve) => {
+          resolveFirstRun = resolve;
+        });
+      }
+
+      return summary;
+    });
+    const app = buildApp({ resultsDirectory, pipelineRunner });
+    appInstances.push(app);
+    const payload = {
+      steps: [
+        "transaction-validator",
+        "fraud-detector",
+        "compliance-checker",
+      ],
+      transactions: [],
+    };
+
+    const firstResponsePromise = app.inject({
+      method: "POST",
+      url: "/pipeline/run",
+      payload,
+    });
+    await vi.waitFor(() => expect(resolveFirstRun).toBeTypeOf("function"));
+
+    const overlappingResponse = await app.inject({
+      method: "POST",
+      url: "/pipeline/run",
+      payload,
+    });
+    expect(overlappingResponse.statusCode).toBe(409);
+    expect(overlappingResponse.json()).toEqual({
+      code: "PIPELINE_BUSY",
+      message: "A pipeline run is already in progress.",
+    });
+
+    resolveFirstRun?.(summary);
+    expect((await firstResponsePromise).statusCode).toBe(200);
+
+    const laterResponse = await app.inject({
+      method: "POST",
+      url: "/pipeline/run",
+      payload,
+    });
+    expect(laterResponse.statusCode).toBe(200);
+  });
+
   test("returns an operational health response without reading pipeline results", async () => {
     const resultsDirectory = await createResultsDirectory();
     const response = await createApp(resultsDirectory).inject({

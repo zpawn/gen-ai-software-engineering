@@ -138,3 +138,26 @@ This file is a timeline of Context7 queries actually executed. Each record conta
 - **Why selected:** Context7 has not yet indexed the release-specific ID v1.30.0, so the official up-to-date v1.x branch documentation is selected.
 - **Key insight:** `McpServer`, `registerTool`, `registerResource` and stdio remain supported v1.x APIs for local process-spawned integrations.
 - **Applied:** production dependency updated to `@modelcontextprotocol/sdk` 1.30.0; compatible transitive `@hono/node-server` updated to 2.1.0 after audit advisory, no API changes in MCP layer.
+
+## [2026-08-12] Query 19 | Fastify 5 typed POST schemas
+
+- **Search:** `Fastify 5 TypeScript define a POST route with a typed request body and JSON Schema response schemas for multiple HTTP status codes.`
+- **Selected Context7 library ID:** `/fastify/fastify`
+- **Why selected:** official Fastify repository documentation, high source reputation, exact framework match.
+- **Key insight:** Fastify route generics type `Body` and `Reply`, response schemas are keyed by status code, and Fastify 5 requires a full JSON Schema with `type: "object"` for request bodies.
+- **Applied:** `POST /pipeline/run` will use typed body/reply contracts and full schemas for the request and 200/400/409/500 responses.
+
+## [2026-08-12] Query 20 | Async POST testing with Fastify inject
+
+- **Search:** `Fastify 5 test an asynchronous POST route with fastify.inject including JSON request payload and status response assertions.`
+- **Selected Context7 library ID:** `/fastify/fastify`
+- **Key insight:** the promisified `fastify.inject()` accepts a JSON `payload`, awaits an async handler without opening a port, and returns status/body for direct assertions; the app should be closed after tests.
+- **Applied:** REST gateway tests will inject transaction batches, assert safe status-specific replies, and close every app instance in `afterEach`.
+
+## [2026-08-13] Query 21 | Reveal.js offline presentation structure
+
+- **Search:** `Official setup patterns for initializing Reveal.js from HTML, using speaker notes, keyboard navigation, slide numbers, progress, and PDF print layout.`
+- **Selected Context7 library ID:** `/hakimel/reveal.js`
+- **Why selected:** official Reveal.js repository, high source reputation, exact framework requested for the classroom presentation.
+- **Key insight:** a deck uses `.reveal > .slides > section`, initializes navigation and progress through `Reveal.initialize(...)`, and stores speaker notes in `<aside class="notes">` elements.
+- **Applied:** `presentation.html` inlines the official Reveal.js 6.0.1 browser distribution, uses eight top-level sections, enables controls/progress/hash/slide numbers, and includes Ukrainian speaker notes without external assets.

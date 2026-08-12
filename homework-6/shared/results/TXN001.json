@@ -1,34 +1,37 @@
 {
   "transactionId": "TXN001",
-  "status": "approved",
+  "status": "rejected",
   "reasonCodes": [
-    "RISK_SCORE_BELOW_REVIEW_THRESHOLD"
+    "PIPELINE_DEPENDENCY_MISSING"
   ],
-  "explanation": "Transaction meets compliance requirements.",
-  "riskScore": 0,
-  "riskFlags": [],
+  "explanation": "Pipeline step dependencies were not satisfied.",
   "auditTrail": [
     {
-      "timestamp": "2026-08-10T07:47:33.091Z",
+      "timestamp": "2026-08-12T22:37:32.193Z",
       "agent_name": "transaction-validator",
       "transaction_id": "TXN001",
       "outcome": "validated",
       "reason_codes": []
+    }
+  ],
+  "stageTrace": [
+    {
+      "step": "fraud-detector",
+      "status": "skipped",
+      "reasonCodes": [
+        "MISSING_VALIDATED_TRANSACTION"
+      ]
     },
     {
-      "timestamp": "2026-08-10T07:47:33.091Z",
-      "agent_name": "fraud-detector",
-      "transaction_id": "TXN001",
-      "outcome": "assessed",
-      "reason_codes": []
+      "step": "transaction-validator",
+      "status": "completed",
+      "reasonCodes": []
     },
     {
-      "timestamp": "2026-08-10T07:47:33.092Z",
-      "agent_name": "compliance-checker",
-      "transaction_id": "TXN001",
-      "outcome": "approved",
-      "reason_codes": [
-        "RISK_SCORE_BELOW_REVIEW_THRESHOLD"
+      "step": "compliance-checker",
+      "status": "skipped",
+      "reasonCodes": [
+        "MISSING_FRAUD_ASSESSMENT"
       ]
     }
   ]

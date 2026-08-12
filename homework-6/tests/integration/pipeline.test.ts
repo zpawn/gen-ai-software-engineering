@@ -1,4 +1,4 @@
-import { mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, relative } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -6,6 +6,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import * as complianceChecker from "../../src/agents/compliance-checker.js";
 import * as fraudDetector from "../../src/agents/fraud-detector.js";
 import type { PipelineConfig } from "../../src/config/pipeline-config.js";
+import type { PipelineStep } from "../../src/domain/pipeline-step.js";
 import { runPipeline, type PipelineOptions } from "../../src/integrator.js";
 import { readTransactionResult } from "../../src/infrastructure/results-repository.js";
 
@@ -57,6 +58,12 @@ const config: PipelineConfig = {
   reviewThreshold: 50,
 };
 
+const canonicalSteps: readonly PipelineStep[] = [
+  "transaction-validator",
+  "fraud-detector",
+  "compliance-checker",
+];
+
 const transaction = (overrides: Record<string, unknown> = {}) => ({
   transaction_id: "TXN-APPROVED",
   timestamp: "2026-08-10T09:00:00Z",
@@ -90,6 +97,7 @@ const writeInput = async (
 
 const optionsFor = (inputFile: string, sharedRoot: string): PipelineOptions => ({
   inputFile,
+  steps: canonicalSteps,
   sharedRoot,
   config,
   now: () => "2026-08-10T12:00:00.000Z",
@@ -117,6 +125,99 @@ afterEach(async () => {
 });
 
 describe("runPipeline", () => {
+  it("accepts REST-provided records without reading an input file", async () => {
+    const root = await createTemporaryDirectory();
+    const sharedRoot = join(root, "shared");
+
+    await expect(
+      runPipeline({
+        transactions: [transaction({ transaction_id: "TXN-REST-INPUT" })],
+        steps: canonicalSteps,
+        sharedRoot,
+        config,
+      }),
+    ).resolves.toEqual({ total: 1, approved: 1, review: 0, rejected: 0 });
+
+    const restResult = JSON.parse(
+      await readFile(join(sharedRoot, "results", "TXN-REST-INPUT.json"), "utf8"),
+    ) as unknown;
+    expect(restResult).toMatchObject({
+      transactionId: "TXN-REST-INPUT",
+      status: "approved",
+    });
+  });
+
+  it("runs a non-logical order and rejects safely when dependencies are missing", async () => {
+    const root = await createTemporaryDirectory();
+    const sharedRoot = join(root, "shared");
+
+    await expect(
+      runPipeline({
+        transactions: [transaction({ transaction_id: "TXN-REORDERED" })],
+        steps: [
+          "fraud-detector",
+          "transaction-validator",
+          "compliance-checker",
+        ],
+        sharedRoot,
+        config,
+      }),
+    ).resolves.toEqual({ total: 1, approved: 0, review: 0, rejected: 1 });
+
+    const reorderedResult = JSON.parse(
+      await readFile(join(sharedRoot, "results", "TXN-REORDERED.json"), "utf8"),
+    ) as unknown;
+    expect(reorderedResult).toMatchObject({
+      transactionId: "TXN-REORDERED",
+      status: "rejected",
+      reasonCodes: ["PIPELINE_DEPENDENCY_MISSING"],
+      stageTrace: [
+        {
+          step: "fraud-detector",
+          status: "skipped",
+          reasonCodes: ["MISSING_VALIDATED_TRANSACTION"],
+        },
+        {
+          step: "transaction-validator",
+          status: "completed",
+          reasonCodes: [],
+        },
+        {
+          step: "compliance-checker",
+          status: "skipped",
+          reasonCodes: ["MISSING_FRAUD_ASSESSMENT"],
+        },
+      ],
+    });
+  });
+
+  it("rejects invalid steps before clearing previous results", async () => {
+    const root = await createTemporaryDirectory();
+    const sharedRoot = join(root, "shared");
+    const resultsDirectory = join(sharedRoot, "results");
+    const sentinelPath = join(resultsDirectory, "sentinel.json");
+    await mkdir(resultsDirectory, { recursive: true });
+    await writeFile(sentinelPath, '{"preserved":true}', "utf8");
+
+    const error = await systemErrorFrom(
+      runPipeline({
+        transactions: [transaction()],
+        steps: [
+          "transaction-validator",
+          "fraud-detector",
+          "fraud-detector",
+        ],
+        sharedRoot,
+        config,
+      }),
+    );
+
+    expect(error).toMatchObject({ code: "INVALID_PIPELINE_STEPS" });
+    await expect(readFile(sentinelPath, "utf8")).resolves.toBe(
+      '{"preserved":true}',
+    );
+  });
+
   it("orchestrates every record sequentially and persists only safe final outcomes", async () => {
     const root = await createTemporaryDirectory();
     const sharedRoot = join(root, "shared");
@@ -152,6 +253,10 @@ describe("runPipeline", () => {
       "message-6",
       "message-7",
       "message-8",
+      "message-9",
+      "message-10",
+      "message-11",
+      "message-12",
     ]);
     expect(nowCallCount).toBeGreaterThanOrEqual(createdMessageIds.length);
     expect(fraudDetector.assessFraudRisk).toHaveBeenCalledTimes(2);
@@ -242,11 +347,39 @@ describe("runPipeline", () => {
         targetAgent: "transaction-validator",
       },
       {
-        path: "input/record-3.json",
+        path: "processing/record-2.json",
         messageId: "message-8",
+        timestamp: "2026-08-10T12:00:00.000Z",
+        sourceAgent: "transaction-validator",
+        targetAgent: "fraud-detector",
+      },
+      {
+        path: "output/record-2.json",
+        messageId: "message-9",
+        timestamp: "2026-08-10T12:00:00.000Z",
+        sourceAgent: "fraud-detector",
+        targetAgent: "compliance-checker",
+      },
+      {
+        path: "input/record-3.json",
+        messageId: "message-10",
         timestamp: "2026-08-10T12:00:00.000Z",
         sourceAgent: "integrator",
         targetAgent: "transaction-validator",
+      },
+      {
+        path: "processing/record-3.json",
+        messageId: "message-11",
+        timestamp: "2026-08-10T12:00:00.000Z",
+        sourceAgent: "transaction-validator",
+        targetAgent: "fraud-detector",
+      },
+      {
+        path: "output/record-3.json",
+        messageId: "message-12",
+        timestamp: "2026-08-10T12:00:00.000Z",
+        sourceAgent: "fraud-detector",
+        targetAgent: "compliance-checker",
       },
     ]);
 

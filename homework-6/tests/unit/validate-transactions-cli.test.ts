@@ -175,6 +175,11 @@ describe("pipeline CLI helpers", () => {
 
     const output = await runPipelineFromOptions({
       inputFile,
+      steps: [
+        "transaction-validator",
+        "fraud-detector",
+        "compliance-checker",
+      ],
       sharedRoot: join(root, "shared"),
       config: DEFAULT_PIPELINE_CONFIG,
       now: () => "2026-08-10T12:00:00.000Z",

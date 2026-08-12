@@ -4,24 +4,32 @@ import { fileURLToPath } from "node:url";
 
 import {
   DEFAULT_PIPELINE_CONFIG,
-  type PipelineConfig,
 } from "../config/pipeline-config.js";
 import type { PipelineResult, PipelineSummary } from "../domain/pipeline-result.js";
+import type { PipelineStep } from "../domain/pipeline-step.js";
 import { runPipeline, type PipelineOptions } from "../integrator.js";
 import { readJson } from "../infrastructure/file-store.js";
 import type { RejectedTransaction } from "./validate-transactions.js";
 
-export interface PipelineCliOptions extends PipelineOptions {
-  config: PipelineConfig;
-}
+export type PipelineCliOptions = Extract<
+  PipelineOptions,
+  { inputFile: string }
+>;
 
 const repositoryRoot = (): string =>
   dirname(dirname(dirname(fileURLToPath(import.meta.url))));
+
+const DEFAULT_PIPELINE_STEPS: readonly PipelineStep[] = [
+  "transaction-validator",
+  "fraud-detector",
+  "compliance-checker",
+];
 
 export const createDefaultPipelineOptions = (): PipelineCliOptions => {
   const root = repositoryRoot();
   return {
     inputFile: join(root, "sample-transactions.json"),
+    steps: DEFAULT_PIPELINE_STEPS,
     sharedRoot: join(root, "shared"),
     config: DEFAULT_PIPELINE_CONFIG,
   };
