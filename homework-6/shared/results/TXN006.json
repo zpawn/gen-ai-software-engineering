@@ -1,0 +1,19 @@
+{
+  "transactionId": "TXN006",
+  "status": "rejected",
+  "reasonCodes": [
+    "UNSUPPORTED_CURRENCY"
+  ],
+  "explanation": "Transaction failed validation.",
+  "auditTrail": [
+    {
+      "timestamp": "2026-08-10T07:47:33.097Z",
+      "agent_name": "transaction-validator",
+      "transaction_id": "TXN006",
+      "outcome": "rejected",
+      "reason_codes": [
+        "UNSUPPORTED_CURRENCY"
+      ]
+    }
+  ]
+}

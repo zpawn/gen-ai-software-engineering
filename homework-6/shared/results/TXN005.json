@@ -1,0 +1,39 @@
+{
+  "transactionId": "TXN005",
+  "status": "review",
+  "reasonCodes": [
+    "RISK_SCORE_AT_OR_ABOVE_REVIEW_THRESHOLD"
+  ],
+  "explanation": "Transaction requires compliance review due to elevated risk.",
+  "riskScore": 50,
+  "riskFlags": [
+    "HIGH_VALUE"
+  ],
+  "auditTrail": [
+    {
+      "timestamp": "2026-08-10T07:47:33.096Z",
+      "agent_name": "transaction-validator",
+      "transaction_id": "TXN005",
+      "outcome": "validated",
+      "reason_codes": []
+    },
+    {
+      "timestamp": "2026-08-10T07:47:33.096Z",
+      "agent_name": "fraud-detector",
+      "transaction_id": "TXN005",
+      "outcome": "assessed",
+      "reason_codes": [
+        "HIGH_VALUE"
+      ]
+    },
+    {
+      "timestamp": "2026-08-10T07:47:33.097Z",
+      "agent_name": "compliance-checker",
+      "transaction_id": "TXN005",
+      "outcome": "review",
+      "reason_codes": [
+        "RISK_SCORE_AT_OR_ABOVE_REVIEW_THRESHOLD"
+      ]
+    }
+  ]
+}

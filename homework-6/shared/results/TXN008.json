@@ -1,0 +1,35 @@
+{
+  "transactionId": "TXN008",
+  "status": "approved",
+  "reasonCodes": [
+    "RISK_SCORE_BELOW_REVIEW_THRESHOLD"
+  ],
+  "explanation": "Transaction meets compliance requirements.",
+  "riskScore": 0,
+  "riskFlags": [],
+  "auditTrail": [
+    {
+      "timestamp": "2026-08-10T07:47:33.098Z",
+      "agent_name": "transaction-validator",
+      "transaction_id": "TXN008",
+      "outcome": "validated",
+      "reason_codes": []
+    },
+    {
+      "timestamp": "2026-08-10T07:47:33.098Z",
+      "agent_name": "fraud-detector",
+      "transaction_id": "TXN008",
+      "outcome": "assessed",
+      "reason_codes": []
+    },
+    {
+      "timestamp": "2026-08-10T07:47:33.099Z",
+      "agent_name": "compliance-checker",
+      "transaction_id": "TXN008",
+      "outcome": "approved",
+      "reason_codes": [
+        "RISK_SCORE_BELOW_REVIEW_THRESHOLD"
+      ]
+    }
+  ]
+}

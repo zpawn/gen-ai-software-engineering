@@ -1,0 +1,30 @@
+{
+  "name": "hw6-transaction-pipeline",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "pipeline": "tsx src/cli/run-pipeline.ts",
+    "validate:dry": "tsx src/cli/validate-transactions.ts",
+    "api": "tsx src/api/server.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "decimal.js": "^10.6.0",
+    "fastify": "^5.11.3",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.3",
+    "@vitest/coverage-v8": "^4.0.7",
+    "tsx": "^4.20.3",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.10"
+  }
+}
