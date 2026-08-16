@@ -2,6 +2,7 @@ import type {
   PipelineResult,
   PipelineSummary,
 } from "../domain/pipeline-result.js";
+import { PIPELINE_STEPS } from "../domain/pipeline-step.js";
 import { join } from "node:path";
 
 import { readJson } from "./file-store.js";
@@ -64,17 +65,41 @@ const ALLOWED_RESULT_CODES = new Set([
   "RISK_SCORE_BELOW_REVIEW_THRESHOLD",
   "RISK_SCORE_AT_OR_ABOVE_REVIEW_THRESHOLD",
   "COMPLIANCE_APPROVED",
+  "MISSING_VALIDATED_TRANSACTION",
+  "MISSING_FRAUD_ASSESSMENT",
+  "PIPELINE_DEPENDENCY_MISSING",
 ]);
 
 const isAllowedCodeArray = (value: unknown): value is string[] =>
   isStringArray(value) && value.every((code) => ALLOWED_RESULT_CODES.has(code));
+
+const ALLOWED_EXPLANATIONS = new Set([
+  "Transaction failed validation.",
+  "Pipeline step dependencies were not satisfied.",
+  "Transaction meets compliance requirements.",
+  "Transaction requires compliance review due to elevated risk.",
+]);
+
+const ALLOWED_AUDIT_AGENTS = new Set([
+  "transaction-validator",
+  "fraud-detector",
+  "compliance-checker",
+]);
+
+const ALLOWED_AUDIT_OUTCOMES = new Set([
+  "validated",
+  "assessed",
+  "approved",
+  "review",
+  "rejected",
+]);
 
 const hasOnlyKeys = (
   record: Record<string, unknown>,
   allowedKeys: readonly string[],
 ): boolean => Object.keys(record).every((key) => allowedKeys.includes(key));
 
-const isAuditEntry = (value: unknown): boolean =>
+const isAuditEntry = (value: unknown, transactionId: string): boolean =>
   isRecord(value) &&
   hasOnlyKeys(value, [
     "timestamp",
@@ -85,9 +110,33 @@ const isAuditEntry = (value: unknown): boolean =>
   ]) &&
   typeof value.timestamp === "string" &&
   typeof value.agent_name === "string" &&
-  typeof value.transaction_id === "string" &&
+  ALLOWED_AUDIT_AGENTS.has(value.agent_name) &&
+  value.transaction_id === transactionId &&
   typeof value.outcome === "string" &&
+  ALLOWED_AUDIT_OUTCOMES.has(value.outcome) &&
   isAllowedCodeArray(value.reason_codes);
+
+const isStageExecution = (value: unknown): boolean =>
+  isRecord(value) &&
+  hasOnlyKeys(value, ["step", "status", "reasonCodes"]) &&
+  typeof value.step === "string" &&
+  PIPELINE_STEPS.includes(value.step as (typeof PIPELINE_STEPS)[number]) &&
+  (value.status === "completed" || value.status === "skipped") &&
+  isAllowedCodeArray(value.reasonCodes);
+
+const isStageTrace = (value: unknown): boolean => {
+  if (!Array.isArray(value) || value.length !== PIPELINE_STEPS.length) {
+    return false;
+  }
+
+  if (!value.every(isStageExecution)) {
+    return false;
+  }
+
+  return new Set(
+    value.map((execution) => (execution as { step: string }).step),
+  ).size === PIPELINE_STEPS.length;
+};
 
 const isPipelineResult = (value: unknown): value is PipelineResult => {
   if (
@@ -100,13 +149,16 @@ const isPipelineResult = (value: unknown): value is PipelineResult => {
       "riskScore",
       "riskFlags",
       "auditTrail",
+      "stageTrace",
     ]) ||
     typeof value.transactionId !== "string" ||
     !["approved", "review", "rejected"].includes(String(value.status)) ||
     !isAllowedCodeArray(value.reasonCodes) ||
     typeof value.explanation !== "string" ||
+    !ALLOWED_EXPLANATIONS.has(value.explanation) ||
     !Array.isArray(value.auditTrail) ||
-    !value.auditTrail.every(isAuditEntry)
+    !value.auditTrail.every((entry) => isAuditEntry(entry, value.transactionId as string)) ||
+    !isStageTrace(value.stageTrace)
   ) {
     return false;
   }

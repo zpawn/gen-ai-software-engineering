@@ -30,7 +30,7 @@ const writeResult = async (
       transactionId,
       status: "review",
       reasonCodes: ["HIGH_VALUE"],
-      explanation: "PRIVATE-EXPLANATION-MARKER",
+      explanation: "Transaction requires compliance review due to elevated risk.",
       riskScore: 50,
       riskFlags: ["HIGH_VALUE"],
       auditTrail: [
@@ -40,6 +40,19 @@ const writeResult = async (
           transaction_id: transactionId,
           outcome: "review",
           reason_codes: ["HIGH_VALUE"],
+        },
+      ],
+      stageTrace: [
+        { step: "transaction-validator", status: "completed", reasonCodes: [] },
+        {
+          step: "fraud-detector",
+          status: "completed",
+          reasonCodes: ["HIGH_VALUE"],
+        },
+        {
+          step: "compliance-checker",
+          status: "completed",
+          reasonCodes: ["RISK_SCORE_AT_OR_ABOVE_REVIEW_THRESHOLD"],
         },
       ],
       ...overrides,
@@ -69,7 +82,9 @@ describe("MCP handlers", () => {
       riskScore: 50,
       riskFlags: ["HIGH_VALUE"],
     });
-    expect(JSON.stringify(status)).not.toContain("PRIVATE-EXPLANATION-MARKER");
+    expect(JSON.stringify(status)).not.toContain(
+      "Transaction requires compliance review due to elevated risk.",
+    );
     expect(status).not.toHaveProperty("explanation");
     expect(status).not.toHaveProperty("auditTrail");
   });

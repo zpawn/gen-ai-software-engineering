@@ -49,7 +49,8 @@ A deterministic runtime module without an LLM:
 
 - `transaction-validator`;
 - `fraud-detector`;
-- `compliance-checker`.
+- `compliance-checker`;
+- `pipeline-configurator` — validates the requested runtime order.
 
 AI meta-agents build and verify the system. TypeScript pipeline agents process transactions. Claude Code can run the pipeline, but it does not replace business logic.
 
@@ -71,16 +72,20 @@ Write all project documentation in B1+ English. File names, API names, identifie
 
 Use Fastify only for a network/API or integration layer when needed. The CLI transaction pipeline must not depend on HTTP. SQLite/Drizzle do not replace the required JSON files in `shared/`.
 
+Fastify is also the REST gateway around the file-based pipeline. It accepts transactions and a step order through HTTP, while TypeScript pipeline agents continue to exchange JSON stage messages through `shared/`.
+
 ## Runtime Protocol
 
 The integrator must:
 
 1. Create `shared/input`, `shared/processing`, `shared/output`, and `shared/results`.
-2. Load all records from `sample-transactions.json`.
+2. Load records from `sample-transactions.json` for CLI runs or accept a transaction array from the REST gateway.
 3. Wrap each transaction in the standard JSON message envelope.
-4. Pass it in sequence through the validator, fraud detector, and compliance checker.
-5. Write a final outcome for every input transaction to `shared/results/`, including rejected transactions.
-6. Create a pipeline summary report.
+4. Ask `pipeline-configurator` to validate an order that contains the validator, fraud detector, and compliance checker exactly once.
+5. Run all three steps in the configured order, including non-logical orders.
+6. Mark a step as skipped when required state is missing, continue the run, and reject the final result with a machine-readable dependency reason.
+7. Write a final outcome for every input transaction to `shared/results/`, including rejected transactions.
+8. Create a pipeline summary report.
 
 For one transaction, pipeline stages run in sequence. Asynchronous file operations are allowed, but they must not break the dependency on the previous stage result.
 

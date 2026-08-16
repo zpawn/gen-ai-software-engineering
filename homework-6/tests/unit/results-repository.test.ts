@@ -47,6 +47,23 @@ describe("results repository", () => {
             reason_codes: ["HIGH_VALUE"],
           },
         ],
+        stageTrace: [
+          {
+            step: "transaction-validator",
+            status: "completed",
+            reasonCodes: [],
+          },
+          {
+            step: "fraud-detector",
+            status: "completed",
+            reasonCodes: ["HIGH_VALUE"],
+          },
+          {
+            step: "compliance-checker",
+            status: "completed",
+            reasonCodes: ["RISK_SCORE_AT_OR_ABOVE_REVIEW_THRESHOLD"],
+          },
+        ],
       }),
     );
 
@@ -66,6 +83,23 @@ describe("results repository", () => {
           transaction_id: "TXN-RESULT-001",
           outcome: "review",
           reason_codes: ["HIGH_VALUE"],
+        },
+      ],
+      stageTrace: [
+        {
+          step: "transaction-validator",
+          status: "completed",
+          reasonCodes: [],
+        },
+        {
+          step: "fraud-detector",
+          status: "completed",
+          reasonCodes: ["HIGH_VALUE"],
+        },
+        {
+          step: "compliance-checker",
+          status: "completed",
+          reasonCodes: ["RISK_SCORE_AT_OR_ABOVE_REVIEW_THRESHOLD"],
         },
       ],
     });
@@ -142,6 +176,79 @@ describe("results repository", () => {
       code: "RESULTS_READ_ERROR",
       message: "Unable to read pipeline results.",
     });
+  });
+
+  it("rejects a stored result without the required three-step trace", async () => {
+    const resultsDirectory = await createResultsDirectory();
+    await writeFile(
+      join(resultsDirectory, "TXN-MISSING-TRACE.json"),
+      JSON.stringify({
+        transactionId: "TXN-MISSING-TRACE",
+        status: "approved",
+        reasonCodes: ["RISK_SCORE_BELOW_REVIEW_THRESHOLD"],
+        explanation: "Transaction meets compliance requirements.",
+        riskScore: 0,
+        riskFlags: [],
+        auditTrail: [],
+      }),
+    );
+
+    await expect(
+      readTransactionResult(resultsDirectory, "TXN-MISSING-TRACE"),
+    ).rejects.toMatchObject({ code: "RESULTS_READ_ERROR" });
+  });
+
+  it.each([
+    [
+      "a private explanation",
+      {
+        explanation: "Approved for PRIVATE ACCOUNT 123456789",
+      },
+    ],
+    [
+      "a private audit field",
+      {
+        auditTrail: [
+          {
+            timestamp: "2026-08-10T12:00:00.000Z",
+            agent_name: "PRIVATE PERSON",
+            transaction_id: "TXN-PRIVATE-STORED-FIELD",
+            outcome: "approved",
+            reason_codes: ["RISK_SCORE_BELOW_REVIEW_THRESHOLD"],
+          },
+        ],
+      },
+    ],
+  ])("rejects %s", async (_description, override) => {
+    const resultsDirectory = await createResultsDirectory();
+    const transactionId = "TXN-PRIVATE-STORED-FIELD";
+    const value = {
+      transactionId,
+      status: "approved",
+      reasonCodes: ["RISK_SCORE_BELOW_REVIEW_THRESHOLD"],
+      explanation: "Transaction meets compliance requirements.",
+      riskScore: 0,
+      riskFlags: [],
+      auditTrail: [],
+      stageTrace: [
+        { step: "transaction-validator", status: "completed", reasonCodes: [] },
+        { step: "fraud-detector", status: "completed", reasonCodes: [] },
+        {
+          step: "compliance-checker",
+          status: "completed",
+          reasonCodes: ["RISK_SCORE_BELOW_REVIEW_THRESHOLD"],
+        },
+      ],
+      ...override,
+    };
+    await writeFile(
+      join(resultsDirectory, `${transactionId}.json`),
+      JSON.stringify(value),
+    );
+
+    await expect(
+      readTransactionResult(resultsDirectory, transactionId),
+    ).rejects.toMatchObject({ code: "RESULTS_READ_ERROR" });
   });
 
   it("rejects a result whose stored transaction ID does not match the requested file", async () => {
@@ -244,6 +351,67 @@ describe("results repository", () => {
             agent_name: "compliance-checker",
             transaction_id: "TXN-INVALID-AUDIT",
             outcome: "approved",
+          },
+        ],
+      },
+    ],
+    [
+      "an unknown pipeline step in the stage trace",
+      {
+        transactionId: "TXN-INVALID-TRACE-STEP",
+        status: "rejected",
+        reasonCodes: ["PIPELINE_DEPENDENCY_MISSING"],
+        explanation: "Pipeline step dependencies were not satisfied.",
+        auditTrail: [],
+        stageTrace: [
+          {
+            step: "private-account-reader",
+            status: "skipped",
+            reasonCodes: ["MISSING_VALIDATED_TRANSACTION"],
+          },
+        ],
+      },
+    ],
+    [
+      "a duplicate pipeline step in the stage trace",
+      {
+        transactionId: "TXN-INVALID-TRACE-DUPLICATE",
+        status: "rejected",
+        reasonCodes: ["PIPELINE_DEPENDENCY_MISSING"],
+        explanation: "Pipeline step dependencies were not satisfied.",
+        auditTrail: [],
+        stageTrace: [
+          {
+            step: "transaction-validator",
+            status: "completed",
+            reasonCodes: [],
+          },
+          {
+            step: "fraud-detector",
+            status: "skipped",
+            reasonCodes: ["MISSING_VALIDATED_TRANSACTION"],
+          },
+          {
+            step: "fraud-detector",
+            status: "skipped",
+            reasonCodes: ["MISSING_VALIDATED_TRANSACTION"],
+          },
+        ],
+      },
+    ],
+    [
+      "a private marker in a stage trace reason",
+      {
+        transactionId: "TXN-INVALID-TRACE-REASON",
+        status: "rejected",
+        reasonCodes: ["PIPELINE_DEPENDENCY_MISSING"],
+        explanation: "Pipeline step dependencies were not satisfied.",
+        auditTrail: [],
+        stageTrace: [
+          {
+            step: "transaction-validator",
+            status: "skipped",
+            reasonCodes: ["ACCOUNT: 123456789"],
           },
         ],
       },

@@ -315,3 +315,66 @@ This is a chronological append-only record of project development. New entries a
 - Changes: documented the approved configurable three-step order, deterministic `pipeline-configurator` TypeScript pipeline agent, REST submission gateway around the existing file protocol, dependency-skip behavior, interactive Claude command, and zero-manual-step demo.
 - Files: `docs/specifications/rest-configurable-pipeline.md`, `docs/superpowers/specs/2026-08-12-rest-configurable-pipeline-design.md`, `docs/log.md`.
 - Verification: checked both documents against the approved decisions, the feature template, repository architecture, PII requirements, test isolation rules, and the challenge screenshot; implementation has not started.
+
+## [2026-08-12] design | REST-configurable pipeline implementation plan
+
+- Author/tool: Codex + Superpowers writing-plans
+- Changes: created a TDD implementation plan for the pipeline configurator, registry-based file orchestration, safe stored result contract, Fastify submission gateway, interactive Claude command, automatic demo, documentation, and full verification.
+- Files: `docs/superpowers/plans/2026-08-12-rest-configurable-pipeline.md`, `docs/log.md`.
+- Verification: self-reviewed the plan for feature-spec coverage, exact file/interface names, TDD ordering, placeholders, type consistency, PII boundaries, Context7 work, and repository Git policy; implementation has not started.
+
+## [2026-08-12] research | Fastify REST submission gateway
+
+- Author/tool: Codex + Context7
+- Changes: researched Fastify 5 full body/response schemas, typed POST routes, and asynchronous `inject()` testing before implementing the REST gateway.
+- Files: `docs/research-notes.md`, `docs/log.md`.
+- Verification: Context7 resolved official library ID `/fastify/fastify`; queries 19 and 20 were recorded with their actual application.
+
+## [2026-08-12] implement | Configurable file pipeline and REST gateway
+
+- Author/tool: Codex + Superpowers TDD
+- Changes: added the `pipeline-configurator` TypeScript pipeline agent, exact three-step order validation, registry-based ordinal file processing, safe dependency skips and stage traces, REST batch submission with a concurrency guard, interactive Claude command, and automatic demo script.
+- Files: `src/`, `tests/`, `.claude/commands/hw6-configure-pipeline.md`, `demo.sh`, `package.json`, `docs/research-notes.md`, `docs/log.md`.
+- Verification: RED/GREEN cycles completed for configurator, in-memory input, non-logical order, safe stored results, REST success/errors/concurrency, and demo lifecycle; focused tests and typecheck passed after each stage.
+
+## [2026-08-12] docs | Configurable pipeline run guide
+
+- Author/tool: Codex
+- Changes: documented the new TypeScript pipeline agent, configurable ordering, REST submission, dependency skips, Claude command, and zero-manual-step demo in B1+ English.
+- Files: `AGENTS.md`, `README.md`, `HOWTORUN.md`, `docs/log.md`.
+- Verification: documentation values were taken from fresh CLI, real REST demo, test, and coverage output; final repository verification is recorded separately.
+
+## [2026-08-12] fix | REST pipeline review hardening
+
+- Author/tool: Codex + independent reviewer
+- Changes: required complete stored stage traces, allowlisted pipeline-generated explanations and audit values, aligned API write/read paths, blocked demo use of an occupied API address, added API process checks, and enabled safe cleanup in the interactive Claude command.
+- Files: `src/infrastructure/results-repository.ts`, `src/api/app.ts`, `src/api/server.ts`, `.claude/commands/hw6-configure-pipeline.md`, `demo.sh`, tests, `docs/log.md`.
+- Verification: RED reproduced all repository, path-wiring, and demo-collision findings; GREEN focused gate passed 30/30 tests and typecheck; full post-fix suite passed 120/120 tests.
+
+## [2026-08-12] verify | REST-configurable pipeline final gate
+
+- Author/tool: Codex + independent reviewer + Superpowers verification-before-completion
+- Changes: independently re-reviewed the feature, made server read/write paths coherent, changed demo startup to a directly managed Node process, restored canonical sample results, and ran the final quality gate.
+- Files: all REST-configurable pipeline implementation, tests, documentation, command, demo, and generated `shared/results/` files.
+- Verification: real `./demo.sh` showed canonical 8/3/3/2 and non-logical 0/0/8 outcomes and left no listener on port 3000; canonical `npm run pipeline` restored 8/3/3/2; 121/121 tests passed with coverage 95.31% statements, 90.78% branches, 98.64% functions, and 95.18% lines; typecheck, `bash -n demo.sh`, working-tree `git diff --check`, and PII scans passed. Staged files were not changed by Codex and must be refreshed by the student before commit.
+
+## [2026-08-13] design | Define the offline project presentation
+
+- Author/tool: Codex
+- Changes: Defined the five-minute Ukrainian presentation story, Fintech Command Center visual direction, one-file offline architecture, evidence rules, and verification criteria; added an executable implementation plan.
+- Files: `docs/superpowers/specs/2026-08-13-project-presentation-design.md`, `docs/superpowers/plans/2026-08-13-project-presentation.md`
+- Verification: Design and plan self-reviewed for placeholders, contradictory requirements, scope, and path consistency.
+
+## [2026-08-13] research | Research Reveal.js offline deck patterns
+
+- Author/tool: Codex with Context7
+- Changes: Recorded the official Reveal.js library ID and the initialization, navigation, speaker notes, and print-layout patterns used by the presentation.
+- Files: `docs/research-notes.md`
+- Verification: Context7 resolved `/hakimel/reveal.js` and returned official repository examples for initialization and notes markup.
+
+## [2026-08-13] docs | Build the offline Reveal.js capstone presentation
+
+- Author/tool: Codex with Reveal.js and Google Chrome
+- Changes: Built the Ukrainian eight-slide Fintech Command Center deck as one self-contained root HTML file; embedded Reveal.js 6.0.1, speaker notes, inline diagrams, a canonical pipeline screenshot, and a fresh coverage screenshot; ignored temporary visual-companion state.
+- Files: `presentation.html`, `.gitignore`, `docs/screenshots/presentation-title.png`, `docs/screenshots/presentation-architecture.png`, `docs/screenshots/presentation-coverage.png`, `docs/log.md`
+- Verification: `./demo.sh` showed canonical 8/3/3/2 and non-logical 8/0/0/8 summaries; `npm test` passed 121/121 tests; `npm run typecheck` passed; `npm run test:coverage` reported 95.31% statements, 90.78% branches, 98.64% functions, and 95.18% lines; the static artifact check found eight slides, eight notes blocks, two embedded PNGs, and zero external resource references; Chrome rendered all eight slides at 1280 × 720, with the saved title, architecture, and coverage screenshots inspected manually.

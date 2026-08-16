@@ -7,12 +7,35 @@
   "explanation": "Transaction failed validation.",
   "auditTrail": [
     {
-      "timestamp": "2026-08-10T07:47:33.098Z",
+      "timestamp": "2026-08-12T22:37:32.211Z",
       "agent_name": "transaction-validator",
       "transaction_id": "TXN007",
       "outcome": "rejected",
       "reason_codes": [
         "NON_POSITIVE_AMOUNT"
+      ]
+    }
+  ],
+  "stageTrace": [
+    {
+      "step": "fraud-detector",
+      "status": "skipped",
+      "reasonCodes": [
+        "MISSING_VALIDATED_TRANSACTION"
+      ]
+    },
+    {
+      "step": "transaction-validator",
+      "status": "completed",
+      "reasonCodes": [
+        "NON_POSITIVE_AMOUNT"
+      ]
+    },
+    {
+      "step": "compliance-checker",
+      "status": "skipped",
+      "reasonCodes": [
+        "MISSING_VALIDATED_TRANSACTION"
       ]
     }
   ]

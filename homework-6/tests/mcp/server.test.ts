@@ -94,7 +94,7 @@ describe("pipeline status MCP server", () => {
     ]);
   });
 
-  it("returns a safe transaction status without private result fields", async () => {
+  it("returns a safe transaction status without verbose result fields", async () => {
     const resultsDirectory = await createResultsDirectory();
     await writeFile(
       join(resultsDirectory, "TXN001.json"),
@@ -102,10 +102,23 @@ describe("pipeline status MCP server", () => {
         transactionId: "TXN001",
         status: "review",
         reasonCodes: ["HIGH_VALUE"],
-        explanation: "PRIVATE-EXPLANATION-MARKER",
+        explanation: "Transaction requires compliance review due to elevated risk.",
         riskScore: 50,
         riskFlags: ["HIGH_VALUE"],
         auditTrail: [],
+        stageTrace: [
+          { step: "transaction-validator", status: "completed", reasonCodes: [] },
+          {
+            step: "fraud-detector",
+            status: "completed",
+            reasonCodes: ["HIGH_VALUE"],
+          },
+          {
+            step: "compliance-checker",
+            status: "completed",
+            reasonCodes: ["RISK_SCORE_AT_OR_ABOVE_REVIEW_THRESHOLD"],
+          },
+        ],
       }),
     );
     const client = await connectClient(resultsDirectory);
@@ -123,7 +136,9 @@ describe("pipeline status MCP server", () => {
       riskScore: 50,
       riskFlags: ["HIGH_VALUE"],
     });
-    expect(JSON.stringify(response)).not.toContain("PRIVATE-EXPLANATION-MARKER");
+    expect(JSON.stringify(response)).not.toContain(
+      "Transaction requires compliance review due to elevated risk.",
+    );
     expect(JSON.stringify(response)).not.toContain("auditTrail");
   });
 
